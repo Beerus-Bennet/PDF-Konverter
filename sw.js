@@ -1,6 +1,8 @@
-const CACHE = 'pdfconvert-v3';
-const APP_SHELL = ['./', './index.html', './manifest.json', './favicon.png', './apple-touch-icon.png',
-  './pdfconvert-192.png', './pdfconvert-512.png', './pdfconvert-maskable-512.png'];
+const CACHE = 'pdfconvert-v4';
+// Pflicht: ohne diese Dateien startet die App nicht offline
+const APP_CORE = ['./', './index.html'];
+// Optional: fehlt eine davon, wird trotzdem installiert
+const APP_EXTRA = ['./manifest.json', './icon-192.png', './icon-512.png'];
 const CDN = 'https://cdnjs.cloudflare.com/ajax/libs/';
 const LIBS = [
   CDN + 'pdf-lib/1.17.1/pdf-lib.min.js',
@@ -14,7 +16,13 @@ const LIBS = [
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE);
-    await cache.addAll(APP_SHELL);
+    await cache.addAll(APP_CORE);
+    await Promise.all(APP_EXTRA.map(async (url) => {
+      try {
+        const resp = await fetch(url, { cache: 'reload' });
+        if (resp.ok) await cache.put(url, resp);
+      } catch (e) { /* fehlende Datei blockiert die Installation nicht */ }
+    }));
     // Bibliotheken vorab speichern, damit die App offline vollständig läuft
     await Promise.all(LIBS.map(async (url) => {
       try {
@@ -41,7 +49,10 @@ async function networkFirst(request) {
     if (resp && resp.ok) cache.put(request, resp.clone());
     return resp;
   } catch (e) {
-    return (await cache.match(request)) || (await cache.match('./index.html'));
+    const cached = await cache.match(request);
+    if (cached) return cached;
+    if (request.mode === 'navigate') return cache.match('./index.html');
+    return Response.error();
   }
 }
 
@@ -58,7 +69,7 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
-  const isPage = req.mode === 'navigate' || (url.origin === self.location.origin && /(\/|\.html)$/.test(url.pathname));
-  // Seite selbst: immer zuerst aus dem Netz (Updates kommen sofort an), offline aus dem Speicher
+  const isPage = req.mode === 'navigate' || (url.origin === self.location.origin && /(\/|\.html|\.json|\.png)$/.test(url.pathname));
+  // eigene Dateien (Seite, Manifest, Icons): zuerst aus dem Netz, damit Updates sofort ankommen; offline aus dem Speicher
   event.respondWith(isPage ? networkFirst(req) : cacheFirst(req));
 });
