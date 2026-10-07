@@ -3,15 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Papierkram – PDF Werkzeug</title>
+<title>PDFConvert.net – PDF-Werkzeug</title>
 <meta name="description" content="Dateien zu PDF umwandeln, PDFs zusammenfügen/trennen, Dokumente scannen – offline und kostenlos.">
 <meta name="theme-color" content="#10233A">
 <link rel="manifest" href="./manifest.json">
-<link rel="icon" href="./icon-192.png">
-<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="icon" type="image/png" sizes="64x64" href="./favicon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="./pdfconvert-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Papierkram">
+<meta name="apple-mobile-web-app-title" content="PDFConvert.net">
+<meta name="application-name" content="PDFConvert.net">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -72,7 +74,11 @@
     pointer-events:none;
   }
   header .brand{
-    display:flex; align-items:baseline; gap:8px; position:relative;
+    display:flex; align-items:center; gap:12px; position:relative;
+  }
+  .brand-logo{
+    width:44px; height:44px; border-radius:10px; flex-shrink:0; display:block;
+    box-shadow: 0 2px 8px rgba(0,0,0,.35), 0 0 0 1px rgba(243,239,230,.12);
   }
   header h1{
     font-size: 26px; font-weight:700; margin:0; color: var(--text-on-ink);
@@ -163,11 +169,11 @@
   }
   .iconbtn:active{ background: var(--paper-dark); }
 
-  label.field-label{
+  .field-label{
     display:block; font-size:12.5px; font-weight:600; margin: 12px 0 6px;
   }
   input[type=text], select{
-    width:100%; padding:10px 11px; font-size:14px; font-family:'Inter',sans-serif;
+    width:100%; padding:10px 11px; font-size:16px; font-family:'Inter',sans-serif;
     border:1px solid rgba(16,35,58,.3); border-radius: var(--radius); background:#fff; color:var(--ink);
   }
   .toggle-row{
@@ -261,6 +267,162 @@
     display:flex; align-items:center; justify-content:center;
   }
   .empty-note{ font-size:12.5px; color:#8a8171; text-align:center; padding: 10px 0 2px; }
+
+  /* ---------- Bearbeiten: Werkzeugauswahl ---------- */
+  [hidden]{ display:none !important; }
+  .toolgroup{ margin-bottom: 14px; }
+  .toolgroup-label{ font-size:12px; font-weight:600; color:#6b6252; margin:0 0 6px; }
+  .toolgrid{ display:grid; gap:8px; }
+  .toolgrid-wide{ grid-template-columns: 1fr 1fr; }
+  .toolgrid-compact{ grid-template-columns: repeat(4, minmax(0,1fr)); }
+  .tool{
+    display:flex; flex-direction:column; align-items:flex-start; gap:3px;
+    padding: 11px 11px 10px; text-align:left; cursor:pointer;
+    background:#F8F6F0; border:1px solid var(--line); border-radius: var(--radius);
+    color: var(--ink); font-family:'Inter',sans-serif;
+  }
+  .tool svg{ width:21px; height:21px; color: var(--ink-soft); margin-bottom:3px; flex-shrink:0; }
+  .tool-name{ font-size:13px; font-weight:600; line-height:1.2; }
+  .tool-desc{ font-size:11px; color:#8a8171; line-height:1.35; }
+  .toolgrid-compact .tool{ align-items:center; text-align:center; padding: 10px 4px 9px; }
+  .toolgrid-compact .tool-name{ font-size:11px; hyphens:manual; overflow-wrap:anywhere; }
+  .tool.active{ background: var(--ink); border-color: var(--ink); color: var(--text-on-ink); }
+  .tool.active svg{ color: var(--accent); }
+  .tool.active .tool-desc{ color: rgba(243,239,230,.68); }
+  .tool:focus-visible, .fmt:focus-visible, .seg-mini button:focus-visible, .btn:focus-visible, .linkbtn:focus-visible, .iconbtn:focus-visible, .hit:focus-visible, .swatch:focus-visible, .chip:focus-visible{
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+  .tool-divider{ height:1px; background: var(--line); margin: 4px 0 16px; }
+
+  .filebar{
+    display:flex; align-items:center; gap:10px;
+    padding: 10px 12px; background:#F8F6F0;
+    border:1px solid var(--line); border-left: 3px solid var(--accent); border-radius: var(--radius);
+  }
+  .filebar .thumb{
+    width:34px; height:34px; border-radius:2px; background: var(--ink); color: var(--text-on-ink);
+    display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; flex-shrink:0;
+  }
+  .filebar .meta{ flex:1; min-width:0; }
+  .filebar .fname{ font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .filebar .fsub{ font-size:11px; color:#8a8171; }
+  .linkbtn{
+    background:none; border:none; padding:6px 2px; cursor:pointer;
+    font-family:'Inter',sans-serif; font-size:12.5px; font-weight:600; color: var(--accent-dark);
+    text-decoration: underline; text-underline-offset: 3px;
+  }
+  .linkbtn:disabled{ color:#b3aa98; text-decoration:none; cursor:default; }
+
+  .seg-mini{ display:inline-flex; border:1px solid var(--ink); border-radius: var(--radius); overflow:hidden; }
+  .seg-mini button{
+    padding: 8px 12px; background:transparent; border:none; cursor:pointer;
+    font-family:'Inter',sans-serif; font-size:12.5px; font-weight:600; color: var(--ink);
+  }
+  .seg-mini button + button{ border-left:1px solid var(--ink); }
+  .seg-mini button.active{ background: var(--ink); color: var(--text-on-ink); }
+  .seg-full{ display:flex; width:100%; }
+  .seg-full button{ flex:1; }
+  .sub-panel{ margin-top: 16px; }
+  .sub-panel > .seg-full:first-child{ margin-bottom: 4px; }
+  .toggle-row small{ display:block; font-size:11.5px; color:#8a8171; margin-top:2px; line-height:1.4; }
+  .hint.warn{ color:#7A241A; }
+
+  /* ---------- Text-Editor ---------- */
+  .editor-bar{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; }
+  .pager{ display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:600; }
+  .iconbtn.lg{ width:34px; height:34px; font-size:18px; border-radius: var(--radius); }
+  .iconbtn:disabled{ opacity:.35; cursor:default; }
+  .zoominfo{ min-width:44px; text-align:center; font-variant-numeric: tabular-nums; }
+  #te-mode{ margin-top:2px; }
+  .stage-wrap{
+    position:relative; overflow:auto; max-height: 64vh; min-height: 160px;
+    margin-top: 10px; padding: 10px;
+    background:#D8D1C2; border:1px solid var(--line); border-radius: var(--radius);
+    -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+  }
+  .stage{ position:relative; margin: 0 auto; }
+  .stage canvas{ display:block; width:100%; height:100%; background:#fff; box-shadow: 0 1px 6px rgba(16,35,58,.28); }
+  .hit-layer{ position:absolute; inset:0; }
+  .hit{
+    position:absolute; padding:0; margin:0; pointer-events:none;
+    background: rgba(63,140,130,.09); border:1px solid rgba(63,140,130,.38); border-radius:2px;
+  }
+  .stage{ cursor:pointer; }
+  .hit.edited{ background: rgba(232,98,44,.07); border:1.5px solid var(--accent); }
+  .hit.deleted{ background: rgba(178,58,46,.06); border:1.5px dashed var(--danger); }
+  .hit.added{ background: rgba(232,98,44,.07); border:1.5px solid var(--accent); }
+  .stage.mode-add{ cursor: crosshair; }
+  .stage.mode-add .hit:not(.added){ opacity:.25; }
+  .sheet-actions.single{ grid-template-columns: 1fr; }
+  .btn-inline{ margin: 2px 0 4px; padding: 11px 16px; }
+  .sub-panel details.info{ margin-top: 16px; }
+  .stage-loading{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:12.5px; font-weight:600; color: var(--ink-soft); background: rgba(216,209,194,.75);
+  }
+  .edit-summary{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:10px; font-size:12.5px; font-weight:600; color: var(--ink-soft); }
+
+  /* ---------- Export ---------- */
+  .formatgrid{ display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:6px; }
+  .fmt{
+    display:flex; flex-direction:column; align-items:flex-start; gap:1px; padding: 9px 10px; cursor:pointer;
+    background:#F8F6F0; border:1px solid var(--line); border-radius: var(--radius); text-align:left;
+    font-family:'Inter',sans-serif; color: var(--ink);
+  }
+  .fmt-ext{ font-family:'Space Grotesk','Inter',sans-serif; font-weight:700; font-size:15px; }
+  .fmt-name{ font-size:11px; color:#8a8171; }
+  .fmt.active{ background:#fff; border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+  .fmt.active .fmt-ext{ color: var(--accent-dark); }
+  #ex-fmt-hint{ margin-top:10px; }
+
+  /* ---------- Eingabeblatt ---------- */
+  .sheet-backdrop{
+    position:fixed; inset:0; z-index:50; background: rgba(16,35,58,.45);
+    display:flex; align-items:flex-end; justify-content:center;
+  }
+  .sheet{
+    width:100%; max-width:480px; max-height: 92vh; overflow:auto;
+    background: var(--paper); border-radius: 12px 12px 0 0;
+    padding: 10px 18px calc(16px + env(safe-area-inset-bottom));
+    box-shadow: 0 -10px 30px rgba(0,0,0,.25);
+    animation: sheetIn .18s ease-out;
+  }
+  @keyframes sheetIn{ from{ transform: translateY(28px); opacity:.5; } }
+  @media (prefers-reduced-motion: reduce){ .sheet{ animation:none; } }
+  .sheet-handle{ width:36px; height:4px; border-radius:2px; background: rgba(16,35,58,.25); margin: 0 auto 12px; }
+  .sheet-title{ font-family:'Space Grotesk','Inter',sans-serif; font-weight:700; font-size:17px; margin:0 0 2px; }
+  .sheet-orig{ font-size:12px; color:#6b6252; margin:0 0 10px; overflow-wrap:anywhere; }
+  .sheet textarea{
+    width:100%; min-height: 64px; resize: vertical; padding:10px 11px;
+    font-family:'Inter',sans-serif; font-size:16px; line-height:1.4; color: var(--ink);
+    border:1px solid rgba(16,35,58,.3); border-radius: var(--radius); background:#fff;
+  }
+  .mini-label{ font-size:11.5px; font-weight:600; color:#6b6252; margin: 12px 0 6px; }
+  .sheet-grid{ display:grid; grid-template-columns: 1fr auto; gap: 12px; align-items:end; }
+  .stepper{ display:flex; border:1px solid rgba(16,35,58,.3); border-radius: var(--radius); overflow:hidden; background:#fff; }
+  .stepper button{ width:40px; border:none; background: var(--paper-dark); font-size:18px; color: var(--ink); cursor:pointer; }
+  .stepper input{ flex:1; min-width:0; border:none; border-radius:0; text-align:center; padding:9px 4px; }
+  .chip-row{ display:flex; gap:6px; }
+  .chip{
+    width:42px; height:40px; border:1px solid rgba(16,35,58,.3); border-radius: var(--radius); background:#fff;
+    font-size:16px; color: var(--ink); cursor:pointer; font-family:'Inter',sans-serif;
+  }
+  .chip[aria-pressed="true"]{ background: var(--ink); color: var(--text-on-ink); border-color: var(--ink); }
+  .swatches{ display:flex; flex-wrap:wrap; gap:8px; }
+  .swatch{
+    width:32px; height:32px; border-radius:50%; border:1px solid rgba(16,35,58,.25); padding:0; cursor:pointer;
+    position:relative; overflow:hidden; background: var(--sw, #000);
+  }
+  .swatch.active{ box-shadow: 0 0 0 2px var(--paper), 0 0 0 4px var(--ink); }
+  .swatch[data-color="detected"]::after{
+    content:"auto"; position:absolute; inset:auto 0 -1px 0; font-size:8px; font-weight:700; text-align:center;
+    color:#fff; background: rgba(16,35,58,.65); line-height:11px;
+  }
+  .swatch-custom{ background: conic-gradient(#e8622c, #e6c34a, #3f8c82, #1f4e9c, #9b4fb0, #e8622c); display:inline-block; }
+  .swatch-custom input{ position:absolute; inset:0; opacity:0; width:100%; height:100%; border:none; padding:0; cursor:pointer; }
+  .sheet-actions{ display:grid; grid-template-columns: 1fr 1.4fr; gap:10px; margin-top: 18px; }
+  .sheet-actions .btn{ margin-top:0; }
+  .sheet-cancel{ display:block; margin: 10px auto 0; }
 </style>
 </head>
 <body>
@@ -268,9 +430,10 @@
 
   <header>
     <div class="brand">
-      <h1>Papierkram<span class="dot">.</span></h1>
+      <img class="brand-logo" src="./pdfconvert-192.png" alt="" width="44" height="44">
+      <h1>PDFConvert<span class="dot">.</span>net</h1>
     </div>
-    <p>Dateien zu PDF machen, zusammenfügen, trennen und scannen – läuft komplett auf deinem Handy, ohne Internet, ohne Konto.</p>
+    <p>Dateien zu PDF machen, PDFs bearbeiten, umwandeln und scannen – mit Texterkennung, direkt auf deinem Handy, ohne Upload und ohne Konto.</p>
   </header>
 
   <main>
@@ -304,7 +467,7 @@
       <p class="hint" id="convert-merge-hint">Ergebnis: eine gemeinsame PDF-Datei in der angezeigten Reihenfolge.</p>
 
       <label class="field-label" for="convert-filename" id="convert-filename-label">Dateiname</label>
-      <input type="text" id="convert-filename" placeholder="papierkram">
+      <input type="text" id="convert-filename" placeholder="pdfconvert">
 
       <button class="btn" id="convert-run" disabled>PDF erstellen</button>
       <div class="status" id="convert-status"></div>
@@ -313,18 +476,50 @@
     <!-- ================= TAB: BEARBEITEN ================= -->
     <section id="tab-edit" class="tabpanel">
       <p class="section-title">PDFs bearbeiten</p>
-      <p class="section-sub">Zusammenfügen, Seiten entfernen, drehen oder eine PDF in mehrere Teile trennen.</p>
+      <p class="section-sub">Text direkt in der PDF ändern, in andere Formate exportieren oder Seiten neu zusammenstellen.</p>
 
-      <div class="segmented" id="edit-mode-switch">
-        <button data-mode="merge" class="active">Zusammenfügen</button>
-        <button data-mode="remove">Seiten entfernen</button>
-        <button data-mode="rotate">Drehen</button>
-        <button data-mode="extract">Trennen</button>
-        <button data-mode="splitall">Aufteilen</button>
+      <div class="toolgroup">
+        <p class="toolgroup-label">Inhalt</p>
+        <div class="toolgrid toolgrid-wide">
+          <button type="button" class="tool active" data-tool="text" aria-pressed="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 6V4h11v2M8.5 4v15M6 19h5"/><path d="M18 9v11M16 9h4M16 20h4"/></svg>
+            <span class="tool-name">Text bearbeiten</span>
+            <span class="tool-desc">Zeile antippen und ändern</span>
+          </button>
+          <button type="button" class="tool" data-tool="export" aria-pressed="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6"/><path d="M13 3l6 6h-6z"/><path d="M14 17h7M18 14l3 3-3 3"/></svg>
+            <span class="tool-name">Exportieren</span>
+            <span class="tool-desc">Word, Excel, Bild, durchsuchbare PDF</span>
+          </button>
+        </div>
       </div>
 
-      <!-- MERGE -->
-      <div class="edit-panel" data-panel="merge">
+      <div class="toolgroup">
+        <p class="toolgroup-label">Seiten</p>
+        <div class="toolgrid toolgrid-compact">
+          <button type="button" class="tool" data-tool="merge" aria-pressed="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="3" width="9" height="12" rx="1"/><rect x="12" y="9" width="9" height="12" rx="1"/></svg>
+            <span class="tool-name">Zusammen&shy;fügen</span>
+          </button>
+          <button type="button" class="tool" data-tool="split" aria-pressed="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="6" cy="7" r="2.6"/><circle cx="6" cy="17" r="2.6"/><path d="M8.3 8.4 20 18M8.3 15.6 20 6"/></svg>
+            <span class="tool-name">Trennen</span>
+          </button>
+          <button type="button" class="tool" data-tool="remove" aria-pressed="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 7V4h4v3M6.5 7l1 13h9l1-13"/></svg>
+            <span class="tool-name">Entfernen</span>
+          </button>
+          <button type="button" class="tool" data-tool="rotate" aria-pressed="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v5h-5"/></svg>
+            <span class="tool-name">Drehen</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="tool-divider"></div>
+
+      <!-- ===== ZUSAMMENFÜGEN (mehrere Dateien) ===== -->
+      <div class="tool-panel" data-panel="merge" hidden>
         <div class="dropzone" id="merge-dropzone">
           <strong>PDFs auswählen</strong>
           <span>Zwei oder mehr Dateien</span>
@@ -338,24 +533,195 @@
         <div class="status" id="merge-status"></div>
       </div>
 
-      <!-- SINGLE-PDF TOOLS (remove / rotate / extract / splitall share one file picker) -->
-      <div class="edit-panel" data-panel="single" style="display:none;">
+      <!-- ===== EINZELNE PDF (alle anderen Werkzeuge) ===== -->
+      <div class="tool-panel" data-panel="single">
         <div class="dropzone" id="single-dropzone">
           <strong>PDF auswählen</strong>
-          <span id="single-dropzone-sub">Eine Datei</span>
+          <span id="single-dropzone-sub">Eine Datei – danach kannst du zwischen den Werkzeugen wechseln</span>
+        </div>
+        <div class="filebar" id="single-filebar" hidden>
+          <div class="thumb">PDF</div>
+          <div class="meta">
+            <div class="fname" id="single-fname"></div>
+            <div class="fsub" id="single-fsub"></div>
+          </div>
+          <button type="button" class="linkbtn" id="single-change">Andere PDF</button>
         </div>
         <input type="file" id="single-input" accept="application/pdf,.pdf">
-        <p class="pagecount" id="single-pagecount"></p>
+        <div class="status" id="single-status"></div>
 
-        <div class="edit-panel" data-panel="remove" style="display:none;">
+        <!-- ---------- TEXT BEARBEITEN ---------- -->
+        <div class="sub-panel" data-sub="text">
+          <div class="editor-needsfile empty-note" id="te-empty">Wähle eine PDF aus, um ihren Text zu bearbeiten.</div>
+          <div id="te-editor" hidden>
+            <div class="editor-bar">
+              <div class="pager">
+                <button type="button" class="iconbtn lg" id="te-prev" aria-label="Vorherige Seite">‹</button>
+                <span id="te-pageinfo">Seite 1 von 1</span>
+                <button type="button" class="iconbtn lg" id="te-next" aria-label="Nächste Seite">›</button>
+              </div>
+              <div class="pager">
+                <button type="button" class="iconbtn lg" id="te-zoomout" aria-label="Verkleinern">−</button>
+                <span id="te-zoominfo" class="zoominfo">100 %</span>
+                <button type="button" class="iconbtn lg" id="te-zoomin" aria-label="Vergrößern">+</button>
+              </div>
+            </div>
+            <div class="seg-mini" id="te-mode" role="group" aria-label="Modus">
+              <button type="button" data-mode="edit" class="active">Text ändern</button>
+              <button type="button" data-mode="add">Text hinzufügen</button>
+            </div>
+            <p class="hint" id="te-hint">Tippe auf eine markierte Zeile, um sie zu ändern oder zu löschen.</p>
+            <button type="button" class="btn teal btn-inline" id="te-ocr" hidden>Text auf dieser Seite erkennen</button>
+
+            <div class="stage-wrap" id="te-wrap">
+              <div class="stage" id="te-stage">
+                <canvas id="te-canvas"></canvas>
+                <div class="hit-layer" id="te-hits"></div>
+              </div>
+              <div class="stage-loading" id="te-loading">Seite wird geladen …</div>
+            </div>
+
+            <div class="edit-summary">
+              <span id="te-count">Noch keine Änderungen</span>
+              <button type="button" class="linkbtn" id="te-undo" disabled>Rückgängig</button>
+            </div>
+
+            <div class="toggle-row">
+              <span>Alten Text endgültig entfernen<small>Bearbeitete Seiten werden als Bild gespeichert – nötig, wenn der alte Text nicht mehr auslesbar sein darf.</small></span>
+              <label class="switch">
+                <input type="checkbox" id="te-flatten">
+                <span class="track"></span><span class="knob"></span>
+              </label>
+            </div>
+
+            <label class="field-label" for="te-filename">Dateiname</label>
+            <input type="text" id="te-filename" placeholder="bearbeitet">
+            <button class="btn" id="te-save" disabled>Änderungen speichern</button>
+            <div class="status" id="te-status"></div>
+
+            <details class="info">
+              <summary>So funktioniert die Textbearbeitung</summary>
+              <p>Die alte Zeile wird in ihrer Hintergrundfarbe abgedeckt und dein neuer Text an genau dieser Stelle eingesetzt. Größe, Farbe und Schriftart (Helvetica, Times oder Courier) werden automatisch erkannt und lassen sich anpassen. Auf einfarbigem Hintergrund sieht man davon nichts, auf Fotos oder Farbverläufen ist das Abdeckfeld sichtbar.</p>
+              <p>Ohne „Alten Text endgültig entfernen“ bleibt der ursprüngliche Text unsichtbar in der Datei und lässt sich z. B. noch kopieren. Für vertrauliche Daten den Schalter also einschalten.</p>
+              <p>Gescannte PDFs enthalten nur Bilder. Tippe dort auf „Text auf dieser Seite erkennen“ – danach lassen sich die erkannten Zeilen genauso ändern. Prüfe den erkannten Text im Eingabefeld, die Erkennung ist nicht immer fehlerfrei.</p>
+            </details>
+          </div>
+        </div>
+
+        <!-- ---------- EXPORTIEREN ---------- -->
+        <div class="sub-panel" data-sub="export" hidden>
+          <p class="field-label">Zielformat</p>
+          <div class="formatgrid" id="ex-formats" role="radiogroup" aria-label="Zielformat">
+            <button type="button" class="fmt active" data-fmt="docx" role="radio" aria-checked="true"><span class="fmt-ext">.docx</span><span class="fmt-name">Word</span></button>
+            <button type="button" class="fmt" data-fmt="xlsx" role="radio" aria-checked="false"><span class="fmt-ext">.xlsx</span><span class="fmt-name">Excel</span></button>
+            <button type="button" class="fmt" data-fmt="csv" role="radio" aria-checked="false"><span class="fmt-ext">.csv</span><span class="fmt-name">Tabelle</span></button>
+            <button type="button" class="fmt" data-fmt="txt" role="radio" aria-checked="false"><span class="fmt-ext">.txt</span><span class="fmt-name">Reiner Text</span></button>
+            <button type="button" class="fmt" data-fmt="img" role="radio" aria-checked="false"><span class="fmt-ext">.jpg .png</span><span class="fmt-name">Bilder</span></button>
+            <button type="button" class="fmt" data-fmt="pdf" role="radio" aria-checked="false"><span class="fmt-ext">.pdf</span><span class="fmt-name">Durchsuchbar</span></button>
+          </div>
+          <p class="hint" id="ex-fmt-hint"></p>
+
+          <label class="field-label" for="ex-pages">Seiten (leer = alle)</label>
+          <input type="text" id="ex-pages" placeholder="z. B. 1-3,5 – leer lassen für alle">
+
+          <div class="ex-opt" data-for="docx">
+            <div class="toggle-row">
+              <span>Zeilen zu Absätzen zusammenführen<small>Fließtext lässt sich in Word normal weiterschreiben.</small></span>
+              <label class="switch"><input type="checkbox" id="ex-docx-reflow" checked><span class="track"></span><span class="knob"></span></label>
+            </div>
+            <div class="toggle-row">
+              <span>Seitenumbruch nach jeder PDF-Seite</span>
+              <label class="switch"><input type="checkbox" id="ex-docx-breaks" checked><span class="track"></span><span class="knob"></span></label>
+            </div>
+          </div>
+          <div class="ex-opt" data-for="xlsx" hidden>
+            <div class="toggle-row">
+              <span>Jede Seite als eigenes Tabellenblatt</span>
+              <label class="switch"><input type="checkbox" id="ex-xlsx-sheets" checked><span class="track"></span><span class="knob"></span></label>
+            </div>
+            <div class="toggle-row">
+              <span>Zahlen als Zahlen übernehmen<small>„1.234,50“ wird zu einer rechenbaren Zahl.</small></span>
+              <label class="switch"><input type="checkbox" id="ex-xlsx-numbers" checked><span class="track"></span><span class="knob"></span></label>
+            </div>
+          </div>
+          <div class="ex-opt" data-for="csv" hidden>
+            <label class="field-label" for="ex-csv-delim">Trennzeichen</label>
+            <select id="ex-csv-delim">
+              <option value=";">Semikolon – Excel auf Deutsch</option>
+              <option value=",">Komma – international</option>
+              <option value="tab">Tabulator</option>
+            </select>
+          </div>
+          <div class="ex-opt" data-for="txt" hidden>
+            <div class="toggle-row">
+              <span>Layout beibehalten<small>Spalten werden mit Leerzeichen ausgerichtet.</small></span>
+              <label class="switch"><input type="checkbox" id="ex-txt-layout" checked><span class="track"></span><span class="knob"></span></label>
+            </div>
+          </div>
+          <div class="ex-opt" data-for="docx xlsx csv txt">
+            <div class="toggle-row">
+              <span>Gescannte Seiten per Texterkennung lesen<small>Nur für Seiten ohne echten Text. Beim ersten Mal werden einmalig Sprachdaten geladen.</small></span>
+              <label class="switch"><input type="checkbox" id="ex-ocr" checked><span class="track"></span><span class="knob"></span></label>
+            </div>
+          </div>
+          <div class="ex-opt" data-for="img" hidden>
+            <label class="field-label" for="ex-img-type">Bildformat</label>
+            <select id="ex-img-type">
+              <option value="jpg">JPG – kleine Dateien</option>
+              <option value="png">PNG – verlustfrei, gestochen scharfer Text</option>
+            </select>
+            <label class="field-label" for="ex-dpi">Auflösung</label>
+            <select id="ex-dpi">
+              <option value="150">150 dpi – Bildschirm, kleine Dateien</option>
+              <option value="300">300 dpi – Druckqualität</option>
+            </select>
+          </div>
+
+          <label class="field-label" for="ex-filename">Dateiname</label>
+          <input type="text" id="ex-filename" placeholder="dokument">
+          <button class="btn" id="ex-run" disabled>Als Word exportieren</button>
+          <div class="status" id="ex-status"></div>
+
+          <details class="info">
+            <summary>Wie genau wird umgewandelt?</summary>
+            <p>Eine PDF speichert Text als einzelne Schnipsel mit Position – nicht als Absätze oder Tabellen. PDFConvert.net setzt Zeilen, Absätze, Überschriften und Tabellen anhand der Abstände wieder zusammen. Bei Briefen, Rechnungen, Berichten und Tabellen klappt das gut. Mehrspaltige Layouts (z. B. Zeitungen) und Bilder innerhalb der PDF werden nicht nachgebaut.</p>
+            <p>Gescannte PDFs bestehen nur aus Bildern. Für Word, Excel, CSV und Text liest die Texterkennung den Text aus den Bildern – das klappt bei sauberen Scans sehr gut, ist aber nicht immer fehlerfrei. Mit „Durchsuchbar“ bekommst du die PDF unverändert zurück, nur mit einer unsichtbaren Textebene zum Suchen, Markieren und Kopieren.</p>
+          </details>
+        </div>
+
+        <!-- ---------- TRENNEN ---------- -->
+        <div class="sub-panel" data-sub="split" hidden>
+          <div class="seg-mini seg-full" id="split-mode" role="group" aria-label="Art der Trennung">
+            <button type="button" data-mode="extract" class="active">Seiten auswählen</button>
+            <button type="button" data-mode="all">Jede Seite einzeln</button>
+          </div>
+          <div data-splitmode="extract">
+            <label class="field-label" for="extract-pages">Seiten für die neue PDF (z. B. 1,3,5-8)</label>
+            <input type="text" id="extract-pages" placeholder="1,3,5-8">
+            <label class="field-label" for="extract-filename">Dateiname</label>
+            <input type="text" id="extract-filename" placeholder="auszug">
+          </div>
+          <div data-splitmode="all" hidden>
+            <p class="hint">Jede Seite wird zu einer eigenen PDF-Datei. Du bekommst eine ZIP-Datei mit allen Einzelseiten.</p>
+            <label class="field-label" for="splitall-filename">Dateiname (ZIP)</label>
+            <input type="text" id="splitall-filename" placeholder="seiten">
+          </div>
+          <button class="btn" id="split-run" disabled>Auszug speichern</button>
+          <div class="status" id="split-status"></div>
+        </div>
+
+        <!-- ---------- SEITEN ENTFERNEN ---------- -->
+        <div class="sub-panel" data-sub="remove" hidden>
           <label class="field-label" for="remove-pages">Zu entfernende Seiten (z. B. 2,4,7-9)</label>
           <input type="text" id="remove-pages" placeholder="2,4,7-9">
           <label class="field-label" for="remove-filename">Dateiname</label>
           <input type="text" id="remove-filename" placeholder="bearbeitet">
           <button class="btn" id="remove-run" disabled>Seiten entfernen &amp; speichern</button>
+          <div class="status" id="remove-status"></div>
         </div>
 
-        <div class="edit-panel" data-panel="rotate" style="display:none;">
+        <!-- ---------- DREHEN ---------- -->
+        <div class="sub-panel" data-sub="rotate" hidden>
           <label class="field-label" for="rotate-pages">Seiten (leer = alle)</label>
           <input type="text" id="rotate-pages" placeholder="z. B. 1,3-5 – leer lassen für alle">
           <label class="field-label" for="rotate-deg">Drehung</label>
@@ -367,24 +733,8 @@
           <label class="field-label" for="rotate-filename">Dateiname</label>
           <input type="text" id="rotate-filename" placeholder="gedreht">
           <button class="btn" id="rotate-run" disabled>Drehen &amp; speichern</button>
+          <div class="status" id="rotate-status"></div>
         </div>
-
-        <div class="edit-panel" data-panel="extract" style="display:none;">
-          <label class="field-label" for="extract-pages">Seiten für neue PDF (z. B. 1,3,5-8)</label>
-          <input type="text" id="extract-pages" placeholder="1,3,5-8">
-          <label class="field-label" for="extract-filename">Dateiname</label>
-          <input type="text" id="extract-filename" placeholder="auszug">
-          <button class="btn" id="extract-run" disabled>Auszug speichern</button>
-        </div>
-
-        <div class="edit-panel" data-panel="splitall" style="display:none;">
-          <p class="hint">Jede Seite wird zu einer eigenen PDF-Datei. Du bekommst eine ZIP-Datei mit allen Einzelseiten.</p>
-          <label class="field-label" for="splitall-filename">Dateiname (ZIP)</label>
-          <input type="text" id="splitall-filename" placeholder="seiten">
-          <button class="btn" id="splitall-run" disabled>In Einzelseiten aufteilen (ZIP)</button>
-        </div>
-
-        <div class="status" id="single-status"></div>
       </div>
     </section>
 
@@ -400,6 +750,14 @@
         <span>Scan-Optimierung (Kontrast, s/w)</span>
         <label class="switch">
           <input type="checkbox" id="scan-optimize-toggle">
+          <span class="track"></span><span class="knob"></span>
+        </label>
+      </div>
+
+      <div class="toggle-row">
+        <span>Text erkennen<small>Die PDF wird durchsuchbar, Text lässt sich markieren und kopieren.</small></span>
+        <label class="switch">
+          <input type="checkbox" id="scan-ocr-toggle" checked>
           <span class="track"></span><span class="knob"></span>
         </label>
       </div>
@@ -433,10 +791,68 @@
   </nav>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<!-- ================= TEXT-BEARBEITEN: EINGABEBLATT ================= -->
+<div class="sheet-backdrop" id="te-sheet" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="te-sheet-title">
+    <div class="sheet-handle"></div>
+    <p class="sheet-title" id="te-sheet-title">Text ändern</p>
+    <p class="sheet-orig" id="te-sheet-orig"></p>
+    <textarea id="te-text" rows="2" autocomplete="off" autocapitalize="off" spellcheck="true" aria-label="Neuer Text"></textarea>
+    <p class="hint warn" id="te-charwarn" hidden></p>
+    <p class="hint warn" id="te-widthwarn" hidden>
+      <span id="te-widthwarn-text"></span>
+      <button type="button" class="linkbtn" id="te-fit">Schrift passend verkleinern</button>
+    </p>
+
+    <div class="sheet-grid">
+      <div>
+        <p class="mini-label">Größe (pt)</p>
+        <div class="stepper">
+          <button type="button" id="te-size-down" aria-label="Kleiner">−</button>
+          <input type="text" inputmode="decimal" id="te-size" aria-label="Schriftgröße">
+          <button type="button" id="te-size-up" aria-label="Größer">+</button>
+        </div>
+      </div>
+      <div>
+        <p class="mini-label">Stil</p>
+        <div class="chip-row">
+          <button type="button" class="chip" id="te-bold" aria-pressed="false" aria-label="Fett"><b>F</b></button>
+          <button type="button" class="chip" id="te-italic" aria-pressed="false" aria-label="Kursiv"><i>K</i></button>
+        </div>
+      </div>
+    </div>
+
+    <p class="mini-label">Schrift</p>
+    <div class="seg-mini seg-full" id="te-family" role="group" aria-label="Schriftart">
+      <button type="button" data-family="sans" class="active" style="font-family:Helvetica,Arial,sans-serif">Helvetica</button>
+      <button type="button" data-family="serif" style="font-family:'Times New Roman',Times,serif">Times</button>
+      <button type="button" data-family="mono" style="font-family:'Courier New',Courier,monospace">Courier</button>
+    </div>
+
+    <p class="mini-label">Farbe</p>
+    <div class="swatches" id="te-swatches">
+      <button type="button" class="swatch" data-color="detected" aria-label="Erkannte Farbe"></button>
+      <button type="button" class="swatch" data-color="#000000" aria-label="Schwarz"></button>
+      <button type="button" class="swatch" data-color="#444444" aria-label="Dunkelgrau"></button>
+      <button type="button" class="swatch" data-color="#1F4E9C" aria-label="Blau"></button>
+      <button type="button" class="swatch" data-color="#B23A2E" aria-label="Rot"></button>
+      <button type="button" class="swatch" data-color="#FFFFFF" aria-label="Weiß"></button>
+      <label class="swatch swatch-custom" aria-label="Eigene Farbe"><input type="color" id="te-color" value="#000000"></label>
+    </div>
+
+    <div class="sheet-actions">
+      <button type="button" class="btn secondary" id="te-delete">Zeile löschen</button>
+      <button type="button" class="btn" id="te-apply">Übernehmen</button>
+    </div>
+    <button type="button" class="linkbtn sheet-cancel" id="te-cancel">Abbrechen</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" crossorigin="anonymous"></script>
 
 <script>
 /* ---------- Service worker ---------- */
@@ -454,6 +870,7 @@ tabButtons.forEach(btn => {
     btn.classList.add('active');
     document.querySelectorAll('.tabpanel').forEach(p => p.classList.remove('active'));
     document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    window.dispatchEvent(new CustomEvent('pdfconvert:tab', { detail: btn.dataset.tab }));
   });
 });
 
@@ -471,7 +888,7 @@ function formatBytes(b){
 }
 function sanitizeFilename(name, fallback){
   const cleaned = String(name || '').trim()
-    .replace(/\.(pdf|zip)$/i, '')
+    .replace(/\.(pdf|zip|docx|xlsx|csv|txt|jpe?g|png)$/i, '')
     .replace(/[\\/:*?"<>|]+/g, '')
     .replace(/\s+/g, ' ')
     .trim();
@@ -541,7 +958,27 @@ function addImagePage(pdfDoc, img){
   const maxW = PAGE_W - margin*2, maxH = PAGE_H - margin*2;
   const scale = Math.min(maxW / img.width, maxH / img.height);
   const w = img.width * scale, h = img.height * scale;
-  page.drawImage(img, { x: (PAGE_W-w)/2, y: (PAGE_H-h)/2, width: w, height: h });
+  const x = (PAGE_W-w)/2, y = (PAGE_H-h)/2;
+  page.drawImage(img, { x, y, width: w, height: h });
+  return { page, x, y, w, h };
+}
+// Foto für die Texterkennung vorbereiten (max. ca. 300 dpi bei A4, gleiche Optimierung wie im PDF)
+async function imageFileToOcrBlob(file, optimize){
+  const { img, url } = await loadImageEl(file);
+  const k = Math.min(1, 2600 / Math.max(img.naturalWidth, img.naturalHeight));
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(img.naturalWidth * k);
+  canvas.height = Math.round(img.naturalHeight * k);
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  if (optimize) ctx.filter = 'grayscale(1) contrast(1.35) brightness(1.08)';
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  URL.revokeObjectURL(url);
+  const blob = await canvasToBlob(canvas, 'image/png');
+  const size = { w: canvas.width, h: canvas.height };
+  canvas.width = canvas.height = 0;
+  return { blob, size };
 }
 function wrapLine(line, font, size, maxWidth){
   if (line === '') return [''];
@@ -577,7 +1014,8 @@ async function textToPdfDoc(text, mono){
   const lineHeight = fontSize * 1.42;
   let page = pdfDoc.addPage([PAGE_W, PAGE_H]);
   let y = PAGE_H - margin;
-  const rawLines = String(text || '').split(/\r\n|\r|\n/);
+  const charset = new Set(font.getCharacterSet());
+  const rawLines = toWinAnsi(String(text || '').replace(/\r\n?/g, '\n'), charset).split('\n');
   for (const rawLine of rawLines) {
     const wrapped = wrapLine(rawLine, font, fontSize, maxWidth);
     for (const line of wrapped) {
@@ -646,6 +1084,755 @@ function renderFileList(ulEl, emptyEl, items, opts){
 }
 
 /* ============================================================
+   PDF LESEN (pdf.js) – Text, Zeilen, Spalten
+   ============================================================ */
+const PDFJS_BASE = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+if (window.pdfjsLib) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_BASE + 'pdf.worker.min.js';
+}
+async function openPdfJs(bytes){
+  if (!window.pdfjsLib) throw new Error('Die PDF-Anzeige konnte nicht geladen werden. Öffne die App einmal mit Internetverbindung.');
+  try {
+    return await pdfjsLib.getDocument({
+      data: bytes.slice(),                       // Kopie: pdf.js übernimmt den Puffer
+      cMapUrl: PDFJS_BASE + 'cmaps/',
+      cMapPacked: true,
+      standardFontDataUrl: PDFJS_BASE + 'standard_fonts/',
+      isEvalSupported: false                     // Sicherheitsoption für ältere pdf.js-Versionen
+    }).promise;
+  } catch (e) {
+    if (e && e.name === 'PasswordException') throw new Error('Diese PDF ist passwortgeschützt. Speichere sie zuerst ohne Passwort.');
+    throw new Error('Die Datei konnte nicht als PDF gelesen werden.');
+  }
+}
+async function loadPdfLib(bytes){
+  try {
+    return await PDFLib.PDFDocument.load(bytes, { updateMetadata: false });
+  } catch (e) {
+    if (/encrypt/i.test((e && e.message) || '')) throw new Error('Diese PDF ist geschützt und kann nicht verändert werden.');
+    throw new Error('Diese PDF kann nicht verändert werden (' + ((e && e.message) || 'unbekannter Fehler') + ').');
+  }
+}
+function safeScale(page, desired, maxArea = 16e6, maxDim = 8000){
+  const vp = page.getViewport({ scale: 1 });
+  return Math.min(desired, Math.sqrt(maxArea / (vp.width * vp.height)), maxDim / vp.width, maxDim / vp.height);
+}
+async function renderPageToCanvas(page, scale){
+  const vp = page.getViewport({ scale });
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.max(1, Math.floor(vp.width));
+  canvas.height = Math.max(1, Math.floor(vp.height));
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  await page.render({ canvasContext: ctx, viewport: vp }).promise;
+  return { canvas, vp };
+}
+function canvasToBlob(canvas, type, quality){
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(b => b ? resolve(b) : reject(new Error('Bild konnte nicht erzeugt werden (zu groß?).')), type, quality);
+  });
+}
+
+/* ---------- Standardschriften & Zeichensatz ---------- */
+const FAMILY_CSS = {
+  sans: 'Helvetica, Arial, sans-serif',
+  serif: '"Times New Roman", Times, serif',
+  mono: '"Courier New", Courier, monospace'
+};
+const STD_FONTS = {
+  sans: ['Helvetica', 'Helvetica-Bold', 'Helvetica-Oblique', 'Helvetica-BoldOblique'],
+  serif: ['Times-Roman', 'Times-Bold', 'Times-Italic', 'Times-BoldItalic'],
+  mono: ['Courier', 'Courier-Bold', 'Courier-Oblique', 'Courier-BoldOblique']
+};
+function stdFontName(family, bold, italic){
+  return (STD_FONTS[family] || STD_FONTS.sans)[(bold ? 1 : 0) + (italic ? 2 : 0)];
+}
+const CHAR_FALLBACK = {
+  '\t': '    ', '→': '->', '←': '<-', '⇒': '=>', '≤': '<=', '≥': '>=', '≠': '!=',
+  '−': '-', '‐': '-', '‑': '-', '⁃': '-', ' ': ' ', ' ': ' ', ' ': ' ',
+  '​': '', '﻿': '', '✓': 'x', '✔': 'x', '✗': 'x', '●': '•', '▪': '•',
+  '‣': '•', '′': "'", '″': '"', 'ﬁ': 'fi', 'ﬂ': 'fl'
+};
+let _measureDoc = null, _winAnsi = null;
+const _measureFonts = {};
+async function getMeasureFont(family, bold, italic){
+  const name = stdFontName(family, bold, italic);
+  if (!_measureFonts[name]) {
+    if (!_measureDoc) _measureDoc = await PDFLib.PDFDocument.create();
+    _measureFonts[name] = await _measureDoc.embedFont(name);
+  }
+  return _measureFonts[name];
+}
+async function getWinAnsiSet(){
+  if (!_winAnsi) _winAnsi = new Set((await getMeasureFont('sans', false, false)).getCharacterSet());
+  return _winAnsi;
+}
+function toWinAnsi(text, set){
+  let out = '';
+  for (const ch of String(text)) {
+    if (ch === '\n' || set.has(ch.codePointAt(0))) out += ch;
+    else if (ch in CHAR_FALLBACK) out += CHAR_FALLBACK[ch];
+    else out += '?';
+  }
+  return out;
+}
+function unsupportedChars(text, set){
+  const bad = new Set();
+  for (const ch of String(text)) {
+    if (ch !== '\n' && !set.has(ch.codePointAt(0)) && !(ch in CHAR_FALLBACK)) bad.add(ch);
+  }
+  return [...bad];
+}
+function hexToRgb(hex){
+  const h = /^#?([0-9a-f]{6})$/i.exec(hex || '') ? hex.replace('#', '') : '000000';
+  return PDFLib.rgb(parseInt(h.slice(0, 2), 16) / 255, parseInt(h.slice(2, 4), 16) / 255, parseInt(h.slice(4, 6), 16) / 255);
+}
+function toHex(rgb){
+  return '#' + rgb.map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('');
+}
+
+/* ---------- Text einer Seite in Zeilenstücke ("Runs") zerlegen ---------- */
+function fontInfo(page, styles, fontName){
+  const st = (styles && styles[fontName]) || {};
+  let family = st.fontFamily === 'serif' ? 'serif' : (st.fontFamily === 'monospace' ? 'mono' : 'sans');
+  let bold = false, italic = false;
+  try {
+    if (fontName && page.commonObjs.has(fontName)) {
+      const f = page.commonObjs.get(fontName) || {};
+      const name = String(f.name || '').replace(/^[A-Z]{6}\+/, '');
+      bold = !!(f.bold || f.black) || /bold|black|heavy|semibold|demi/i.test(name);
+      italic = !!f.italic || /italic|oblique/i.test(name);
+      if (/courier|mono|consol|menlo/i.test(name)) family = 'mono';
+      else if (/arial|helvet|calibri|verdana|segoe|roboto|open ?sans|sans/i.test(name)) family = 'sans';
+      else if (/times|georgia|garamond|cambria|minion|palatino|antiqua|serif/i.test(name)) family = 'serif';
+    }
+  } catch (e) { /* Schriftdaten nicht verfügbar */ }
+  // großzügig, damit Oberlängen, Umlautpunkte und Unterlängen sicher abgedeckt werden
+  const asc = Math.min(1.05, Math.max(0.95, Math.abs(st.ascent || 0.95)));
+  const desc = Math.min(0.3, Math.max(0.24, Math.abs(st.descent || 0.24)));
+  return { family, bold, italic, asc, desc };
+}
+
+async function extractRuns(page, opts = {}){
+  if (opts.withFonts) { try { await page.getOperatorList(); } catch (e) { /* ohne Schriftinfos weiter */ } }
+  const vp = page.getViewport({ scale: 1 });
+  const tc = await page.getTextContent();
+  const runs = [];
+  let cur = null;
+  const close = () => {
+    if (cur) {
+      cur.text = cur.text.replace(/\s+/g, ' ').trim();
+      if (cur.text) runs.push(cur);
+    }
+    cur = null;
+  };
+  for (const it of tc.items) {
+    if (typeof it.str !== 'string') continue;
+    const t = it.transform;
+    const fs = Math.hypot(t[2], t[3]) || Math.hypot(t[0], t[1]);
+    if (!fs || !isFinite(fs)) continue;
+    const angle = Math.atan2(t[1], t[0]);
+    const blank = it.str.trim() === '';
+    if (cur) {
+      const c = Math.cos(cur.angle), s = Math.sin(cur.angle);
+      const u = t[4] * c + t[5] * s, v = -t[4] * s + t[5] * c;
+      const tol = Math.max(cur.fs, fs);
+      const gap = u - cur.uEnd;
+      if (Math.abs(angle - cur.angle) < 0.03 && Math.abs(v - cur.v) < 0.35 * tol && gap > -0.6 * tol && gap < 0.9 * tol) {
+        if (!blank) {
+          if (gap > 0.12 * tol && !/\s$/.test(cur.text) && !/^\s/.test(it.str)) cur.text += ' ';
+          cur.text += it.str;
+          cur.fs = Math.max(cur.fs, fs);
+          cur.uEnd = Math.max(cur.uEnd, u + (it.width || 0));
+        } else if (!/\s$/.test(cur.text)) {
+          // Leerraum-Elemente überbrücken bei pdf.js oft ganze Spaltenabstände – Breite nicht übernehmen
+          cur.text += ' ';
+        }
+        if (it.hasEOL) close();
+        continue;
+      }
+      close();
+    }
+    if (blank) continue;
+    const c = Math.cos(angle), s = Math.sin(angle);
+    const u = t[4] * c + t[5] * s;
+    cur = { text: it.str, x: t[4], y: t[5], angle, fs, u0: u, uEnd: u + (it.width || 0), v: -t[4] * s + t[5] * c, fontName: it.fontName };
+    if (it.hasEOL) close();
+  }
+  close();
+
+  // doppelt gezeichneten Text (Pseudo-Fettdruck) nur einmal behalten
+  const kept = [], byText = new Map();
+  for (const r of runs) {
+    const list = byText.get(r.text) || [];
+    if (list.some(o => Math.abs(o.x - r.x) < 0.3 * r.fs && Math.abs(o.y - r.y) < 0.3 * r.fs)) continue;
+    list.push(r); byText.set(r.text, list); kept.push(r);
+  }
+  for (const r of kept) {
+    r.width = Math.max(0, r.uEnd - r.u0);
+    Object.assign(r, fontInfo(page, tc.styles, r.fontName));
+    finishRun(r, vp);
+  }
+  return { runs: kept, viewport: vp };
+}
+// Lage einer Zeile auf der angezeigten Seite (für Zeilen-/Spaltenerkennung)
+function finishRun(r, vp){
+  const c = Math.cos(r.angle), s = Math.sin(r.angle);
+  const [dx, dy] = vp.convertToViewportPoint(r.x, r.y);
+  const [ex, ey] = vp.convertToViewportPoint(r.x + r.width * c, r.y + r.width * s);
+  r.dx = dx; r.dy = dy; r.dw = Math.hypot(ex - dx, ey - dy);
+  // leicht schräge Zeilen (z. B. schief eingescannt) zählen noch als waagerecht
+  r.horizontal = r.dw < 1 || Math.abs(Math.atan2(ey - dy, ex - dx)) < 0.06;
+  return r;
+}
+
+/* ---------- Texterkennung (OCR) – tesseract.js wird erst bei Bedarf geladen ---------- */
+const TESSERACT_SRC = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+const OCR_LOAD_ERROR = 'Die Texterkennung konnte nicht geladen werden. Beim ersten Mal ist eine Internetverbindung nötig.';
+let _ocrWorker = null, _ocrProgress = null;
+function loadScript(src){
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = src;
+    s.crossOrigin = 'anonymous';
+    s.onload = () => resolve();
+    s.onerror = () => { s.remove(); reject(new Error(OCR_LOAD_ERROR)); };
+    document.head.appendChild(s);
+  });
+}
+function getOcrWorker(){
+  if (!_ocrWorker) {
+    _ocrWorker = (async () => {
+      if (!window.Tesseract) await loadScript(TESSERACT_SRC);
+      try {
+        return await Tesseract.createWorker('deu', 1, { logger: m => { if (_ocrProgress) _ocrProgress(m); } });
+      } catch (e) { throw new Error(OCR_LOAD_ERROR); }
+    })();
+    _ocrWorker.catch(() => { _ocrWorker = null; });
+  }
+  return _ocrWorker;
+}
+async function ocrImage(image, onStatus){
+  const say = t => { if (onStatus) onStatus(t); };
+  say('Texterkennung wird geladen …');
+  _ocrProgress = m => {
+    if (m && m.status === 'recognizing text') say(`Text wird erkannt … ${Math.round((m.progress || 0) * 100)} %`);
+    else say('Texterkennung wird vorbereitet – beim ersten Mal werden Sprachdaten geladen …');
+  };
+  try {
+    const worker = await getOcrWorker();
+    say('Text wird erkannt …');
+    const { data } = await worker.recognize(image, {}, { text: true, blocks: true });
+    return data;
+  } finally {
+    _ocrProgress = null;
+  }
+}
+// Erkennungsergebnis → Wörter in PDF-Koordinaten. map(px, py) liefert [x, y], unit = PDF-Einheiten pro Pixel.
+function ocrWords(data, map, unit){
+  const lines = [];
+  if (data && Array.isArray(data.blocks) && data.blocks.length) {
+    for (const b of data.blocks) for (const p of (b.paragraphs || [])) for (const l of (p.lines || [])) lines.push(l);
+  } else if (data && Array.isArray(data.lines)) {
+    lines.push(...data.lines);
+  }
+  const out = [];
+  lines.forEach((line, li) => {
+    const words = (line.words || []).filter(w => w && w.text && w.text.trim() && w.bbox &&
+      !(w.confidence < 30 && !/[A-Za-z0-9ÄÖÜäöüß]/.test(w.text)));
+    if (!words.length) return;
+    const lb = line.bbox || words[0].bbox;
+    const bl = line.baseline && line.baseline.has_baseline !== false && isFinite(line.baseline.y0) ? line.baseline : null;
+    const baseAt = x => {
+      if (!bl) return lb.y1 - 0.2 * (lb.y1 - lb.y0);
+      return bl.x1 !== bl.x0 ? bl.y0 + (bl.y1 - bl.y0) * (x - bl.x0) / (bl.x1 - bl.x0) : bl.y0;
+    };
+    const rowH = line.rowAttributes && line.rowAttributes.row_height > 0 ? line.rowAttributes.row_height : (lb.y1 - lb.y0);
+    const fsPx = Math.max(4, rowH * 1.08);
+    for (const w of words) {
+      const b = w.bbox;
+      const b0 = baseAt(b.x0), b1 = baseAt(b.x1);
+      const p0 = map(b.x0, b0), p1 = map(b.x1, b1);
+      out.push({
+        text: w.text.trim(), line: li,
+        x: p0[0], y: p0[1],
+        angle: Math.atan2(p1[1] - p0[1], p1[0] - p0[0]),
+        width: Math.hypot(p1[0] - p0[0], p1[1] - p0[1]),
+        fs: fsPx * unit,
+        asc: (Math.min(b0, b1) - b.y0) / fsPx,
+        desc: (b.y1 - Math.max(b0, b1)) / fsPx,
+        gapPx: 0, px0: b.x0, px1: b.x1, fsPx
+      });
+    }
+  });
+  return out;
+}
+// Wörter einer Zeile zu bearbeitbaren Zeilenstücken zusammenfassen (große Lücken = neue Spalte)
+function wordsToRuns(words, vp){
+  const runs = [];
+  let cur = null;
+  for (const w of words) {
+    if (cur && cur.line === w.line && w.px0 - cur.px1 < 0.9 * w.fsPx) {
+      cur.text += ' ' + w.text;
+      cur.px1 = w.px1;
+      cur.end = [w.x + w.width * Math.cos(w.angle), w.y + w.width * Math.sin(w.angle)];
+      cur.fs = Math.max(cur.fs, w.fs);
+      cur.ascR = Math.max(cur.ascR, w.asc);
+      cur.descR = Math.max(cur.descR, w.desc);
+      continue;
+    }
+    if (cur) runs.push(cur);
+    cur = { line: w.line, text: w.text, x: w.x, y: w.y, px1: w.px1, fs: w.fs, ascR: w.asc, descR: w.desc,
+            end: [w.x + w.width * Math.cos(w.angle), w.y + w.width * Math.sin(w.angle)] };
+  }
+  if (cur) runs.push(cur);
+  return runs.map(c => finishRun({
+    text: c.text, x: c.x, y: c.y,
+    angle: Math.atan2(c.end[1] - c.y, c.end[0] - c.x),
+    width: Math.hypot(c.end[0] - c.x, c.end[1] - c.y),
+    fs: c.fs, family: 'sans', bold: false, italic: false, fontName: null, ocr: true,
+    asc: Math.min(1.25, Math.max(0.85, c.ascR + 0.1)),
+    desc: Math.min(0.45, Math.max(0.24, c.descR + 0.08))
+  }, vp));
+}
+const OCR_DPI = 300;
+async function ocrPdfPage(page, onStatus){
+  const scale = safeScale(page, OCR_DPI / 72, 16e6, 6000);
+  const { canvas, vp } = await renderPageToCanvas(page, scale);
+  const blob = await canvasToBlob(canvas, 'image/png');
+  canvas.width = canvas.height = 0;
+  const data = await ocrImage(blob, onStatus);
+  const words = ocrWords(data, (x, y) => vp.convertToPdfPoint(x, y), 1 / scale);
+  return { words, runs: harmonizeSizes(wordsToRuns(words, page.getViewport({ scale: 1 }))) };
+}
+// erkannte Schriftgrößen schwanken leicht – gleich große Zeilen auf einen gemeinsamen Wert bringen
+function harmonizeSizes(runs){
+  const sizes = runs.map(r => r.fs);
+  runs.forEach((r, i) => {
+    const near = sizes.filter(f => Math.abs(f - sizes[i]) <= 0.12 * sizes[i]).sort((a, b) => a - b);
+    r.fs = Math.round(near[Math.floor(near.length / 2)] * 2) / 2;
+  });
+  return runs;
+}
+// Unsichtbare Textebene (wie bei Acrobat „durchsuchbare PDF“): Text ist such- und kopierbar, aber nicht sichtbar
+async function addInvisibleText(pdfDoc, pdfPage, words, cache){
+  if (!words.length) return 0;
+  const set = await getWinAnsiSet();
+  if (!cache.font) cache.font = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
+  const font = cache.font;
+  const key = pdfPage.node.newFontDictionary(font.name, font.ref);
+  const ops = [PDFLib.pushGraphicsState(), PDFLib.beginText(), PDFLib.setTextRenderingMode(PDFLib.TextRenderingMode.Invisible)];
+  let n = 0;
+  for (const w of words) {
+    const text = toWinAnsi(w.text, set).replace(/\s+/g, ' ').trim();
+    if (!text || !(w.fs > 0)) continue;
+    const natural = font.widthOfTextAtSize(text, w.fs);
+    const squeeze = natural > 0 ? Math.min(400, Math.max(20, w.width / natural * 100)) : 100;
+    const c = Math.cos(w.angle), s = Math.sin(w.angle);
+    ops.push(PDFLib.setFontAndSize(key, w.fs), PDFLib.setCharacterSqueeze(squeeze),
+             PDFLib.setTextMatrix(c, s, -s, c, w.x, w.y), PDFLib.showText(font.encodeText(text)));
+    n++;
+  }
+  ops.push(PDFLib.endText(), PDFLib.popGraphicsState());
+  if (n) pdfPage.pushOperators(...ops);
+  return n;
+}
+
+/* ---------- Zeilen & Spalten (für den Export) ---------- */
+function buildRows(runs){
+  const hz = runs.filter(r => r.horizontal).sort((a, b) => (a.dy - b.dy) || (a.dx - b.dx));
+  const rows = [];
+  for (const r of hz) {
+    const row = rows[rows.length - 1];
+    if (row && Math.abs(r.dy - row.dy) <= 0.45 * Math.max(row.fs, r.fs)) { row.cells.push(r); row.fs = Math.max(row.fs, r.fs); }
+    else rows.push({ dy: r.dy, fs: r.fs, cells: [r] });
+  }
+  for (const r of runs.filter(r => !r.horizontal)) rows.push({ dy: Infinity, fs: r.fs, cells: [r], rotated: true });
+  for (const row of rows) {
+    row.cells.sort((a, b) => a.dx - b.dx);
+    const merged = [];
+    for (const r of row.cells) {
+      const last = merged[merged.length - 1];
+      const tol = Math.max(r.fs, last ? last.fs : 0);
+      const gap = last ? r.dx - (last.dx + last.dw) : 0;
+      if (last && !row.rotated && gap < 0.5 * tol) {
+        last.text += (gap > 0.12 * tol ? ' ' : '') + r.text;
+        last.dw = Math.max(last.dw, r.dx + r.dw - last.dx);
+        last.fs = Math.max(last.fs, r.fs);
+      } else {
+        merged.push({ text: r.text, dx: r.dx, dw: r.dw, fs: r.fs, bold: r.bold, italic: r.italic, family: r.family });
+      }
+    }
+    row.cells = merged;
+    row.left = row.rotated ? 0 : merged[0].dx;
+    row.right = row.rotated ? merged[0].dw : Math.max(...merged.map(c => c.dx + c.dw));
+    row.text = merged.map(c => c.text).join(' ');
+  }
+  return rows;
+}
+function columnBoundaries(rows){
+  const multi = rows.filter(r => !r.rotated && r.cells.length >= 2);
+  if (!multi.length) return [];
+  let minX = Infinity, maxX = -Infinity;
+  for (const r of multi) for (const c of r.cells) { minX = Math.min(minX, c.dx); maxX = Math.max(maxX, c.dx + c.dw); }
+  const N = Math.min(6000, Math.ceil(maxX - minX) + 1);
+  if (N < 3) return [];
+  const cov = new Uint16Array(N);
+  for (const r of multi) for (const c of r.cells) {
+    const a = Math.max(0, Math.floor(c.dx - minX)), b = Math.min(N - 1, Math.ceil(c.dx + c.dw - minX));
+    for (let i = a; i <= b; i++) cov[i]++;
+  }
+  const limit = Math.floor(multi.length * 0.08);
+  const bounds = [];
+  for (let i = 0; i < N;) {
+    if (cov[i] <= limit) {
+      let j = i;
+      while (j < N && cov[j] <= limit) j++;
+      if (i > 0 && j < N && j - i >= 2) bounds.push(minX + (i + j) / 2);
+      i = j;
+    } else i++;
+  }
+  return bounds;
+}
+function colIndex(bounds, x){
+  let k = 0;
+  while (k < bounds.length && bounds[k] < x + 0.5) k++;
+  return k;
+}
+function rowsToGrid(rows){
+  const bounds = columnBoundaries(rows);
+  const grid = [];
+  let prev = null;
+  for (const row of rows) {
+    if (prev && !row.rotated && !prev.rotated && row.dy - prev.dy > 2.2 * Math.max(row.fs, prev.fs)) grid.push([]);
+    const line = [];
+    row.cells.forEach((c, i) => {
+      const k = bounds.length && !row.rotated ? colIndex(bounds, c.dx) : i;
+      line[k] = line[k] ? line[k] + ' ' + c.text : c.text;
+    });
+    for (let i = 0; i < line.length; i++) if (line[i] === undefined) line[i] = '';
+    grid.push(line);
+    prev = row;
+  }
+  return grid;
+}
+function rowsToText(rows, layout){
+  const hz = rows.filter(r => !r.rotated);
+  let charW = 5;
+  if (layout) {
+    const ws = [];
+    hz.forEach(r => r.cells.forEach(c => { if (c.text.length >= 3 && c.dw > 0) ws.push(c.dw / c.text.length); }));
+    ws.sort((a, b) => a - b);
+    if (ws.length) charW = ws[Math.floor(ws.length / 2)];
+  }
+  const minLeft = hz.length ? Math.min(...hz.map(r => r.left)) : 0;
+  const out = [];
+  let prev = null;
+  for (const row of rows) {
+    if (prev && !row.rotated && !prev.rotated && row.dy - prev.dy > 2.2 * Math.max(row.fs, prev.fs)) out.push('');
+    let line = '';
+    if (layout && !row.rotated) {
+      for (const c of row.cells) {
+        const col = Math.min(400, Math.max(0, Math.round((c.dx - minLeft) / charW)));
+        if (line.length < col) line += ' '.repeat(col - line.length);
+        else if (line.length) line += ' ';
+        line += c.text;
+      }
+    } else {
+      row.cells.forEach((c, i) => {
+        if (i) { const p = row.cells[i - 1]; line += (c.dx - (p.dx + p.dw) > 2 * c.fs) ? '\t' : ' '; }
+        line += c.text;
+      });
+    }
+    out.push(line.replace(/\s+$/, ''));
+    prev = row;
+  }
+  return out.join('\n');
+}
+function parseCellNumber(s){
+  const t = String(s).trim().replace(/ /g, ' ');
+  if (!t || t.replace(/\D/g, '').length > 15) return null;
+  if (/^[-+]?\d{1,3}(\.\d{3})+(,\d+)?$/.test(t)) return parseFloat(t.replace(/\./g, '').replace(',', '.'));
+  if (/^[-+]?\d+,\d+$/.test(t)) return parseFloat(t.replace(',', '.'));
+  if (/^[-+]?\d{1,3}(,\d{3})+(\.\d+)?$/.test(t)) return parseFloat(t.replace(/,/g, ''));
+  if (/^[-+]?\d+(\.\d+)?$/.test(t)) return /^[-+]?0\d/.test(t) ? null : parseFloat(t);
+  return null;
+}
+function gridToCsv(grid, delim){
+  const width = grid.reduce((m, r) => Math.max(m, r.length), 0);
+  const esc = v => {
+    v = String(v == null ? '' : v);
+    return (/["\r\n]/.test(v) || v.includes(delim)) ? '"' + v.replace(/"/g, '""') + '"' : v;
+  };
+  return '﻿' + grid.map(r => {
+    const full = r.slice();
+    while (full.length < width) full.push('');
+    return full.map(esc).join(delim);
+  }).join('\r\n') + '\r\n';
+}
+
+/* ---------- Office-Dateien (OOXML) mit JSZip bauen ---------- */
+function xmlEsc(s){
+  s = String(s == null ? '' : s);
+  if (typeof s.toWellFormed === 'function') s = s.toWellFormed();
+  return s.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F￾￿]/g, '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+const XML_HEAD = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+const REL_NS = 'http://schemas.openxmlformats.org/package/2006/relationships';
+const OFFICE_REL = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+
+function colName(i){
+  let s = ''; i++;
+  while (i > 0) { const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); }
+  return s;
+}
+function sheetXml(grid, numbers){
+  const ncol = grid.reduce((m, r) => Math.max(m, r.length), 0);
+  const widths = new Array(ncol).fill(8);
+  // Breiten nur aus Tabellenzeilen ableiten; einzelne lange Textzeilen dürfen in leere Nachbarzellen laufen
+  const tableRows = grid.filter(r => r.filter(v => v !== '').length >= 2);
+  (tableRows.length ? tableRows : grid).forEach(r => r.forEach((v, i) => { widths[i] = Math.min(50, Math.max(widths[i], String(v).length * 1.1 + 2)); }));
+  let xml = XML_HEAD + '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">';
+  if (ncol) xml += '<cols>' + widths.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w.toFixed(1)}" customWidth="1"/>`).join('') + '</cols>';
+  xml += '<sheetData>';
+  grid.forEach((r, ri) => {
+    if (!r.some(v => v !== '')) return;
+    xml += `<row r="${ri + 1}">`;
+    r.forEach((v, ci) => {
+      if (v === '' || v == null) return;
+      const ref = colName(ci) + (ri + 1);
+      let n = null, style = 0;
+      if (numbers) {
+        const t = String(v).trim();
+        const cur = /^(.*?)\s*(€|EUR)$/i.exec(t) || /^(?:€|EUR)\s*(.*)$/i.exec(t);
+        const pct = /^(.*?)\s*%$/.exec(t);
+        if (cur) { n = parseCellNumber(cur[1]); style = 1; }
+        else if (pct) { n = parseCellNumber(pct[1]); if (n !== null) n = n / 100; style = 2; }
+        else n = parseCellNumber(t);
+      }
+      if (n !== null && isFinite(n)) xml += `<c r="${ref}"${style ? ` s="${style}"` : ''}><v>${n}</v></c>`;
+      else xml += `<c r="${ref}" t="inlineStr"><is><t xml:space="preserve">${xmlEsc(String(v).slice(0, 32000))}</t></is></c>`;
+    });
+    xml += '</row>';
+  });
+  return xml + '</sheetData></worksheet>';
+}
+async function buildXlsx(sheets, numbers){
+  const zip = new JSZip();
+  zip.file('[Content_Types].xml', XML_HEAD +
+    '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+    '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+    '<Default Extension="xml" ContentType="application/xml"/>' +
+    '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
+    '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>' +
+    sheets.map((s, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('') +
+    '</Types>');
+  zip.file('_rels/.rels', XML_HEAD + `<Relationships xmlns="${REL_NS}"><Relationship Id="rId1" Type="${OFFICE_REL}/officeDocument" Target="xl/workbook.xml"/></Relationships>`);
+  zip.file('xl/workbook.xml', XML_HEAD +
+    `<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="${OFFICE_REL}"><sheets>` +
+    sheets.map((s, i) => `<sheet name="${xmlEsc(s.name.replace(/[\[\]:*?\/\\]/g, ' ').slice(0, 31))}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join('') +
+    '</sheets></workbook>');
+  zip.file('xl/_rels/workbook.xml.rels', XML_HEAD + `<Relationships xmlns="${REL_NS}">` +
+    sheets.map((s, i) => `<Relationship Id="rId${i + 1}" Type="${OFFICE_REL}/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join('') +
+    `<Relationship Id="rId${sheets.length + 1}" Type="${OFFICE_REL}/styles" Target="styles.xml"/></Relationships>`);
+  zip.file('xl/styles.xml', XML_HEAD +
+    '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+    '<numFmts count="1"><numFmt numFmtId="164" formatCode="#,##0.00\\ &quot;€&quot;"/></numFmts>' +
+    '<fonts count="1"><font><sz val="11"/><name val="Calibri"/><family val="2"/></font></fonts>' +
+    '<fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills>' +
+    '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>' +
+    '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>' +
+    '<cellXfs count="3"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>' +
+    '<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' +
+    '<xf numFmtId="10" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs>' +
+    '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>' +
+    '</styleSheet>');
+  sheets.forEach((s, i) => zip.file(`xl/worksheets/sheet${i + 1}.xml`, sheetXml(s.grid, numbers)));
+  return zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE' });
+}
+
+function docxRun(text, c){
+  const rPr = [];
+  if (c && c.family === 'serif') rPr.push('<w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>');
+  else if (c && c.family === 'mono') rPr.push('<w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New"/>');
+  if (c && c.bold) rPr.push('<w:b/>');
+  if (c && c.italic) rPr.push('<w:i/>');
+  if (c && c.fs) {
+    const hs = Math.max(8, Math.min(144, Math.round(c.fs * 2)));
+    rPr.push(`<w:sz w:val="${hs}"/><w:szCs w:val="${hs}"/>`);
+  }
+  return `<w:r>${rPr.length ? '<w:rPr>' + rPr.join('') + '</w:rPr>' : ''}<w:t xml:space="preserve">${xmlEsc(text)}</w:t></w:r>`;
+}
+function docxParagraph(p){
+  const pPr = [];
+  if (p.style) pPr.push(`<w:pStyle w:val="${p.style}"/>`);
+  if (p.tabs && p.tabs.length) {
+    const ts = p.tabs.slice().sort((a, b) => a.pos - b.pos);
+    pPr.push('<w:tabs>' + ts.map(t => `<w:tab w:val="${t.val}" w:pos="${t.pos}"/>`).join('') + '</w:tabs>');
+  }
+  if (p.indent) pPr.push(`<w:ind w:left="${p.indent}"/>`);
+  if (p.jc) pPr.push(`<w:jc w:val="${p.jc}"/>`);
+  let runs = '';
+  for (const part of p.parts) {
+    if (part.br) runs += '<w:r><w:br/></w:r>';
+    else if (part.tab) runs += '<w:r><w:tab/></w:r>';
+    else runs += docxRun(part.text, part.cell);
+  }
+  return `<w:p>${pPr.length ? '<w:pPr>' + pPr.join('') + '</w:pPr>' : ''}${runs}</w:p>`;
+}
+function docxTable(rows, layout){
+  const bounds = columnBoundaries(rows);
+  const ncol = bounds.length + 1;
+  let minX = Infinity, maxX = -Infinity;
+  rows.forEach(r => r.cells.forEach(c => { minX = Math.min(minX, c.dx); maxX = Math.max(maxX, c.dx + c.dw); }));
+  const grid = rows.map(r => {
+    const line = Array.from({ length: ncol }, () => []);
+    r.cells.forEach(c => line[Math.min(ncol - 1, colIndex(bounds, c.dx))].push(c));
+    return line;
+  });
+  const used = [];
+  for (let k = 0; k < ncol; k++) if (grid.some(l => l[k].length)) used.push(k);
+  const edges = [minX, ...bounds, maxX];
+  const widths = used.map(k => Math.max(1, edges[k + 1] - edges[k]));
+  const sum = widths.reduce((a, b) => a + b, 0);
+  let tws = widths.map(w => Math.max(500, Math.round(w / sum * layout.textTw)));
+  const tsum = tws.reduce((a, b) => a + b, 0);
+  if (tsum > layout.textTw) tws = tws.map(w => Math.floor(w * layout.textTw / tsum));
+  const total = tws.reduce((a, b) => a + b, 0);
+  const border = s => `<w:${s} w:val="single" w:sz="4" w:space="0" w:color="BFBFBF"/>`;
+  let xml = `<w:tbl><w:tblPr><w:tblW w:w="${total}" w:type="dxa"/><w:tblBorders>${['top', 'left', 'bottom', 'right', 'insideH', 'insideV'].map(border).join('')}</w:tblBorders>` +
+    `<w:tblLayout w:type="fixed"/><w:tblCellMar><w:left w:w="80" w:type="dxa"/><w:right w:w="80" w:type="dxa"/></w:tblCellMar><w:tblLook w:val="04A0"/></w:tblPr>` +
+    `<w:tblGrid>${tws.map(w => `<w:gridCol w:w="${w}"/>`).join('')}</w:tblGrid>`;
+  for (const line of grid) {
+    xml += '<w:tr>';
+    used.forEach((k, idx) => {
+      const cs = line[k];
+      const text = cs.map(c => c.text).join(' ');
+      const numeric = text && parseCellNumber(text.replace(/\s*(€|EUR|%|\$)$/i, '').replace(/^(€|\$)\s*/, '')) !== null;
+      xml += `<w:tc><w:tcPr><w:tcW w:w="${tws[idx]}" w:type="dxa"/></w:tcPr><w:p><w:pPr><w:spacing w:before="20" w:after="20"/>${numeric ? '<w:jc w:val="right"/>' : ''}</w:pPr>` +
+        cs.map((c, n) => docxRun((n ? ' ' : '') + c.text, c)).join('') + '</w:p></w:tc>';
+    });
+    xml += '</w:tr>';
+  }
+  return xml + '</w:tbl><w:p><w:pPr><w:spacing w:after="0"/></w:pPr></w:p>';
+}
+function docxPageXml(rows, vp, opts, layout){
+  const body = rows.filter(r => !r.rotated);
+  const sizes = [];
+  body.forEach(r => r.cells.forEach(c => { const n = Math.min(c.text.length, 200); for (let k = 0; k < n; k++) sizes.push(c.fs); }));
+  sizes.sort((a, b) => a - b);
+  const bodyFs = sizes.length ? sizes[Math.floor(sizes.length / 2)] : 11;
+  const minLeft = body.length ? Math.min(...body.map(r => r.left)) : 0;
+  const rights = body.map(r => r.right).sort((a, b) => a - b);
+  const bodyRight = rights.length ? rights[Math.floor((rights.length - 1) * 0.9)] : vp.width;
+  const span = Math.max(50, bodyRight - minLeft);
+  const tw = x => Math.max(0, Math.round((x - minLeft) / span * layout.textTw));
+  const xml = [];
+  let para = null;
+  const flush = () => { if (para) { xml.push(docxParagraph(para)); para = null; } };
+
+  for (let i = 0; i < rows.length;) {
+    const row = rows[i];
+    if (!row.rotated && row.cells.length >= 2) {
+      let j = i + 1;
+      while (j < rows.length && !rows[j].rotated && rows[j].cells.length >= 2 &&
+             rows[j].dy - rows[j - 1].dy < 3 * Math.max(rows[j].fs, rows[j - 1].fs)) j++;
+      const block = rows.slice(i, j);
+      flush();
+      if (block.length >= 2 || row.cells.length >= 3) {
+        xml.push(docxTable(block, layout));
+        i = j; continue;
+      }
+      // einzelne Zeile mit zwei Teilen (z. B. „Rechnung … Datum“) → Absatz mit Tabstopp
+      const tabs = [], parts = [];
+      row.cells.forEach((c, k) => {
+        if (k > 0) {
+          const atRight = k === row.cells.length - 1 && (c.dx + c.dw) >= bodyRight - 0.03 * span;
+          tabs.push(atRight ? { val: 'right', pos: layout.textTw } : { val: 'left', pos: Math.min(layout.textTw - 200, tw(c.dx)) });
+          parts.push({ tab: true });
+        }
+        parts.push({ text: c.text, cell: c });
+      });
+      para = { style: null, parts, tabs, indent: tw(row.left) > 200 ? tw(row.left) : 0 };
+      flush();
+      i++; continue;
+    }
+
+    const c = row.cells[0];
+    const big = c.fs >= bodyFs * 1.3 && row.text.length < 150;
+    const style = big ? (c.fs >= bodyFs * 1.7 ? 'Heading1' : 'Heading2') : null;
+    if (para && para.lastRow && !row.rotated && !para.lastRow.rotated && para.style === style) {
+      const lr = para.lastRow, lc = para.lastCell;
+      const gap = row.dy - lr.dy;
+      const sameSize = Math.abs(c.fs - lc.fs) <= 0.12 * Math.max(c.fs, lc.fs);
+      const tight = gap > 0 && gap <= 1.65 * Math.max(c.fs, lc.fs);
+      const aligned = Math.abs(row.left - lr.left) <= 2.5 * c.fs;
+      if (tight && sameSize && aligned) {
+        const prevFull = (lr.right - minLeft) >= 0.8 * span;
+        if (opts.reflow && prevFull) {
+          const last = para.parts[para.parts.length - 1];
+          if (last && last.text && /[A-Za-zÄÖÜäöüß]-$/.test(last.text) && /^[a-zäöüß]/.test(c.text)) last.text = last.text.slice(0, -1);
+          else para.parts.push({ text: ' ', cell: c });
+        } else {
+          para.parts.push({ br: true });
+        }
+        para.parts.push({ text: c.text, cell: c });
+        para.lastRow = row; para.lastCell = c;
+        i++; continue;
+      }
+    }
+    flush();
+    para = { style, parts: [{ text: c.text, cell: c }], lastRow: row, lastCell: c, tabs: [], indent: 0, jc: null };
+    if (!row.rotated) {
+      const leftGap = row.left - minLeft, rightGap = bodyRight - row.right;
+      const center = (row.left + row.right) / 2;
+      if (leftGap > 0.12 * span && Math.abs(center - (minLeft + bodyRight) / 2) < 0.04 * span) para.jc = 'center';
+      else if (leftGap > 0.35 * span && rightGap < 0.03 * span) para.jc = 'right';
+      else if (leftGap > 1.5 * c.fs) para.indent = tw(row.left);
+    }
+    i++;
+  }
+  flush();
+  return xml.join('');
+}
+async function buildDocx(pages, opts){
+  const landscape = pages.length > 0 && pages[0].viewport.width > pages[0].viewport.height;
+  const pgW = landscape ? 16838 : 11906, pgH = landscape ? 11906 : 16838, mar = 1134;
+  const layout = { textTw: pgW - 2 * mar };
+  const pageBreak = '<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="240" w:lineRule="auto"/><w:rPr><w:sz w:val="2"/></w:rPr></w:pPr><w:r><w:rPr><w:sz w:val="2"/></w:rPr><w:br w:type="page"/></w:r></w:p>';
+  let body = '';
+  pages.forEach((p, k) => {
+    if (k > 0 && opts.pageBreaks) body += pageBreak;
+    body += docxPageXml(p.rows, p.viewport, opts, layout);
+  });
+  const W = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="' + OFFICE_REL + '"';
+  const zip = new JSZip();
+  zip.file('[Content_Types].xml', XML_HEAD +
+    '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+    '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+    '<Default Extension="xml" ContentType="application/xml"/>' +
+    '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>' +
+    '<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>' +
+    '</Types>');
+  zip.file('_rels/.rels', XML_HEAD + `<Relationships xmlns="${REL_NS}"><Relationship Id="rId1" Type="${OFFICE_REL}/officeDocument" Target="word/document.xml"/></Relationships>`);
+  zip.file('word/_rels/document.xml.rels', XML_HEAD + `<Relationships xmlns="${REL_NS}"><Relationship Id="rId1" Type="${OFFICE_REL}/styles" Target="styles.xml"/></Relationships>`);
+  zip.file('word/styles.xml', XML_HEAD + `<w:styles ${W}>` +
+    '<w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:eastAsia="Arial" w:cs="Arial"/><w:sz w:val="22"/><w:szCs w:val="22"/><w:lang w:val="de-DE"/></w:rPr></w:rPrDefault>' +
+    '<w:pPrDefault><w:pPr><w:spacing w:after="120" w:line="264" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults>' +
+    '<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style>' +
+    '<w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:qFormat/><w:pPr><w:keepNext/><w:spacing w:before="240" w:after="120"/><w:outlineLvl w:val="0"/></w:pPr><w:rPr><w:b/><w:sz w:val="32"/><w:szCs w:val="32"/></w:rPr></w:style>' +
+    '<w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:qFormat/><w:pPr><w:keepNext/><w:spacing w:before="200" w:after="80"/><w:outlineLvl w:val="1"/></w:pPr><w:rPr><w:b/><w:sz w:val="26"/><w:szCs w:val="26"/></w:rPr></w:style>' +
+    '<w:style w:type="table" w:default="1" w:styleId="TableNormal"><w:name w:val="Normal Table"/><w:tblPr><w:tblInd w:w="0" w:type="dxa"/><w:tblCellMar><w:top w:w="0" w:type="dxa"/><w:left w:w="108" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="108" w:type="dxa"/></w:tblCellMar></w:tblPr></w:style>' +
+    '</w:styles>');
+  zip.file('word/document.xml', XML_HEAD + `<w:document ${W}><w:body>${body || '<w:p/>'}` +
+    `<w:sectPr><w:pgSz w:w="${pgW}" w:h="${pgH}"${landscape ? ' w:orient="landscape"' : ''}/>` +
+    `<w:pgMar w:top="${mar}" w:right="${mar}" w:bottom="${mar}" w:left="${mar}" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>`);
+  return zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE' });
+}
+
+/* ============================================================
    TAB 1: KONVERTIEREN
    ============================================================ */
 (() => {
@@ -674,13 +1861,13 @@ function renderFileList(ulEl, emptyEl, items, opts){
       : 'Ergebnis: jede Datei wird eine eigene PDF (bei mehreren Dateien als ZIP).';
     if (mergeToggle.checked) {
       filenameLabel.textContent = 'Dateiname (PDF)';
-      filenameInput.placeholder = 'papierkram';
+      filenameInput.placeholder = 'pdfconvert';
     } else if (items.length > 1) {
       filenameLabel.textContent = 'Dateiname (ZIP)';
-      filenameInput.placeholder = 'papierkram-dateien';
+      filenameInput.placeholder = 'pdfconvert-dateien';
     } else {
       filenameLabel.textContent = 'Dateiname (optional, sonst Originalname)';
-      filenameInput.placeholder = items[0] ? items[0].file.name.replace(/\.[^.]+$/, '') : 'papierkram';
+      filenameInput.placeholder = items[0] ? items[0].file.name.replace(/\.[^.]+$/, '') : 'pdfconvert';
     }
   }
   mergeToggle.addEventListener('change', updateMergeUi);
@@ -767,7 +1954,7 @@ function renderFileList(ulEl, emptyEl, items, opts){
           pages.forEach(p => merged.addPage(p));
         }
         const bytes = await merged.save();
-        const base = sanitizeFilename(customName, `papierkram-${timestamp()}`);
+        const base = sanitizeFilename(customName, `pdfconvert-${timestamp()}`);
         downloadBytes(bytes, base + '.pdf', 'application/pdf');
       } else if (ok.length === 1) {
         const bytes = await ok[0].doc.save();
@@ -784,7 +1971,7 @@ function renderFileList(ulEl, emptyEl, items, opts){
           zip.file(name, await r.doc.save());
         }
         const blob = await zip.generateAsync({ type: 'blob' });
-        const base = sanitizeFilename(customName, `papierkram-${timestamp()}`);
+        const base = sanitizeFilename(customName, `pdfconvert-${timestamp()}`);
         downloadBytes(await blob.arrayBuffer(), base + '.zip', 'application/zip');
       }
       showStatus(statusEl,
@@ -804,56 +1991,721 @@ function renderFileList(ulEl, emptyEl, items, opts){
    TAB 2: BEARBEITEN
    ============================================================ */
 (() => {
-  const modeButtons = document.querySelectorAll('#edit-mode-switch button');
-  const panels = document.querySelectorAll('.edit-panel[data-panel]');
-  let mode = 'merge';
+  const $ = id => document.getElementById(id);
 
-  function showMode(m){
-    mode = m;
-    modeButtons.forEach(b => b.classList.toggle('active', b.dataset.mode === m));
-    panels.forEach(p => {
-      const key = p.dataset.panel;
-      if (key === 'merge') { p.style.display = m === 'merge' ? 'block' : 'none'; return; }
-      if (key === 'single') { p.style.display = m === 'merge' ? 'none' : 'block'; return; }
-      p.style.display = (key === m) ? 'block' : 'none';
+  /* ---------- Gemeinsame Einzel-PDF ---------- */
+  const single = { file: null, bytes: null, pageCount: 0, doc: null, base: 'dokument' };
+
+  /* ==========================================================
+     TEXT-EDITOR
+     ========================================================== */
+  const editor = (() => {
+    const els = {
+      empty: $('te-empty'), box: $('te-editor'),
+      prev: $('te-prev'), next: $('te-next'), pageinfo: $('te-pageinfo'),
+      zoomIn: $('te-zoomin'), zoomOut: $('te-zoomout'), zoomInfo: $('te-zoominfo'),
+      modeBtns: document.querySelectorAll('#te-mode button'), hint: $('te-hint'),
+      wrap: $('te-wrap'), stage: $('te-stage'), canvas: $('te-canvas'), hits: $('te-hits'), loading: $('te-loading'),
+      count: $('te-count'), undo: $('te-undo'), flatten: $('te-flatten'), filename: $('te-filename'),
+      save: $('te-save'), status: $('te-status'),
+      sheet: $('te-sheet'), sheetTitle: $('te-sheet-title'), sheetOrig: $('te-sheet-orig'), text: $('te-text'),
+      charWarn: $('te-charwarn'), widthWarn: $('te-widthwarn'), widthWarnText: $('te-widthwarn-text'), fit: $('te-fit'),
+      size: $('te-size'), sizeDown: $('te-size-down'), sizeUp: $('te-size-up'),
+      bold: $('te-bold'), italic: $('te-italic'), familyBtns: document.querySelectorAll('#te-family button'),
+      swatches: document.querySelectorAll('#te-swatches .swatch[data-color]'), color: $('te-color'),
+      del: $('te-delete'), apply: $('te-apply'), cancel: $('te-cancel'), actions: document.querySelector('#te-sheet .sheet-actions'),
+      ocr: $('te-ocr')
+    };
+    const ZOOMS = [1, 1.5, 2, 3];
+    const LINE = 1.2;
+    let doc = null, pageIndex = 0, zoomIdx = 0, mode = 'edit';
+    let edits = [], history = [], nextId = 1;
+    let state = null, renderSeq = 0, renderTask = null, lastWidth = 0, keepScroll = null;
+    const runsCache = new Map(), ocrDone = new Set();
+    let pending = null, form = null, checkSeq = 0, ocrBusy = false, ocrNote = '';
+
+    const round1 = n => Math.round(n * 10) / 10;
+
+    /* ----- Geometrie ----- */
+    function corners(b){
+      const c = Math.cos(b.angle), s = Math.sin(b.angle);
+      return [[b.lx, b.ly], [b.lx + b.w, b.ly], [b.lx, b.ly + b.h], [b.lx + b.w, b.ly + b.h]]
+        .map(([lx, ly]) => [b.x0 + lx * c - ly * s, b.y0 + lx * s + ly * c]);
+    }
+    function boxRect(vp, b){
+      const pts = corners(b).map(p => vp.convertToViewportPoint(p[0], p[1]));
+      const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+      const x = Math.min(...xs), y = Math.min(...ys);
+      return { x, y, w: Math.max(...xs) - x, h: Math.max(...ys) - y };
+    }
+    function runBox(r){
+      const pad = 0.05 * r.fs + 0.3;
+      return { x0: r.x, y0: r.y, angle: r.angle, lx: -pad, ly: -(r.desc * r.fs) - 0.3, w: Math.max(r.width, 0.3 * r.fs) + 2 * pad, h: (r.asc + r.desc) * r.fs + 0.6 };
+    }
+    function addedBox(e){
+      const n = e.text.split('\n').length;
+      return { x0: e.x, y0: e.y, angle: e.angle, lx: -1, ly: -(0.25 + LINE * (n - 1)) * e.size, w: (e.measured || e.size * 3) + 2, h: (1.2 + LINE * (n - 1)) * e.size };
+    }
+
+    /* ----- Darstellung ----- */
+    function cssFont(e){ return `${e.italic ? 'italic ' : ''}${e.bold ? 'bold ' : ''}${e.size}px ${FAMILY_CSS[e.family] || FAMILY_CSS.sans}`; }
+    function paintEdit(ctx, T, e){
+      if (e.cover) {
+        ctx.save();
+        ctx.setTransform(T[0], T[1], T[2], T[3], T[4], T[5]);
+        ctx.translate(e.cover.x0, e.cover.y0);
+        ctx.rotate(e.cover.angle);
+        ctx.fillStyle = e.bg;
+        ctx.fillRect(e.cover.lx, e.cover.ly, e.cover.w, e.cover.h);
+        ctx.restore();
+      }
+      if (e.text) {
+        ctx.save();
+        ctx.setTransform(T[0], T[1], T[2], T[3], T[4], T[5]);
+        ctx.translate(e.x, e.y);
+        ctx.rotate(e.angle);
+        ctx.scale(1, -1);
+        ctx.font = cssFont(e);
+        ctx.fillStyle = e.color;
+        ctx.textBaseline = 'alphabetic';
+        e.text.split('\n').forEach((ln, i) => ctx.fillText(ln, 0, i * e.size * LINE));
+        ctx.restore();
+      }
+    }
+    function paint(){
+      if (!state) return;
+      const ctx = els.canvas.getContext('2d');
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.drawImage(state.base, 0, 0);
+      for (const e of edits) if (e.pageIndex === state.pageIndex) paintEdit(ctx, state.vpDev.transform, e);
+    }
+    // sichtbare Markierung: nur der Schriftkörper, damit sich enge Zeilen nicht überlappen
+    function markBox(r, ed){
+      if (ed && ed.text) {
+        const n = ed.text.split('\n').length;
+        return { x0: ed.x, y0: ed.y, angle: ed.angle, lx: -0.5, ly: -(0.22 + LINE * (n - 1)) * ed.size, w: Math.max(ed.measured || r.width, 0.3 * ed.size) + 1, h: (1.1 + LINE * (n - 1)) * ed.size };
+      }
+      return { x0: r.x, y0: r.y, angle: r.angle, lx: -0.5, ly: -0.22 * r.fs, w: Math.max(r.width, 0.3 * r.fs) + 1, h: 1.1 * r.fs };
+    }
+    // rechtsbündig gesetzt (z. B. Beträge in Tabellen)? Dann bleibt die rechte Kante beim Ändern stehen.
+    function isRightAligned(r){
+      if (!state || !r.horizontal) return false;
+      const end = r.dx + r.dw;
+      let right = 0, left = 0;
+      for (const o of state.runs) {
+        if (o === r || !o.horizontal) continue;
+        const sameRight = Math.abs(o.dx + o.dw - end) < 1.2, sameLeft = Math.abs(o.dx - r.dx) < 1.2;
+        if (sameRight && !sameLeft) right++;
+        if (sameLeft && !sameRight) left++;
+      }
+      return right > left;
+    }
+    let targets = [];
+    function placeHit(btn, r){
+      btn.style.left = r.x + 'px'; btn.style.top = r.y + 'px';
+      btn.style.width = Math.max(4, r.w) + 'px'; btn.style.height = Math.max(4, r.h) + 'px';
+    }
+    function buildHits(){
+      els.hits.textContent = '';
+      targets = [];
+      if (!state) return;
+      const pageEdits = edits.filter(e => e.pageIndex === state.pageIndex);
+      const byRun = new Map(pageEdits.filter(e => e.runId).map(e => [e.runId, e]));
+      const frag = document.createDocumentFragment();
+      for (const r of state.runs) {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'hit';
+        const ed = byRun.get(r.id);
+        if (ed) b.classList.add(ed.text ? 'edited' : 'deleted');
+        b.setAttribute('aria-label', ed ? (ed.text ? 'Geändert: ' + ed.text : 'Gelöscht: ' + r.text) : 'Ändern: ' + r.text);
+        const rect = boxRect(state.vpCss, markBox(r, ed));
+        placeHit(b, rect);
+        b.addEventListener('click', ev => { ev.stopPropagation(); if (mode === 'edit') openForRun(r); });
+        targets.push({ rect, kind: 'run', run: r });
+        frag.appendChild(b);
+      }
+      for (const e of pageEdits) {
+        if (e.runId) continue;
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'hit added';
+        b.setAttribute('aria-label', 'Hinzugefügt: ' + e.text);
+        const rect = boxRect(state.vpCss, addedBox(e));
+        placeHit(b, rect);
+        b.addEventListener('click', ev => { ev.stopPropagation(); openForAdded(e); });
+        targets.push({ rect, kind: 'added', edit: e });
+        frag.appendChild(b);
+      }
+      els.hits.appendChild(frag);
+    }
+    // Tippen: die Zeile wählen, die dem Finger am nächsten liegt (auch wenn Zeilen eng beieinander stehen)
+    function pickTarget(x, y, tolerance, kinds){
+      let best = null, bestScore = Infinity;
+      for (const t of targets) {
+        if (!kinds.includes(t.kind)) continue;
+        const r = t.rect;
+        const dx = Math.max(r.x - x, 0, x - (r.x + r.w));
+        const dy = Math.max(r.y - y, 0, y - (r.y + r.h));
+        const d = Math.hypot(dx, dy);
+        if (d > tolerance) continue;
+        const score = d * 1000 + Math.abs(y - (r.y + r.h / 2)) + (t.kind === 'added' ? -0.5 : 0);
+        if (score < bestScore) { bestScore = score; best = t; }
+      }
+      return best;
+    }
+    function refresh(){ paint(); buildHits(); updateSummary(); }
+
+    function updateSummary(){
+      const n = edits.length;
+      const pages = new Set(edits.map(e => e.pageIndex)).size;
+      els.count.textContent = n ? `${n} ${n === 1 ? 'Änderung' : 'Änderungen'}${pages > 1 ? ` auf ${pages} Seiten` : ''}` : 'Noch keine Änderungen';
+      els.undo.disabled = !history.length;
+      els.save.disabled = !n;
+    }
+    function updatePager(){
+      const n = doc ? doc.numPages : 0;
+      els.pageinfo.textContent = `Seite ${pageIndex + 1} von ${n}`;
+      els.prev.disabled = pageIndex <= 0;
+      els.next.disabled = pageIndex >= n - 1;
+    }
+    function updateZoomUi(){
+      els.zoomInfo.textContent = Math.round(ZOOMS[zoomIdx] * 100) + ' %';
+      els.zoomOut.disabled = zoomIdx === 0;
+      els.zoomIn.disabled = zoomIdx === ZOOMS.length - 1;
+    }
+    function updateHint(){
+      if (mode === 'add') els.hint.textContent = 'Tippe auf die Stelle, an der der neue Text beginnen soll.';
+      else if (ocrNote && state && ocrDone.has(state.pageIndex)) els.hint.textContent = ocrNote;
+      else if (state && !state.runs.length) els.hint.textContent = 'Auf dieser Seite gibt es keinen echten Text – vermutlich ein Scan. Lass den Text erkennen, dann kannst du die Zeilen wie gewohnt ändern.';
+      else els.hint.textContent = 'Tippe auf eine markierte Zeile, um sie zu ändern oder zu löschen. Zum genauen Treffen vergrößern.';
+    }
+
+    /* ----- Seite rendern ----- */
+    function isVisible(){ return !!doc && !els.box.hidden && els.wrap.offsetParent !== null; }
+    function show(force){
+      if (!isVisible()) return;
+      if (force || !state || Math.abs(els.wrap.clientWidth - lastWidth) > 4) render();
+    }
+    async function render(){
+      if (!isVisible()) return;
+      const seq = ++renderSeq;
+      if (renderTask) { try { renderTask.cancel(); } catch (e) { /* bereits fertig */ } renderTask = null; }
+      els.loading.hidden = false;
+      try {
+        const page = await doc.getPage(pageIndex + 1);
+        if (seq !== renderSeq) return;
+        const vp1 = page.getViewport({ scale: 1 });
+        lastWidth = els.wrap.clientWidth;
+        const avail = Math.max(120, lastWidth - 20);
+        const cssScale = (avail / vp1.width) * ZOOMS[zoomIdx];
+        const dpr = Math.min(window.devicePixelRatio || 1, 3);
+        const devScale = Math.min(cssScale * dpr, Math.sqrt(12e6 / (vp1.width * vp1.height)));
+        const vpCss = page.getViewport({ scale: cssScale });
+        const vpDev = page.getViewport({ scale: devScale });
+        const base = document.createElement('canvas');
+        base.width = Math.max(1, Math.floor(vpDev.width));
+        base.height = Math.max(1, Math.floor(vpDev.height));
+        const bctx = base.getContext('2d', { willReadFrequently: true });
+        bctx.fillStyle = '#fff';
+        bctx.fillRect(0, 0, base.width, base.height);
+        renderTask = page.render({ canvasContext: bctx, viewport: vpDev });
+        await renderTask.promise;
+        renderTask = null;
+        if (seq !== renderSeq) return;
+        let runs = runsCache.get(pageIndex);
+        if (!runs) {
+          runs = (await extractRuns(page)).runs;
+          runs.forEach((r, i) => { r.id = pageIndex + ':' + i; });
+          runsCache.set(pageIndex, runs);
+        }
+        if (seq !== renderSeq) return;
+        state = { pageIndex, page, vpCss, vpDev, base, runs };
+        els.stage.style.width = Math.round(vpCss.width) + 'px';
+        els.stage.style.height = Math.round(vpCss.height) + 'px';
+        els.canvas.width = base.width;
+        els.canvas.height = base.height;
+        paint();
+        buildHits();
+        updatePager();
+        els.ocr.hidden = runs.length >= 3 || ocrDone.has(pageIndex);
+        if (!ocrDone.has(pageIndex)) ocrNote = '';
+        updateHint();
+        if (keepScroll) {
+          const w = els.wrap;
+          w.scrollLeft = keepScroll.rx * w.scrollWidth - w.clientWidth / 2;
+          w.scrollTop = keepScroll.ry * w.scrollHeight - w.clientHeight / 2;
+          keepScroll = null;
+        }
+      } catch (e) {
+        if (e && e.name === 'RenderingCancelledException') return;
+        showStatus(els.status, 'Die Seite konnte nicht angezeigt werden: ' + ((e && e.message) || e), 'error');
+      } finally {
+        if (seq === renderSeq) els.loading.hidden = true;
+      }
+    }
+
+    /* ----- Farben unter einer Zeile erkennen ----- */
+    function sampleColors(box){
+      const fallback = { bg: '#ffffff', text: '#000000' };
+      if (!state) return fallback;
+      const { vpDev, base } = state;
+      const r = boxRect(vpDev, box);
+      const W = base.width, H = base.height, m = 3;
+      const ix0 = Math.max(0, Math.floor(r.x)), iy0 = Math.max(0, Math.floor(r.y));
+      const ix1 = Math.min(W, Math.ceil(r.x + r.w)), iy1 = Math.min(H, Math.ceil(r.y + r.h));
+      const ox0 = Math.max(0, ix0 - m), oy0 = Math.max(0, iy0 - m), ox1 = Math.min(W, ix1 + m), oy1 = Math.min(H, iy1 + m);
+      const w = ox1 - ox0, h = oy1 - oy0;
+      if (w <= 0 || h <= 0) return fallback;
+      let data;
+      try { data = base.getContext('2d', { willReadFrequently: true }).getImageData(ox0, oy0, w, h).data; }
+      catch (e) { return fallback; }
+      const step = Math.max(1, Math.floor(Math.sqrt((w * h) / 40000)));
+      const bins = new Map(), inside = [];
+      for (let y = 0; y < h; y++) {
+        const gy = oy0 + y, inY = gy >= iy0 && gy < iy1;
+        for (let x = 0; x < w; x++) {
+          const gx = ox0 + x, isIn = inY && gx >= ix0 && gx < ix1;
+          if (isIn && ((x % step) || (y % step))) continue;
+          const i = (y * w + x) * 4, R = data[i], G = data[i + 1], B = data[i + 2];
+          if (isIn) { inside.push(R, G, B); continue; }
+          const k = ((R >> 4) << 8) | ((G >> 4) << 4) | (B >> 4);
+          const bin = bins.get(k);
+          if (bin) { bin.n++; bin.r += R; bin.g += G; bin.b += B; } else bins.set(k, { n: 1, r: R, g: G, b: B });
+        }
+      }
+      let best = null;
+      for (const b of bins.values()) if (!best || b.n > best.n) best = b;
+      let bg = best ? [best.r / best.n, best.g / best.n, best.b / best.n] : [255, 255, 255];
+      if (bg.every(v => v > 246)) bg = [255, 255, 255];
+      const far = [];
+      for (let i = 0; i < inside.length; i += 3) {
+        const d = Math.hypot(inside[i] - bg[0], inside[i + 1] - bg[1], inside[i + 2] - bg[2]);
+        if (d > 60) far.push([d, inside[i], inside[i + 1], inside[i + 2]]);
+      }
+      let text;
+      if (far.length) {
+        far.sort((a, b) => b[0] - a[0]);
+        // nur die kräftigsten Pixel: Kantenglättung hellt die Farbe sonst auf
+        const top = far.slice(0, Math.max(3, Math.ceil(far.length * 0.06)));
+        text = [1, 2, 3].map(k => top.reduce((s, p) => s + p[k], 0) / top.length);
+        if (Math.max(...text) < 60 && Math.max(...text) - Math.min(...text) < 18) text = [0, 0, 0];
+      } else {
+        const lum = 0.299 * bg[0] + 0.587 * bg[1] + 0.114 * bg[2];
+        text = lum > 128 ? [0, 0, 0] : [255, 255, 255];
+      }
+      return { bg: toHex(bg), text: toHex(text) };
+    }
+
+    /* ----- Eingabeblatt ----- */
+    function syncForm(){
+      els.size.value = String(form.size).replace('.', ',');
+      els.bold.setAttribute('aria-pressed', form.bold ? 'true' : 'false');
+      els.italic.setAttribute('aria-pressed', form.italic ? 'true' : 'false');
+      els.familyBtns.forEach(b => b.classList.toggle('active', b.dataset.family === form.family));
+      els.swatches.forEach(s => {
+        const c = s.dataset.color === 'detected' ? form.detected : s.dataset.color;
+        s.style.setProperty('--sw', c);
+        s.classList.toggle('active', c.toLowerCase() === form.color.toLowerCase() && (s.dataset.color === 'detected' || form.color.toLowerCase() !== form.detected.toLowerCase()));
+      });
+      els.color.value = form.color;
+      els.text.style.fontFamily = FAMILY_CSS[form.family];
+      els.text.style.fontWeight = form.bold ? '700' : '400';
+      els.text.style.fontStyle = form.italic ? 'italic' : 'normal';
+    }
+    function adjustForKeyboard(){
+      const vv = window.visualViewport;
+      if (!vv || els.sheet.hidden) return;
+      els.sheet.style.paddingBottom = Math.max(0, window.innerHeight - vv.height - vv.offsetTop) + 'px';
+    }
+    function openSheet(cfg){
+      pending = cfg.pending;
+      form = { size: round1(cfg.size), color: cfg.color, detected: cfg.detected || cfg.color, family: cfg.family, bold: !!cfg.bold, italic: !!cfg.italic };
+      els.sheetTitle.textContent = cfg.title;
+      els.sheetOrig.textContent = cfg.orig || '';
+      els.sheetOrig.hidden = !cfg.orig;
+      els.text.value = cfg.text;
+      els.text.rows = Math.min(5, Math.max(2, cfg.text.split('\n').length));
+      els.del.hidden = !cfg.deleteLabel;
+      els.actions.classList.toggle('single', !cfg.deleteLabel);
+      if (cfg.deleteLabel) els.del.textContent = cfg.deleteLabel;
+      els.charWarn.hidden = true;
+      els.widthWarn.hidden = true;
+      syncForm();
+      els.sheet.hidden = false;
+      document.body.style.overflow = 'hidden';
+      adjustForKeyboard();
+      els.text.focus();
+      try { els.text.setSelectionRange(els.text.value.length, els.text.value.length); } catch (e) { /* egal */ }
+      checkText();
+    }
+    function closeSheet(){
+      els.sheet.hidden = true;
+      els.sheet.style.paddingBottom = '';
+      document.body.style.overflow = '';
+      pending = null;
+    }
+    async function measureText(text, f){
+      const font = await getMeasureFont(f.family, f.bold, f.italic);
+      const set = await getWinAnsiSet();
+      return Math.max(0, ...toWinAnsi(text, set).split('\n').map(l => font.widthOfTextAtSize(l, f.size)));
+    }
+    async function checkText(){
+      const seq = ++checkSeq;
+      const text = els.text.value;
+      const set = await getWinAnsiSet();
+      if (seq !== checkSeq || !pending) return;
+      const bad = unsupportedChars(text, set);
+      els.charWarn.hidden = !bad.length;
+      if (bad.length) els.charWarn.textContent = `Diese Zeichen kennt die PDF-Standardschrift nicht, sie werden als „?“ gespeichert: ${bad.slice(0, 8).join(' ')}`;
+      let showWidth = false;
+      if (pending.type === 'run' && text.trim()) {
+        const w = await measureText(text, form);
+        if (seq !== checkSeq || !pending) return;
+        const old = pending.run.width;
+        if (old > 0 && w > old * 1.12 + 2) {
+          showWidth = true;
+          els.widthWarnText.textContent = `Der neue Text ist etwa ${Math.round((w / old - 1) * 100)} % breiter als der alte und kann in benachbarten Text ragen.`;
+        }
+      }
+      els.widthWarn.hidden = !showWidth;
+    }
+    function medianFs(){
+      const s = (state ? state.runs : []).map(r => r.fs).sort((a, b) => a - b);
+      return s.length ? s[Math.floor(s.length / 2)] : 12;
+    }
+    function openForRun(r){
+      const ex = edits.find(e => e.runId === r.id);
+      const colors = ex ? { bg: ex.bg, text: ex.detected } : sampleColors(runBox(r));
+      openSheet({
+        pending: { type: 'run', run: r, existing: ex, colors },
+        title: 'Text ändern',
+        orig: 'Original: „' + r.text + '“',
+        text: ex && ex.text ? ex.text : r.text,
+        size: ex ? ex.size : r.fs,
+        color: ex ? ex.color : colors.text,
+        detected: colors.text,
+        family: ex ? ex.family : r.family,
+        bold: ex ? ex.bold : r.bold,
+        italic: ex ? ex.italic : r.italic,
+        deleteLabel: 'Zeile löschen'
+      });
+    }
+    function openForAdd(p){
+      openSheet({ pending: Object.assign({ type: 'add' }, p), title: 'Text hinzufügen', orig: '', text: '', size: medianFs(), color: '#000000', detected: '#000000', family: 'sans', bold: false, italic: false, deleteLabel: null });
+    }
+    function openForAdded(e){
+      openSheet({ pending: { type: 'added', edit: e }, title: 'Text ändern', orig: '', text: e.text, size: e.size, color: e.color, detected: e.color, family: e.family, bold: e.bold, italic: e.italic, deleteLabel: 'Text entfernen' });
+    }
+    function pushHistory(){
+      history.push(edits.slice());
+      if (history.length > 60) history.shift();
+    }
+    async function applySheet(){
+      if (!pending || !state) return;
+      const set = await getWinAnsiSet();
+      const text = toWinAnsi(els.text.value.replace(/\r\n?/g, '\n').replace(/\s+$/, ''), set);
+      const f = form;
+      const style = { size: f.size, color: f.color, family: f.family, bold: f.bold, italic: f.italic };
+      const p = pending;
+      if (p.type === 'run') {
+        const r = p.run;
+        const isOriginal = text === r.text && Math.abs(f.size - round1(r.fs)) < 0.05 && f.color.toLowerCase() === p.colors.text.toLowerCase() &&
+          f.family === r.family && f.bold === !!r.bold && f.italic === !!r.italic;
+        if (isOriginal && !p.existing) { closeSheet(); return; }
+        pushHistory();
+        edits = edits.filter(e => e.runId !== r.id);
+        if (!isOriginal) {
+          const measured = await measureText(text, f);
+          let x = r.x, y = r.y;
+          if (!text.includes('\n') && isRightAligned(r)) {
+            const shift = r.width - measured;
+            x += shift * Math.cos(r.angle);
+            y += shift * Math.sin(r.angle);
+          }
+          edits.push(Object.assign({ id: nextId++, pageIndex: state.pageIndex, runId: r.id, original: r.text, cover: runBox(r), bg: p.colors.bg, detected: p.colors.text, text, x, y, angle: r.angle, measured }, style));
+        }
+      } else if (p.type === 'add') {
+        if (!text.trim()) { closeSheet(); return; }
+        pushHistory();
+        const x = p.px + p.down[0] * 0.35 * f.size, y = p.py + p.down[1] * 0.35 * f.size;
+        edits.push(Object.assign({ id: nextId++, pageIndex: state.pageIndex, runId: null, cover: null, text, x, y, angle: p.angle, measured: await measureText(text, f) }, style));
+      } else if (p.type === 'added') {
+        pushHistory();
+        if (!text.trim()) edits = edits.filter(e => e !== p.edit);
+        else edits = edits.map(e => e === p.edit ? Object.assign({}, e, style, { text, measured: 0 }) : e);
+        const changed = edits.find(e => e.id === p.edit.id);
+        if (changed) changed.measured = await measureText(changed.text, changed);
+      }
+      closeSheet();
+      refresh();
+    }
+    function deleteFromSheet(){
+      const p = pending;
+      if (!p || !state) return;
+      pushHistory();
+      if (p.type === 'run') {
+        const r = p.run;
+        edits = edits.filter(e => e.runId !== r.id);
+        edits.push({ id: nextId++, pageIndex: state.pageIndex, runId: r.id, original: r.text, cover: runBox(r), bg: p.colors.bg, detected: p.colors.text, text: '', x: r.x, y: r.y, angle: r.angle, size: r.fs, color: p.colors.text, family: r.family, bold: r.bold, italic: r.italic });
+      } else if (p.type === 'added') {
+        edits = edits.filter(e => e !== p.edit);
+      }
+      closeSheet();
+      refresh();
+    }
+
+    /* ----- Fettdruck bei erkanntem Text über die Strichstärke schätzen ----- */
+    function guessBold(runs){
+      if (!state || runs.length < 2) return;
+      const ctx = state.base.getContext('2d', { willReadFrequently: true });
+      const ink = runs.map(r => {
+        const b = boxRect(state.vpDev, { x0: r.x, y0: r.y, angle: r.angle, lx: 0, ly: 0.02 * r.fs, w: r.width, h: 0.68 * r.fs });
+        const x = Math.max(0, Math.floor(b.x)), y = Math.max(0, Math.floor(b.y));
+        const w = Math.min(state.base.width - x, Math.ceil(b.w)), h = Math.min(state.base.height - y, Math.ceil(b.h));
+        if (w < 2 || h < 2) return 0;
+        const d = ctx.getImageData(x, y, w, h).data;
+        let dark = 0;
+        for (let i = 0; i < d.length; i += 4) if (0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2] < 128) dark++;
+        // Strichstärke relativ zur Schriftgröße vergleichbar machen
+        return dark / (w * h);
+      });
+      const ref = runs.map((r, i) => ({ r, v: ink[i] })).filter(o => o.r.text.length >= 4 && o.v > 0).map(o => o.v).sort((a, b) => a - b);
+      if (ref.length < 2) return;
+      const median = ref[Math.floor(ref.length / 2)];
+      runs.forEach((r, i) => { r.bold = ink[i] > median * 1.3 && r.text.length >= 2; });
+    }
+
+    /* ----- Texterkennung für gescannte Seiten ----- */
+    async function runOcr(){
+      if (!state || ocrBusy) return;
+      ocrBusy = true;
+      const pi = state.pageIndex, page = state.page;
+      const lock = [els.ocr, els.prev, els.next, els.zoomIn, els.zoomOut];
+      lock.forEach(b => { b.disabled = true; });
+      els.loading.hidden = false;
+      try {
+        const { runs } = await ocrPdfPage(page, msg => { els.loading.textContent = msg; });
+        runs.forEach((r, i) => { r.id = pi + ':o' + i; });
+        if (state && state.pageIndex === pi) guessBold(runs);
+        runsCache.set(pi, (runsCache.get(pi) || []).concat(runs));
+        ocrDone.add(pi);
+        ocrNote = runs.length
+          ? `${runs.length} Textzeilen erkannt. Tippe auf eine Zeile, um sie zu ändern – prüfe den erkannten Text im Eingabefeld.`
+          : 'Auf dieser Seite wurde kein Text erkannt. Mit „Text hinzufügen“ kannst du neuen Text einsetzen.';
+        if (state && state.pageIndex === pi) {
+          state.runs = runsCache.get(pi);
+          els.ocr.hidden = true;
+          buildHits();
+        }
+      } catch (e) {
+        ocrNote = '';
+        els.hint.textContent = (e && e.message) || 'Die Texterkennung ist fehlgeschlagen.';
+        els.hint.classList.add('warn');
+        setTimeout(() => els.hint.classList.remove('warn'), 6000);
+      } finally {
+        ocrBusy = false;
+        els.loading.hidden = true;
+        els.loading.textContent = 'Seite wird geladen …';
+        els.ocr.disabled = false;
+        updatePager(); updateZoomUi();
+        if (ocrNote) updateHint();
+      }
+    }
+
+    /* ----- Speichern ----- */
+    async function save(){
+      if (!edits.length) return;
+      els.save.disabled = true;
+      showStatus(els.status, 'Wird gespeichert …');
+      try {
+        const pdf = await loadPdfLib(single.bytes);
+        const set = await getWinAnsiSet();
+        if (els.flatten.checked) {
+          const pageNums = [...new Set(edits.map(e => e.pageIndex))].sort((a, b) => a - b);
+          for (const pi of pageNums) {
+            showStatus(els.status, `Seite ${pi + 1} wird neu aufgebaut …`);
+            const page = await doc.getPage(pi + 1);
+            const { canvas, vp } = await renderPageToCanvas(page, safeScale(page, 2.2, 14e6));
+            const ctx = canvas.getContext('2d');
+            edits.filter(e => e.pageIndex === pi).forEach(e => paintEdit(ctx, vp.transform, e));
+            const blob = await canvasToBlob(canvas, 'image/jpeg', 0.92);
+            canvas.width = canvas.height = 0;
+            const img = await pdf.embedJpg(new Uint8Array(await blob.arrayBuffer()));
+            const vp1 = page.getViewport({ scale: 1 });
+            const np = pdf.insertPage(pi, [vp1.width, vp1.height]);
+            np.drawImage(img, { x: 0, y: 0, width: vp1.width, height: vp1.height });
+            pdf.removePage(pi + 1);
+          }
+        } else {
+          const pages = pdf.getPages();
+          const fonts = {};
+          for (const e of edits) {
+            const pg = pages[e.pageIndex];
+            if (e.cover) {
+              const c = e.cover, cs = Math.cos(c.angle), sn = Math.sin(c.angle);
+              pg.drawRectangle({
+                x: c.x0 + c.lx * cs - c.ly * sn, y: c.y0 + c.lx * sn + c.ly * cs,
+                width: c.w, height: c.h, rotate: PDFLib.degrees(c.angle * 180 / Math.PI),
+                color: hexToRgb(e.bg), borderWidth: 0
+              });
+            }
+            if (e.text) {
+              const name = stdFontName(e.family, e.bold, e.italic);
+              if (!fonts[name]) fonts[name] = await pdf.embedFont(name);
+              pg.drawText(toWinAnsi(e.text, set), {
+                x: e.x, y: e.y, size: e.size, font: fonts[name], color: hexToRgb(e.color),
+                rotate: PDFLib.degrees(e.angle * 180 / Math.PI), lineHeight: e.size * LINE
+              });
+            }
+          }
+        }
+        const out = await pdf.save();
+        const name = sanitizeFilename(els.filename.value, single.base + '-bearbeitet');
+        downloadBytes(out, name + '.pdf', 'application/pdf');
+        showStatus(els.status, `Gespeichert – ${edits.length} ${edits.length === 1 ? 'Änderung' : 'Änderungen'} übernommen.`, 'ok');
+      } catch (e) {
+        showStatus(els.status, 'Fehler: ' + ((e && e.message) || e), 'error');
+      }
+      els.save.disabled = !edits.length;
+    }
+
+    /* ----- Ereignisse ----- */
+    els.prev.addEventListener('click', () => { if (pageIndex > 0) { pageIndex--; render(); } });
+    els.next.addEventListener('click', () => { if (doc && pageIndex < doc.numPages - 1) { pageIndex++; render(); } });
+    function setZoom(idx){
+      if (idx < 0 || idx >= ZOOMS.length || idx === zoomIdx) return;
+      const w = els.wrap;
+      keepScroll = { rx: (w.scrollLeft + w.clientWidth / 2) / Math.max(1, w.scrollWidth), ry: (w.scrollTop + w.clientHeight / 2) / Math.max(1, w.scrollHeight) };
+      zoomIdx = idx;
+      updateZoomUi();
+      render();
+    }
+    els.zoomIn.addEventListener('click', () => setZoom(zoomIdx + 1));
+    els.zoomOut.addEventListener('click', () => setZoom(zoomIdx - 1));
+    els.modeBtns.forEach(b => b.addEventListener('click', () => {
+      mode = b.dataset.mode;
+      els.modeBtns.forEach(x => x.classList.toggle('active', x === b));
+      els.stage.classList.toggle('mode-add', mode === 'add');
+      updateHint();
+    }));
+    els.stage.addEventListener('click', ev => {
+      if (!state) return;
+      const rect = els.stage.getBoundingClientRect();
+      const cx = ev.clientX - rect.left, cy = ev.clientY - rect.top;
+      if (mode === 'edit') {
+        const t = pickTarget(cx, cy, 12, ['run', 'added']);
+        if (t) { if (t.kind === 'run') openForRun(t.run); else openForAdded(t.edit); }
+        return;
+      }
+      const t = pickTarget(cx, cy, 4, ['added']);
+      if (t) { openForAdded(t.edit); return; }
+      const vp = state.vpCss;
+      const p0 = vp.convertToPdfPoint(cx, cy), p1 = vp.convertToPdfPoint(cx + 10, cy), p2 = vp.convertToPdfPoint(cx, cy + 10);
+      const len = Math.hypot(p2[0] - p0[0], p2[1] - p0[1]) || 1;
+      openForAdd({ px: p0[0], py: p0[1], angle: Math.atan2(p1[1] - p0[1], p1[0] - p0[0]), down: [(p2[0] - p0[0]) / len, (p2[1] - p0[1]) / len] });
     });
+    els.undo.addEventListener('click', () => { if (!history.length) return; edits = history.pop(); refresh(); });
+    els.save.addEventListener('click', save);
+    els.ocr.addEventListener('click', runOcr);
+
+    els.text.addEventListener('input', checkText);
+    els.size.addEventListener('change', () => {
+      const v = parseFloat(els.size.value.replace(',', '.'));
+      if (isFinite(v)) form.size = round1(Math.min(144, Math.max(4, v)));
+      syncForm(); checkText();
+    });
+    const stepSize = dir => { form.size = round1(Math.min(144, Math.max(4, form.size + dir * (form.size >= 20 ? 1 : 0.5)))); syncForm(); checkText(); };
+    els.sizeDown.addEventListener('click', () => stepSize(-1));
+    els.sizeUp.addEventListener('click', () => stepSize(1));
+    els.bold.addEventListener('click', () => { form.bold = !form.bold; syncForm(); checkText(); });
+    els.italic.addEventListener('click', () => { form.italic = !form.italic; syncForm(); checkText(); });
+    els.familyBtns.forEach(b => b.addEventListener('click', () => { form.family = b.dataset.family; syncForm(); checkText(); }));
+    els.swatches.forEach(s => s.addEventListener('click', () => { form.color = s.dataset.color === 'detected' ? form.detected : s.dataset.color; syncForm(); }));
+    els.color.addEventListener('input', () => { form.color = els.color.value; syncForm(); });
+    els.fit.addEventListener('click', async () => {
+      if (!pending || pending.type !== 'run') return;
+      const w = await measureText(els.text.value, form);
+      if (w > 0) { form.size = Math.max(4, Math.floor(form.size * pending.run.width / w * 10) / 10); syncForm(); checkText(); }
+    });
+    els.apply.addEventListener('click', applySheet);
+    els.del.addEventListener('click', deleteFromSheet);
+    els.cancel.addEventListener('click', closeSheet);
+    els.sheet.addEventListener('click', ev => { if (ev.target === els.sheet) closeSheet(); });
+    document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && !els.sheet.hidden) closeSheet(); });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', adjustForKeyboard);
+      window.visualViewport.addEventListener('scroll', adjustForKeyboard);
+    }
+    let resizeTimer = null;
+    window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => show(false), 250); });
+    window.addEventListener('pdfconvert:tab', () => show(false));
+
+    return {
+      setDoc(d, offlineHint){
+        doc = d; pageIndex = 0; zoomIdx = 0; edits = []; history = []; state = null; lastWidth = 0;
+        runsCache.clear(); ocrDone.clear(); ocrNote = '';
+        els.ocr.hidden = true;
+        els.status.className = 'status';
+        els.box.hidden = !d;
+        els.empty.hidden = !!d || !offlineHint;
+        if (offlineHint) els.empty.textContent = offlineHint;
+        els.hits.textContent = '';
+        updateSummary(); updateZoomUi();
+        if (d) show(true);
+      },
+      show,
+      hasEdits: () => edits.length > 0
+    };
+  })();
+
+  /* ==========================================================
+     WERKZEUGWAHL
+     ========================================================== */
+  const toolButtons = document.querySelectorAll('#tab-edit .tool');
+  const mergePanel = document.querySelector('#tab-edit [data-panel="merge"]');
+  const singlePanel = document.querySelector('#tab-edit [data-panel="single"]');
+  const subPanels = document.querySelectorAll('#tab-edit .sub-panel');
+  function selectTool(t){
+    toolButtons.forEach(b => {
+      const on = b.dataset.tool === t;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    mergePanel.hidden = t !== 'merge';
+    singlePanel.hidden = t === 'merge';
+    subPanels.forEach(p => { p.hidden = p.dataset.sub !== t; });
+    if (t === 'text') editor.show(false);
   }
-  modeButtons.forEach(b => b.addEventListener('click', () => showMode(b.dataset.mode)));
-  showMode('merge');
+  toolButtons.forEach(b => b.addEventListener('click', () => selectTool(b.dataset.tool)));
 
-  /* --- Merge --- */
-  const mDropzone = document.getElementById('merge-dropzone');
-  const mInput = document.getElementById('merge-input');
-  const mList = document.getElementById('merge-filelist');
-  const mEmpty = document.getElementById('merge-empty');
-  const mRun = document.getElementById('merge-run');
-  const mStatus = document.getElementById('merge-status');
+  /* ==========================================================
+     ZUSAMMENFÜGEN
+     ========================================================== */
+  const mDropzone = $('merge-dropzone'), mInput = $('merge-input'), mList = $('merge-filelist'), mEmpty = $('merge-empty');
+  const mRun = $('merge-run'), mStatus = $('merge-status'), mFilename = $('merge-filename');
   let mergeItems = [];
-
   mDropzone.addEventListener('click', () => mInput.click());
   mInput.addEventListener('change', () => {
-    Array.from(mInput.files).forEach(f => mergeItems.push({file:f}));
+    Array.from(mInput.files).forEach(f => mergeItems.push({ file: f }));
     mInput.value = '';
     refreshMerge();
   });
   function refreshMerge(){
     renderFileList(mList, mEmpty, mergeItems, {
-      onRemove: (i) => { mergeItems.splice(i,1); refreshMerge(); },
-      onMove: (i,j) => { const t=mergeItems[i]; mergeItems[i]=mergeItems[j]; mergeItems[j]=t; refreshMerge(); }
+      onRemove: i => { mergeItems.splice(i, 1); refreshMerge(); },
+      onMove: (i, j) => { const t = mergeItems[i]; mergeItems[i] = mergeItems[j]; mergeItems[j] = t; refreshMerge(); }
     });
     mRun.disabled = mergeItems.length < 2;
   }
   refreshMerge();
-
-  const mFilename = document.getElementById('merge-filename');
-
   mRun.addEventListener('click', async () => {
     mRun.disabled = true;
     showStatus(mStatus, 'Füge zusammen …');
     try {
       const merged = await PDFLib.PDFDocument.create();
       for (const item of mergeItems) {
-        const src = await PDFLib.PDFDocument.load(await item.file.arrayBuffer());
+        const src = await loadPdfLib(await item.file.arrayBuffer());
         const pages = await merged.copyPages(src, src.getPageIndices());
         pages.forEach(p => merged.addPage(p));
       }
@@ -866,120 +2718,291 @@ function renderFileList(ulEl, emptyEl, items, opts){
     mRun.disabled = false;
   });
 
-  /* --- Single-file tools (remove / rotate / extract / splitall) --- */
-  const sDropzone = document.getElementById('single-dropzone');
-  const sInput = document.getElementById('single-input');
-  const sPagecount = document.getElementById('single-pagecount');
-  const sStatus = document.getElementById('single-status');
-  let currentFile = null, currentPageCount = 0;
-
-  const removeInput = document.getElementById('remove-pages');
-  const removeFilename = document.getElementById('remove-filename');
-  const removeRun = document.getElementById('remove-run');
-  const rotateInput = document.getElementById('rotate-pages');
-  const rotateDeg = document.getElementById('rotate-deg');
-  const rotateFilename = document.getElementById('rotate-filename');
-  const rotateRun = document.getElementById('rotate-run');
-  const extractInput = document.getElementById('extract-pages');
-  const extractFilename = document.getElementById('extract-filename');
-  const extractRun = document.getElementById('extract-run');
-  const splitallFilename = document.getElementById('splitall-filename');
-  const splitallRun = document.getElementById('splitall-run');
-
-  sDropzone.addEventListener('click', () => sInput.click());
+  /* ==========================================================
+     EINZEL-PDF LADEN
+     ========================================================== */
+  const sDropzone = $('single-dropzone'), sInput = $('single-input'), sFilebar = $('single-filebar');
+  const sFname = $('single-fname'), sFsub = $('single-fsub'), sChange = $('single-change'), sStatus = $('single-status');
+  const exRun = $('ex-run'), splitRun = $('split-run'), removeRun = $('remove-run'), rotateRun = $('rotate-run');
+  function pickFile(){
+    if (editor.hasEdits() && !confirm('Deine Textänderungen sind noch nicht gespeichert. Trotzdem eine andere PDF öffnen?')) return;
+    sInput.click();
+  }
+  sDropzone.addEventListener('click', pickFile);
+  sChange.addEventListener('click', pickFile);
   sInput.addEventListener('change', async () => {
     const f = sInput.files[0];
-    if (!f) return;
-    currentFile = f;
-    sStatus.className = 'status';
-    try {
-      const doc = await PDFLib.PDFDocument.load(await f.arrayBuffer());
-      currentPageCount = doc.getPageCount();
-      sPagecount.textContent = `„${f.name}“ – ${currentPageCount} Seite(n)`;
-      [removeRun, rotateRun, extractRun, splitallRun].forEach(b => b.disabled = false);
-    } catch (e) {
-      currentFile = null; currentPageCount = 0;
-      sPagecount.textContent = '';
-      showStatus(sStatus, 'Diese Datei konnte nicht als PDF gelesen werden.', 'error');
-      [removeRun, rotateRun, extractRun, splitallRun].forEach(b => b.disabled = true);
-    }
+    sInput.value = '';
+    if (f) await loadSingle(f);
   });
-
-  removeRun.addEventListener('click', async () => {
-    if (!currentFile) return;
+  async function loadSingle(file){
+    showStatus(sStatus, 'PDF wird geladen …');
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    let doc = null, pageCount = 0, offlineHint = '';
     try {
-      const toRemove = parsePageRanges(removeInput.value, currentPageCount);
-      if (toRemove.length >= currentPageCount) throw new Error('Es muss mindestens eine Seite übrig bleiben.');
-      const doc = await PDFLib.PDFDocument.load(await currentFile.arrayBuffer());
-      const uniqueSorted = [...new Set(toRemove)].sort((a,b) => b-a);
-      uniqueSorted.forEach(idx => doc.removePage(idx));
-      const base = sanitizeFilename(removeFilename.value, `bearbeitet-${timestamp()}`);
-      downloadBytes(await doc.save(), base + '.pdf', 'application/pdf');
-      showStatus(sStatus, `Fertig – ${uniqueSorted.length} Seite(n) entfernt.`, 'ok');
+      doc = await openPdfJs(bytes);
+      pageCount = doc.numPages;
     } catch (e) {
-      showStatus(sStatus, 'Fehler: ' + e.message, 'error');
-    }
-  });
-
-  rotateRun.addEventListener('click', async () => {
-    if (!currentFile) return;
-    try {
-      const raw = rotateInput.value.trim();
-      const targets = raw ? [...new Set(parsePageRanges(raw, currentPageCount))]
-                           : Array.from({length: currentPageCount}, (_,i) => i);
-      const deg = parseInt(rotateDeg.value, 10);
-      const doc = await PDFLib.PDFDocument.load(await currentFile.arrayBuffer());
-      const pages = doc.getPages();
-      targets.forEach(i => {
-        const p = pages[i];
-        const current = p.getRotation().angle;
-        p.setRotation(PDFLib.degrees((current + deg) % 360));
-      });
-      const base = sanitizeFilename(rotateFilename.value, `gedreht-${timestamp()}`);
-      downloadBytes(await doc.save(), base + '.pdf', 'application/pdf');
-      showStatus(sStatus, `Fertig – ${targets.length} Seite(n) gedreht.`, 'ok');
-    } catch (e) {
-      showStatus(sStatus, 'Fehler: ' + e.message, 'error');
-    }
-  });
-
-  extractRun.addEventListener('click', async () => {
-    if (!currentFile) return;
-    try {
-      const indices = parsePageRanges(extractInput.value, currentPageCount);
-      const src = await PDFLib.PDFDocument.load(await currentFile.arrayBuffer());
-      const out = await PDFLib.PDFDocument.create();
-      const pages = await out.copyPages(src, indices);
-      pages.forEach(p => out.addPage(p));
-      const base = sanitizeFilename(extractFilename.value, `auszug-${timestamp()}`);
-      downloadBytes(await out.save(), base + '.pdf', 'application/pdf');
-      showStatus(sStatus, `Fertig – Auszug mit ${indices.length} Seite(n) gespeichert.`, 'ok');
-    } catch (e) {
-      showStatus(sStatus, 'Fehler: ' + e.message, 'error');
-    }
-  });
-
-  splitallRun.addEventListener('click', async () => {
-    if (!currentFile) return;
-    try {
-      const src = await PDFLib.PDFDocument.load(await currentFile.arrayBuffer());
-      const zip = new JSZip();
-      const pad = String(currentPageCount).length;
-      for (let i = 0; i < currentPageCount; i++) {
-        const out = await PDFLib.PDFDocument.create();
-        const [p] = await out.copyPages(src, [i]);
-        out.addPage(p);
-        const bytes = await out.save();
-        zip.file(`seite-${String(i+1).padStart(pad,'0')}.pdf`, bytes);
+      if (window.pdfjsLib) { showStatus(sStatus, e.message, 'error'); return; }
+      try {
+        pageCount = (await PDFLib.PDFDocument.load(bytes, { ignoreEncryption: true })).getPageCount();
+        offlineHint = 'Text bearbeiten und Exportieren müssen einmal mit Internetverbindung geladen werden. Die Seiten-Werkzeuge funktionieren schon.';
+      } catch (e2) {
+        showStatus(sStatus, 'Die Datei konnte nicht als PDF gelesen werden.', 'error');
+        return;
       }
-      const blob = await zip.generateAsync({ type: 'blob' });
-      const base = sanitizeFilename(splitallFilename.value, `seiten-${timestamp()}`);
-      downloadBytes(await blob.arrayBuffer(), base + '.zip', 'application/zip');
-      showStatus(sStatus, `Fertig – ${currentPageCount} Einzelseiten als ZIP gespeichert.`, 'ok');
+    }
+    if (single.doc) { try { single.doc.destroy(); } catch (e) { /* egal */ } }
+    Object.assign(single, { file, bytes, pageCount, doc, base: file.name.replace(/\.pdf$/i, '').trim() || 'dokument' });
+    sFname.textContent = file.name;
+    sFsub.textContent = `${pageCount} ${pageCount === 1 ? 'Seite' : 'Seiten'}, ${formatBytes(file.size)}`;
+    sDropzone.hidden = true;
+    sFilebar.hidden = false;
+    sStatus.className = 'status';
+    [splitRun, removeRun, rotateRun].forEach(b => { b.disabled = false; });
+    exRun.disabled = !doc;
+    $('ex-filename').placeholder = single.base + (fmt === 'pdf' ? '-durchsuchbar' : '');
+    $('te-filename').placeholder = single.base + '-bearbeitet';
+    document.querySelectorAll('#tab-edit .sub-panel .status').forEach(s => { s.className = 'status'; });
+    if (offlineHint) showStatus($('ex-status'), offlineHint, 'error');
+    editor.setDoc(doc, offlineHint);
+  }
+
+  /* ==========================================================
+     EXPORTIEREN
+     ========================================================== */
+  const FORMATS = {
+    docx: { name: 'Word', mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', hint: 'Bearbeitbares Word-Dokument mit Überschriften, Absätzen und Tabellen. Bilder und das exakte Layout werden nicht übernommen.' },
+    xlsx: { name: 'Excel', mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', hint: 'Spalten werden anhand der Abstände erkannt – ideal für Tabellen, Kontoauszüge und Rechnungen.' },
+    csv: { name: 'CSV', mime: 'text/csv;charset=utf-8', hint: 'Tabelle als einfache Textdatei. Öffnet in Excel, Numbers und Google Tabellen.' },
+    txt: { name: 'Text', mime: 'text/plain;charset=utf-8', hint: 'Nur der Text, ohne Formatierung.' },
+    img: { name: 'Bilder', hint: 'Jede Seite als Bild. Bei mehreren Seiten bekommst du eine ZIP-Datei.' },
+    pdf: { name: 'durchsuchbare PDF', mime: 'application/pdf', hint: 'Für gescannte PDFs: Die Texterkennung legt eine unsichtbare Textebene über die Seiten. Danach kannst du in der PDF suchen, Text markieren und kopieren – das Aussehen bleibt unverändert.' }
+  };
+  const fmtButtons = document.querySelectorAll('#ex-formats .fmt');
+  const exOpts = document.querySelectorAll('#tab-edit .ex-opt');
+  const exHint = $('ex-fmt-hint'), exStatus = $('ex-status'), exPages = $('ex-pages'), exFilename = $('ex-filename');
+  let fmt = 'docx';
+  function selectFormat(f){
+    fmt = f;
+    fmtButtons.forEach(b => { const on = b.dataset.fmt === f; b.classList.toggle('active', on); b.setAttribute('aria-checked', on ? 'true' : 'false'); });
+    exOpts.forEach(o => { o.hidden = !o.dataset.for.split(' ').includes(f); });
+    exHint.textContent = FORMATS[f].hint;
+    exRun.textContent = f === 'pdf' ? 'Durchsuchbar machen' : `Als ${FORMATS[f].name} exportieren`;
+    exStatus.className = 'status';
+    if (single.file) exFilename.placeholder = single.base + (f === 'pdf' ? '-durchsuchbar' : '');
+  }
+  fmtButtons.forEach(b => b.addEventListener('click', () => selectFormat(b.dataset.fmt)));
+  selectFormat('docx');
+
+  function selectedPages(input, count){
+    const raw = input.value.trim();
+    if (!raw) return Array.from({ length: count }, (_, i) => i);
+    return [...new Set(parsePageRanges(raw, count))];
+  }
+  const countChars = runs => runs.reduce((a, r) => a + r.text.replace(/\s/g, '').length, 0);
+
+  async function exportImages(doc, idx, base){
+    const type = $('ex-img-type').value === 'png' ? 'png' : 'jpg';
+    const mime = type === 'png' ? 'image/png' : 'image/jpeg';
+    const dpi = parseInt($('ex-dpi').value, 10) || 150;
+    const files = [];
+    const pad = String(single.pageCount).length;
+    for (let k = 0; k < idx.length; k++) {
+      showStatus(exStatus, `Seite ${k + 1} von ${idx.length} wird gerendert …`);
+      const page = await doc.getPage(idx[k] + 1);
+      const { canvas } = await renderPageToCanvas(page, safeScale(page, dpi / 72));
+      const blob = await canvasToBlob(canvas, mime, type === 'jpg' ? 0.9 : undefined);
+      canvas.width = canvas.height = 0;
+      page.cleanup();
+      const suffix = single.pageCount > 1 ? `-seite-${String(idx[k] + 1).padStart(pad, '0')}` : '';
+      files.push({ name: `${base}${suffix}.${type}`, blob });
+    }
+    if (files.length === 1) {
+      downloadBytes(files[0].blob, files[0].name, mime);
+    } else {
+      showStatus(exStatus, 'ZIP-Datei wird gepackt …');
+      const zip = new JSZip();
+      files.forEach(f => zip.file(f.name, f.blob));
+      downloadBytes(await zip.generateAsync({ type: 'blob', compression: 'STORE' }), base + '.zip', 'application/zip');
+    }
+    showStatus(exStatus, `Fertig – ${files.length} ${files.length === 1 ? 'Bild' : 'Bilder'} als ${type.toUpperCase()} exportiert.`, 'ok');
+  }
+
+  async function exportSearchable(doc, idx){
+    const pdf = await loadPdfLib(single.bytes);
+    const pdfPages = pdf.getPages();
+    const cache = {};
+    let done = 0, hadText = 0, words = 0;
+    for (let k = 0; k < idx.length; k++) {
+      const page = await doc.getPage(idx[k] + 1);
+      const { runs } = await extractRuns(page);
+      if (countChars(runs) >= 3) { hadText++; page.cleanup(); continue; }
+      const res = await ocrPdfPage(page, msg => showStatus(exStatus, `Seite ${k + 1} von ${idx.length}: ${msg}`));
+      const n = await addInvisibleText(pdf, pdfPages[idx[k]], res.words, cache);
+      if (n) { done++; words += n; }
+      page.cleanup();
+    }
+    if (!done) {
+      showStatus(exStatus, hadText === idx.length
+        ? 'Diese Seiten enthalten bereits echten Text – die PDF ist schon durchsuchbar.'
+        : 'Auf den Seiten wurde kein Text erkannt.', hadText === idx.length ? 'ok' : 'error');
+      return;
+    }
+    showStatus(exStatus, 'Datei wird gespeichert …');
+    const name = sanitizeFilename(exFilename.value, single.base + '-durchsuchbar');
+    downloadBytes(await pdf.save(), name + '.pdf', 'application/pdf');
+    showStatus(exStatus, `Fertig – ${done} ${done === 1 ? 'Seite' : 'Seiten'} durchsuchbar gemacht (${words} Wörter erkannt).`, 'ok');
+  }
+
+  async function exportText(doc, idx, base, F){
+    const useOcr = $('ex-ocr').checked;
+    const pages = [];
+    let chars = 0, ocrPages = 0, scanPages = 0;
+    for (let k = 0; k < idx.length; k++) {
+      showStatus(exStatus, `Seite ${k + 1} von ${idx.length} wird gelesen …`);
+      const page = await doc.getPage(idx[k] + 1);
+      let { runs, viewport } = await extractRuns(page, { withFonts: fmt === 'docx' });
+      if (countChars(runs) < 3) {
+        scanPages++;
+        if (useOcr) {
+          const res = await ocrPdfPage(page, msg => showStatus(exStatus, `Seite ${k + 1} von ${idx.length}: ${msg}`));
+          if (res.runs.length) { runs = runs.concat(res.runs); ocrPages++; }
+        }
+      }
+      chars += countChars(runs);
+      pages.push({ num: idx[k] + 1, rows: buildRows(runs), viewport });
+      page.cleanup();
+    }
+    if (!chars) {
+      throw new Error(useOcr
+        ? 'Es wurde kein Text gefunden – auch die Texterkennung konnte nichts lesen.'
+        : 'In dieser PDF steckt kein echter Text – vermutlich ein Scan. Schalte „Gescannte Seiten per Texterkennung lesen“ ein.');
+    }
+    showStatus(exStatus, 'Datei wird erstellt …');
+    let data;
+    if (fmt === 'txt') {
+      data = '﻿' + pages.map(p => rowsToText(p.rows, $('ex-txt-layout').checked)).join('\n\n\n');
+    } else if (fmt === 'csv') {
+      const d = $('ex-csv-delim').value;
+      const delim = d === 'tab' ? '\t' : d;
+      const grid = [];
+      pages.forEach((p, k) => { if (k) grid.push([]); grid.push(...rowsToGrid(p.rows)); });
+      data = gridToCsv(grid, delim);
+    } else if (fmt === 'xlsx') {
+      const sheets = $('ex-xlsx-sheets').checked
+        ? pages.map(p => ({ name: 'Seite ' + p.num, grid: rowsToGrid(p.rows) }))
+        : [{ name: 'Tabelle', grid: pages.reduce((g, p, k) => { if (k) g.push([]); return g.concat(rowsToGrid(p.rows)); }, []) }];
+      data = await buildXlsx(sheets, $('ex-xlsx-numbers').checked);
+    } else {
+      data = await buildDocx(pages, { reflow: $('ex-docx-reflow').checked, pageBreaks: $('ex-docx-breaks').checked });
+    }
+    downloadBytes(data, `${base}.${fmt}`, F.mime);
+    let msg = `Fertig – ${idx.length} ${idx.length === 1 ? 'Seite' : 'Seiten'} als ${F.name} exportiert`;
+    if (ocrPages) msg += `, ${ocrPages} davon per Texterkennung – bitte kurz gegenlesen`;
+    else if (scanPages && !useOcr) msg += ` (${scanPages} gescannte ${scanPages === 1 ? 'Seite' : 'Seiten'} ohne Text übersprungen)`;
+    showStatus(exStatus, msg + '.', 'ok');
+  }
+
+  exRun.addEventListener('click', async () => {
+    if (!single.doc) return;
+    exRun.disabled = true;
+    try {
+      const idx = selectedPages(exPages, single.pageCount);
+      const base = sanitizeFilename(exFilename.value, single.base);
+      if (fmt === 'img') await exportImages(single.doc, idx, base);
+      else if (fmt === 'pdf') await exportSearchable(single.doc, idx);
+      else await exportText(single.doc, idx, base, FORMATS[fmt]);
     } catch (e) {
-      showStatus(sStatus, 'Fehler: ' + e.message, 'error');
+      showStatus(exStatus, 'Fehler: ' + ((e && e.message) || e), 'error');
+    }
+    exRun.disabled = !single.doc;
+  });
+
+  /* ==========================================================
+     TRENNEN
+     ========================================================== */
+  const splitModeBtns = document.querySelectorAll('#split-mode button');
+  const splitStatus = $('split-status');
+  let splitMode = 'extract';
+  splitModeBtns.forEach(b => b.addEventListener('click', () => {
+    splitMode = b.dataset.mode;
+    splitModeBtns.forEach(x => x.classList.toggle('active', x === b));
+    document.querySelectorAll('#tab-edit [data-splitmode]').forEach(el => { el.hidden = el.dataset.splitmode !== splitMode; });
+    splitRun.textContent = splitMode === 'extract' ? 'Auszug speichern' : 'In Einzelseiten aufteilen (ZIP)';
+  }));
+  splitRun.addEventListener('click', async () => {
+    if (!single.bytes) return;
+    splitRun.disabled = true;
+    try {
+      const src = await loadPdfLib(single.bytes);
+      if (splitMode === 'extract') {
+        const indices = parsePageRanges($('extract-pages').value, single.pageCount);
+        const out = await PDFLib.PDFDocument.create();
+        (await out.copyPages(src, indices)).forEach(p => out.addPage(p));
+        const base = sanitizeFilename($('extract-filename').value, `auszug-${timestamp()}`);
+        downloadBytes(await out.save(), base + '.pdf', 'application/pdf');
+        showStatus(splitStatus, `Fertig – Auszug mit ${indices.length} ${indices.length === 1 ? 'Seite' : 'Seiten'} gespeichert.`, 'ok');
+      } else {
+        const zip = new JSZip();
+        const n = src.getPageCount(), pad = String(n).length;
+        for (let i = 0; i < n; i++) {
+          showStatus(splitStatus, `Seite ${i + 1} von ${n} …`);
+          const out = await PDFLib.PDFDocument.create();
+          const [p] = await out.copyPages(src, [i]);
+          out.addPage(p);
+          zip.file(`seite-${String(i + 1).padStart(pad, '0')}.pdf`, await out.save());
+        }
+        const base = sanitizeFilename($('splitall-filename').value, `seiten-${timestamp()}`);
+        downloadBytes(await zip.generateAsync({ type: 'blob' }), base + '.zip', 'application/zip');
+        showStatus(splitStatus, `Fertig – ${n} Einzelseiten als ZIP gespeichert.`, 'ok');
+      }
+    } catch (e) {
+      showStatus(splitStatus, 'Fehler: ' + e.message, 'error');
+    }
+    splitRun.disabled = false;
+  });
+
+  /* ==========================================================
+     SEITEN ENTFERNEN
+     ========================================================== */
+  removeRun.addEventListener('click', async () => {
+    if (!single.bytes) return;
+    const st = $('remove-status');
+    try {
+      const toRemove = [...new Set(parsePageRanges($('remove-pages').value, single.pageCount))];
+      if (toRemove.length >= single.pageCount) throw new Error('Es muss mindestens eine Seite übrig bleiben.');
+      const doc = await loadPdfLib(single.bytes);
+      toRemove.sort((a, b) => b - a).forEach(i => doc.removePage(i));
+      const base = sanitizeFilename($('remove-filename').value, `bearbeitet-${timestamp()}`);
+      downloadBytes(await doc.save(), base + '.pdf', 'application/pdf');
+      showStatus(st, `Fertig – ${toRemove.length} ${toRemove.length === 1 ? 'Seite' : 'Seiten'} entfernt.`, 'ok');
+    } catch (e) {
+      showStatus(st, 'Fehler: ' + e.message, 'error');
     }
   });
+
+  /* ==========================================================
+     DREHEN
+     ========================================================== */
+  rotateRun.addEventListener('click', async () => {
+    if (!single.bytes) return;
+    const st = $('rotate-status');
+    try {
+      const targets = selectedPages($('rotate-pages'), single.pageCount);
+      const deg = parseInt($('rotate-deg').value, 10);
+      const doc = await loadPdfLib(single.bytes);
+      const pages = doc.getPages();
+      targets.forEach(i => { const p = pages[i]; p.setRotation(PDFLib.degrees((p.getRotation().angle + deg) % 360)); });
+      const base = sanitizeFilename($('rotate-filename').value, `gedreht-${timestamp()}`);
+      downloadBytes(await doc.save(), base + '.pdf', 'application/pdf');
+      showStatus(st, `Fertig – ${targets.length} ${targets.length === 1 ? 'Seite' : 'Seiten'} gedreht.`, 'ok');
+    } catch (e) {
+      showStatus(st, 'Fehler: ' + e.message, 'error');
+    }
+  });
+
+  selectTool('text');
 })();
 
 /* ============================================================
@@ -994,6 +3017,7 @@ function renderFileList(ulEl, emptyEl, items, opts){
   const clearBtn = document.getElementById('scan-clear');
   const statusEl = document.getElementById('scan-status');
   const optimizeToggle = document.getElementById('scan-optimize-toggle');
+  const ocrToggle = document.getElementById('scan-ocr-toggle');
   const filenameInput = document.getElementById('scan-filename');
 
   let queue = []; // {file, url}
@@ -1040,13 +3064,30 @@ function renderFileList(ulEl, emptyEl, items, opts){
     showStatus(statusEl, 'Erstelle PDF …');
     try {
       const doc = await PDFLib.PDFDocument.create();
-      for (const item of queue) {
+      const useOcr = ocrToggle.checked;
+      const cache = {};
+      let recognized = 0, ocrError = null;
+      for (let k = 0; k < queue.length; k++) {
+        const item = queue[k];
         const img = await embedImageFile(doc, item.file, optimizeToggle.checked);
-        addImagePage(doc, img);
+        const place = addImagePage(doc, img);
+        if (!useOcr || ocrError) continue;
+        try {
+          const { blob, size } = await imageFileToOcrBlob(item.file, optimizeToggle.checked);
+          const data = await ocrImage(blob, msg => showStatus(statusEl, `Seite ${k + 1} von ${queue.length}: ${msg}`));
+          const sx = place.w / size.w, sy = place.h / size.h;
+          const words = ocrWords(data, (px, py) => [place.x + px * sx, place.y + place.h - py * sy], sx);
+          if (await addInvisibleText(doc, place.page, words, cache)) recognized++;
+        } catch (e) {
+          ocrError = e;   // PDF trotzdem speichern, nur ohne Texterkennung
+        }
       }
       const base = sanitizeFilename(filenameInput.value, `scan-${timestamp()}`);
       downloadBytes(await doc.save(), base + '.pdf', 'application/pdf');
-      showStatus(statusEl, `Fertig – ${queue.length} Seite(n) gespeichert.`, 'ok');
+      const pages = `${queue.length} ${queue.length === 1 ? 'Seite' : 'Seiten'}`;
+      if (ocrError) showStatus(statusEl, `PDF mit ${pages} gespeichert, aber ohne Texterkennung: ${ocrError.message}`, 'error');
+      else if (useOcr) showStatus(statusEl, `Fertig – ${pages} gespeichert, Text auf ${recognized} ${recognized === 1 ? 'Seite' : 'Seiten'} erkannt (durchsuchbar).`, 'ok');
+      else showStatus(statusEl, `Fertig – ${pages} gespeichert.`, 'ok');
     } catch (e) {
       showStatus(statusEl, 'Fehler: ' + e.message, 'error');
     }
