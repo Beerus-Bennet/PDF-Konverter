@@ -327,17 +327,25 @@
   .hint.warn{ color:#7A241A; }
 
   /* ---------- Text-Editor ---------- */
-  .editor-bar{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:10px; }
+  /* Werkzeugleiste bleibt beim Scrollen der Seite oben sichtbar */
+  .te-sticky{
+    position:sticky; top:0; z-index:6; background: var(--paper);
+    margin: 0 -18px; padding: 8px 18px 8px; border-bottom: 1px solid var(--line);
+  }
+  .editor-bar{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
   .pager{ display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:600; }
   .iconbtn.lg{ width:34px; height:34px; font-size:18px; border-radius: var(--radius); }
   .iconbtn:disabled{ opacity:.35; cursor:default; }
   .zoominfo{ min-width:44px; text-align:center; font-variant-numeric: tabular-nums; }
-  #te-mode{ margin-top:2px; }
+  #te-mode{ margin-top:0; display:flex; width:100%; }
+  #te-mode button{ flex:1; }
+  /* kein eigener Scroll-Bereich mehr: die Seite scrollt ganz normal mit dem Finger,
+     nur beim Vergrößern lässt sie sich zusätzlich seitlich verschieben */
   .stage-wrap{
-    position:relative; overflow:auto; max-height: 64vh; min-height: 160px;
-    margin-top: 10px; padding: 10px;
+    position:relative; overflow-x:auto; overflow-y:hidden; min-height: 160px;
+    margin-top: 10px; padding: 8px;
     background:#D8D1C2; border:1px solid var(--line); border-radius: var(--radius);
-    -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch; touch-action: pan-x pan-y;
   }
   .stage{ position:relative; margin: 0 auto; }
   .stage canvas{ display:block; width:100%; height:100%; background:#fff; box-shadow: 0 1px 6px rgba(16,35,58,.28); }
@@ -348,6 +356,7 @@
   }
   .stage{ cursor:pointer; }
   .hit.edited{ background: rgba(232,98,44,.07); border:1.5px solid var(--accent); }
+  .hit.block{ background: rgba(63,140,130,.08); border-width:1.5px; }
   .hit.deleted{ background: rgba(178,58,46,.06); border:1.5px dashed var(--danger); }
   .hit.added{ background: rgba(232,98,44,.07); border:1.5px solid var(--accent); }
   .stage.mode-add{ cursor: crosshair; }
@@ -376,23 +385,39 @@
 
   /* ---------- Eingabeblatt ---------- */
   .sheet-backdrop{
-    position:fixed; inset:0; z-index:50; background: rgba(16,35,58,.45);
+    position:fixed; left:0; right:0; top: var(--vvt, 0px); height: var(--vvh, 100%); z-index:50;
+    background: rgba(16,35,58,.32);
     display:flex; align-items:flex-end; justify-content:center;
+    overscroll-behavior: contain; touch-action: none;
   }
   .sheet{
-    width:100%; max-width:480px; max-height: 92vh; overflow:auto;
+    width:100%; max-width:480px; max-height: 100%; overflow-y:auto; overscroll-behavior: contain; touch-action: pan-y;
     background: var(--paper); border-radius: 12px 12px 0 0;
-    padding: 10px 18px calc(16px + env(safe-area-inset-bottom));
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
     box-shadow: 0 -10px 30px rgba(0,0,0,.25);
-    animation: sheetIn .18s ease-out;
+    animation: sheetIn .16s ease-out;
   }
-  @keyframes sheetIn{ from{ transform: translateY(28px); opacity:.5; } }
+  @keyframes sheetIn{ from{ transform: translateY(20px); opacity:.6; } }
   @media (prefers-reduced-motion: reduce){ .sheet{ animation:none; } }
+  .sheet-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; }
+  .sheet-head .sheet-title{ margin:0; }
+  .sheet-head .sheet-cancel{ margin:0; display:inline-block; padding:6px 2px; }
+  .wrap-row{ display:flex; align-items:center; gap:10px; margin:10px 0 0; font-size:13px; font-weight:600; color: var(--ink-soft); cursor:pointer; }
+  .wrap-row input{ width:20px; height:20px; accent-color: var(--accent); flex:none; }
+  .sheet textarea.nowrap{ white-space:pre; overflow-x:auto; }
+  .sheet-fmt{ margin-top:12px; border-top:1px solid var(--line); padding-top:10px; }
+  .sheet-fmt > summary{
+    cursor:pointer; font-size:13px; font-weight:600; color: var(--ink-soft); list-style:none;
+    display:flex; align-items:center; gap:6px; padding:4px 0;
+  }
+  .sheet-fmt > summary::-webkit-details-marker{ display:none; }
+  .sheet-fmt > summary::before{ content:"＋"; color: var(--accent); font-weight:700; }
+  .sheet-fmt[open] > summary::before{ content:"－"; }
   .sheet-handle{ width:36px; height:4px; border-radius:2px; background: rgba(16,35,58,.25); margin: 0 auto 12px; }
   .sheet-title{ font-family:'Space Grotesk','Inter',sans-serif; font-weight:700; font-size:17px; margin:0 0 2px; }
   .sheet-orig{ font-size:12px; color:#6b6252; margin:0 0 10px; overflow-wrap:anywhere; }
   .sheet textarea{
-    width:100%; min-height: 64px; resize: vertical; padding:10px 11px;
+    width:100%; min-height: 56px; resize: none; padding:10px 11px; display:block;
     font-family:'Inter',sans-serif; font-size:16px; line-height:1.4; color: var(--ink);
     border:1px solid rgba(16,35,58,.3); border-radius: var(--radius); background:#fff;
   }
@@ -419,9 +444,10 @@
   }
   .swatch-custom{ background: conic-gradient(#e8622c, #e6c34a, #3f8c82, #1f4e9c, #9b4fb0, #e8622c); display:inline-block; }
   .swatch-custom input{ position:absolute; inset:0; opacity:0; width:100%; height:100%; border:none; padding:0; cursor:pointer; }
-  .sheet-actions{ display:grid; grid-template-columns: 1fr 1.4fr; gap:10px; margin-top: 18px; }
+  .sheet-actions{ display:grid; grid-template-columns: 1fr 1.4fr; gap:10px; margin-top: 12px; }
   .sheet-actions .btn{ margin-top:0; }
   .sheet-cancel{ display:block; margin: 10px auto 0; }
+  @media (max-height: 560px){ .sheet{ padding-top:8px; } .sheet textarea{ font-size:16px; } }
 </style>
 </head>
 <body>
@@ -483,7 +509,7 @@
           <button type="button" class="tool active" data-tool="text" aria-pressed="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 6V4h11v2M8.5 4v15M6 19h5"/><path d="M18 9v11M16 9h4M16 20h4"/></svg>
             <span class="tool-name">Text bearbeiten</span>
-            <span class="tool-desc">Zeile antippen und ändern</span>
+            <span class="tool-desc">Absatz antippen und ändern</span>
           </button>
           <button type="button" class="tool" data-tool="export" aria-pressed="false">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h6"/><path d="M13 3l6 6h-6z"/><path d="M14 17h7M18 14l3 3-3 3"/></svg>
@@ -553,6 +579,7 @@
         <div class="sub-panel" data-sub="text">
           <div class="editor-needsfile empty-note" id="te-empty">Wähle eine PDF aus, um ihren Text zu bearbeiten.</div>
           <div id="te-editor" hidden>
+            <div class="te-sticky">
             <div class="editor-bar">
               <div class="pager">
                 <button type="button" class="iconbtn lg" id="te-prev" aria-label="Vorherige Seite">‹</button>
@@ -566,13 +593,15 @@
               </div>
             </div>
             <div class="seg-mini" id="te-mode" role="group" aria-label="Modus">
-              <button type="button" data-mode="edit" class="active">Text ändern</button>
-              <button type="button" data-mode="add">Text hinzufügen</button>
+              <button type="button" data-mode="para" class="active">Absatz</button>
+              <button type="button" data-mode="line">Zeile</button>
+              <button type="button" data-mode="add">Neu</button>
             </div>
-            <p class="hint" id="te-hint">Tippe auf eine markierte Zeile, um sie zu ändern oder zu löschen.</p>
+            </div>
+            <p class="hint" id="te-hint">Tippe auf einen markierten Absatz, um ihn zu ändern.</p>
             <button type="button" class="btn teal btn-inline" id="te-ocr" hidden>Text auf dieser Seite erkennen</button>
 
-            <div class="stage-wrap" id="te-wrap">
+            <div class="stage-wrap" id="te-stagewrap">
               <div class="stage" id="te-stage">
                 <canvas id="te-canvas"></canvas>
                 <div class="hit-layer" id="te-hits"></div>
@@ -793,57 +822,62 @@
 <!-- ================= TEXT-BEARBEITEN: EINGABEBLATT ================= -->
 <div class="sheet-backdrop" id="te-sheet" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="te-sheet-title">
-    <div class="sheet-handle"></div>
-    <p class="sheet-title" id="te-sheet-title">Text ändern</p>
-    <p class="sheet-orig" id="te-sheet-orig"></p>
-    <textarea id="te-text" rows="2" autocomplete="off" autocapitalize="off" spellcheck="true" aria-label="Neuer Text"></textarea>
+    <div class="sheet-head">
+      <p class="sheet-title" id="te-sheet-title">Absatz ändern</p>
+      <button type="button" class="linkbtn sheet-cancel" id="te-cancel">Abbrechen</button>
+    </div>
+    <p class="sheet-orig" id="te-sheet-orig" hidden></p>
+    <textarea id="te-text" rows="3" autocomplete="off" autocapitalize="sentences" spellcheck="true" aria-label="Neuer Text"></textarea>
+    <label class="wrap-row" id="te-wrap-row" hidden><input type="checkbox" id="te-wrap"><span>Zeilen automatisch umbrechen</span></label>
     <p class="hint warn" id="te-charwarn" hidden></p>
     <p class="hint warn" id="te-widthwarn" hidden>
       <span id="te-widthwarn-text"></span>
       <button type="button" class="linkbtn" id="te-fit">Schrift passend verkleinern</button>
     </p>
 
-    <div class="sheet-grid">
-      <div>
-        <p class="mini-label">Größe (pt)</p>
-        <div class="stepper">
-          <button type="button" id="te-size-down" aria-label="Kleiner">−</button>
-          <input type="text" inputmode="decimal" id="te-size" aria-label="Schriftgröße">
-          <button type="button" id="te-size-up" aria-label="Größer">+</button>
-        </div>
-      </div>
-      <div>
-        <p class="mini-label">Stil</p>
-        <div class="chip-row">
-          <button type="button" class="chip" id="te-bold" aria-pressed="false" aria-label="Fett"><b>F</b></button>
-          <button type="button" class="chip" id="te-italic" aria-pressed="false" aria-label="Kursiv"><i>K</i></button>
-        </div>
-      </div>
-    </div>
-
-    <p class="mini-label">Schrift</p>
-    <div class="seg-mini seg-full" id="te-family" role="group" aria-label="Schriftart">
-      <button type="button" data-family="sans" class="active" style="font-family:Helvetica,Arial,sans-serif">Helvetica</button>
-      <button type="button" data-family="serif" style="font-family:'Times New Roman',Times,serif">Times</button>
-      <button type="button" data-family="mono" style="font-family:'Courier New',Courier,monospace">Courier</button>
-    </div>
-
-    <p class="mini-label">Farbe</p>
-    <div class="swatches" id="te-swatches">
-      <button type="button" class="swatch" data-color="detected" aria-label="Erkannte Farbe"></button>
-      <button type="button" class="swatch" data-color="#000000" aria-label="Schwarz"></button>
-      <button type="button" class="swatch" data-color="#444444" aria-label="Dunkelgrau"></button>
-      <button type="button" class="swatch" data-color="#1F4E9C" aria-label="Blau"></button>
-      <button type="button" class="swatch" data-color="#B23A2E" aria-label="Rot"></button>
-      <button type="button" class="swatch" data-color="#FFFFFF" aria-label="Weiß"></button>
-      <label class="swatch swatch-custom" aria-label="Eigene Farbe"><input type="color" id="te-color" value="#000000"></label>
-    </div>
-
     <div class="sheet-actions">
-      <button type="button" class="btn secondary" id="te-delete">Zeile löschen</button>
+      <button type="button" class="btn secondary" id="te-delete">Absatz löschen</button>
       <button type="button" class="btn" id="te-apply">Übernehmen</button>
     </div>
-    <button type="button" class="linkbtn sheet-cancel" id="te-cancel">Abbrechen</button>
+
+    <details class="sheet-fmt" id="te-format">
+      <summary>Schrift, Größe &amp; Farbe</summary>
+      <div class="sheet-grid">
+        <div>
+          <p class="mini-label">Größe (pt)</p>
+          <div class="stepper">
+            <button type="button" id="te-size-down" aria-label="Kleiner">−</button>
+            <input type="text" inputmode="decimal" id="te-size" aria-label="Schriftgröße">
+            <button type="button" id="te-size-up" aria-label="Größer">+</button>
+          </div>
+        </div>
+        <div>
+          <p class="mini-label">Stil</p>
+          <div class="chip-row">
+            <button type="button" class="chip" id="te-bold" aria-pressed="false" aria-label="Fett"><b>F</b></button>
+            <button type="button" class="chip" id="te-italic" aria-pressed="false" aria-label="Kursiv"><i>K</i></button>
+          </div>
+        </div>
+      </div>
+
+      <p class="mini-label">Schrift</p>
+      <div class="seg-mini seg-full" id="te-family" role="group" aria-label="Schriftart">
+        <button type="button" data-family="sans" class="active" style="font-family:Helvetica,Arial,sans-serif">Helvetica</button>
+        <button type="button" data-family="serif" style="font-family:'Times New Roman',Times,serif">Times</button>
+        <button type="button" data-family="mono" style="font-family:'Courier New',Courier,monospace">Courier</button>
+      </div>
+
+      <p class="mini-label">Farbe</p>
+      <div class="swatches" id="te-swatches">
+        <button type="button" class="swatch" data-color="detected" aria-label="Erkannte Farbe"></button>
+        <button type="button" class="swatch" data-color="#000000" aria-label="Schwarz"></button>
+        <button type="button" class="swatch" data-color="#444444" aria-label="Dunkelgrau"></button>
+        <button type="button" class="swatch" data-color="#1F4E9C" aria-label="Blau"></button>
+        <button type="button" class="swatch" data-color="#B23A2E" aria-label="Rot"></button>
+        <button type="button" class="swatch" data-color="#FFFFFF" aria-label="Weiß"></button>
+        <label class="swatch swatch-custom" aria-label="Eigene Farbe"><input type="color" id="te-color" value="#000000"></label>
+      </div>
+    </details>
   </div>
 </div>
 
@@ -2004,7 +2038,7 @@ async function buildDocx(pages, opts){
       prev: $('te-prev'), next: $('te-next'), pageinfo: $('te-pageinfo'),
       zoomIn: $('te-zoomin'), zoomOut: $('te-zoomout'), zoomInfo: $('te-zoominfo'),
       modeBtns: document.querySelectorAll('#te-mode button'), hint: $('te-hint'),
-      wrap: $('te-wrap'), stage: $('te-stage'), canvas: $('te-canvas'), hits: $('te-hits'), loading: $('te-loading'),
+      stageWrap: $('te-stagewrap'), stage: $('te-stage'), canvas: $('te-canvas'), hits: $('te-hits'), loading: $('te-loading'),
       count: $('te-count'), undo: $('te-undo'), flatten: $('te-flatten'), filename: $('te-filename'),
       save: $('te-save'), status: $('te-status'),
       sheet: $('te-sheet'), sheetTitle: $('te-sheet-title'), sheetOrig: $('te-sheet-orig'), text: $('te-text'),
@@ -2013,14 +2047,17 @@ async function buildDocx(pages, opts){
       bold: $('te-bold'), italic: $('te-italic'), familyBtns: document.querySelectorAll('#te-family button'),
       swatches: document.querySelectorAll('#te-swatches .swatch[data-color]'), color: $('te-color'),
       del: $('te-delete'), apply: $('te-apply'), cancel: $('te-cancel'), actions: document.querySelector('#te-sheet .sheet-actions'),
-      ocr: $('te-ocr')
+      ocr: $('te-ocr'),
+      sticky: document.querySelector('.te-sticky'), wrapRow: $('te-wrap-row'), wrap: $('te-wrap'), format: $('te-format'), sheetBox: document.querySelector('#te-sheet .sheet')
     };
     const ZOOMS = [1, 1.5, 2, 3];
+    // Zeichenfläche begrenzen: große Canvas-Flächen lassen Handys ruckeln oder abstürzen
+    const MAX_PIXELS = (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) ? 5.5e6 : 12e6;
     const LINE = 1.2;
-    let doc = null, pageIndex = 0, zoomIdx = 0, mode = 'edit';
+    let doc = null, pageIndex = 0, zoomIdx = 0, mode = 'para';
     let edits = [], history = [], nextId = 1;
     let state = null, renderSeq = 0, renderTask = null, lastWidth = 0, keepScroll = null;
-    const runsCache = new Map(), ocrDone = new Set();
+    const runsCache = new Map(), blocksCache = new Map(), ocrDone = new Set();
     let pending = null, form = null, checkSeq = 0, ocrBusy = false, ocrNote = '';
 
     const round1 = n => Math.round(n * 10) / 10;
@@ -2041,21 +2078,110 @@ async function buildDocx(pages, opts){
       const pad = 0.05 * r.fs + 0.3;
       return { x0: r.x, y0: r.y, angle: r.angle, lx: -pad, ly: -(r.desc * r.fs) - 0.3, w: Math.max(r.width, 0.3 * r.fs) + 2 * pad, h: (r.asc + r.desc) * r.fs + 0.6 };
     }
+
+    /* ----- Absätze: zusammengehörige Zeilen erkennen ----- */
+    function loc(r){
+      const c = Math.cos(r.angle), s = Math.sin(r.angle);
+      const u = r.x * c + r.y * s;
+      return { r, u, ue: u + r.width, v: -r.x * s + r.y * c };
+    }
+    const median = a => { const t = a.slice().sort((x, y) => x - y); return t.length ? t[Math.floor(t.length / 2)] : 0; };
+    function makeBlock(lines, pageIdx, n){
+      const f = lines[0], runs = lines.map(l => l.r);
+      const dvs = [];
+      for (let i = 1; i < lines.length; i++) dvs.push(lines[i - 1].v - lines[i].v);
+      const fs = median(runs.map(r => r.fs));
+      return {
+        id: pageIdx + ':b' + n, runs, texts: runs.map(r => r.text),
+        x: f.r.x, y: f.r.y, angle: f.r.angle, fs, asc: f.r.asc, desc: f.r.desc,
+        family: f.r.family, bold: !!f.r.bold, italic: !!f.r.italic,
+        pitch: dvs.length ? median(dvs) : fs * LINE,
+        width: Math.max(...runs.map(r => r.width)),
+        geo: lines.map(l => ({ du: l.u - f.u, dv: l.v - f.v, w: l.r.width }))
+      };
+    }
+    function buildBlocks(runs, pageIdx){
+      const L = runs.map(loc);
+      // Zeilen, die sich die Grundlinie mit anderem Text teilen (Tabellen, Spalten), bleiben einzeln
+      const crowded = L.length > 1500;
+      for (const a of L) {
+        a.shared = crowded || L.some(b => b !== a && Math.abs(b.r.angle - a.r.angle) < 0.03 && Math.abs(b.v - a.v) < 0.45 * Math.max(a.r.fs, b.r.fs));
+      }
+      const flow = L.filter(a => !a.shared && Math.abs(a.r.angle) < 0.03 && a.r.horizontal !== false);
+      const single = L.filter(a => !flow.includes(a));
+      flow.sort((p, q) => (q.v - p.v) || (p.u - q.u));
+      const groups = [];
+      let open = [];
+      for (const a of flow) {
+        let best = null, bestDv = Infinity;
+        for (const g of open) {
+          const last = g.lines[g.lines.length - 1];
+          const dv = last.v - a.v, fs = g.fs;
+          const limit = g.lines.length > 1 ? Math.max(g.pitch * 1.22, fs * 1.05) : 1.4 * fs;
+          if (dv < 0.7 * fs || dv > limit) continue;
+          if (Math.abs(a.r.fs - fs) > 0.12 * fs) continue;
+          if (a.r.family !== g.family || !!a.r.bold !== g.bold || !!a.r.italic !== g.italic) continue;
+          if (Math.abs(a.u - last.u) > 0.6 * fs && Math.abs(a.u - g.lines[0].u) > 0.6 * fs) continue;
+          if (dv < bestDv) { best = g; bestDv = dv; }
+        }
+        if (best) {
+          best.lines.push(a);
+          const dvs = [];
+          for (let i = 1; i < best.lines.length; i++) dvs.push(best.lines[i - 1].v - best.lines[i].v);
+          best.pitch = median(dvs);
+        } else {
+          const g = { lines: [a], fs: a.r.fs, family: a.r.family, bold: !!a.r.bold, italic: !!a.r.italic, pitch: a.r.fs * LINE };
+          groups.push(g); open.push(g);
+        }
+        open = open.filter(g => g.lines[g.lines.length - 1].v - a.v < 2.6 * g.fs);
+      }
+      for (const a of single) groups.push({ lines: [a] });
+      groups.sort((g, h) => (h.lines[0].v - g.lines[0].v) || (g.lines[0].u - h.lines[0].u));
+      return groups.map((g, i) => makeBlock(g.lines, pageIdx, i));
+    }
+    function blockBox(b){
+      const pad = 0.05 * b.fs + 0.3;
+      const minU = Math.min(...b.geo.map(g => g.du)), maxU = Math.max(...b.geo.map(g => g.du + g.w));
+      const minV = Math.min(...b.geo.map(g => g.dv));
+      const ly = minV - b.desc * b.fs - 0.3;
+      return { x0: b.x, y0: b.y, angle: b.angle, lx: minU - pad, ly, w: Math.max(maxU - minU, 0.3 * b.fs) + 2 * pad, h: (b.asc * b.fs + 0.3) - ly };
+    }
+    function blockOfRun(r){ return state && state.blocks.find(b => b.runs.includes(r)); }
+    // alle Änderungen, die zu diesem Absatz gehören (ganzer Absatz oder einzelne Zeilen)
+    function editsOfBlock(b){
+      const ids = new Set(b.runs.map(r => r.id));
+      return edits.filter(e => e.pageIndex === state.pageIndex && (e.blockId === b.id || (e.runId && ids.has(e.runId))));
+    }
     function addedBox(e){
       const n = e.text.split('\n').length;
-      return { x0: e.x, y0: e.y, angle: e.angle, lx: -1, ly: -(0.25 + LINE * (n - 1)) * e.size, w: (e.measured || e.size * 3) + 2, h: (1.2 + LINE * (n - 1)) * e.size };
+      return { x0: e.x, y0: e.y, angle: e.angle, lx: -1, ly: -(0.25 * e.size + leadOf(e) * (n - 1)), w: (e.measured || e.size * 3) + 2, h: 1.2 * e.size + leadOf(e) * (n - 1) };
     }
 
     /* ----- Darstellung ----- */
     function cssFont(e){ return `${e.italic ? 'italic ' : ''}${e.bold ? 'bold ' : ''}${e.size}px ${FAMILY_CSS[e.family] || FAMILY_CSS.sans}`; }
+    // Abdeckfeld als Raster aus Farbfeldern: folgt Farbverläufen und Hintergrundbildern
+    function coverCells(e){
+      const c = e.cover, f = e.fill;
+      if (!f || !f.colors) return [{ lx: c.lx, ly: c.ly, w: c.w, h: c.h, color: e.bg }];
+      const out = [], cw = c.w / f.cols, ch = c.h / f.rows;
+      for (let j = 0; j < f.rows; j++) {
+        for (let i = 0; i < f.cols; i++) {
+          out.push({ lx: c.lx + i * cw, ly: c.ly + (f.rows - 1 - j) * ch, w: cw + 0.5, h: ch + 0.5, color: f.colors[j * f.cols + i] });
+        }
+      }
+      return out;
+    }
+    const leadOf = e => e.lead || e.size * LINE;
     function paintEdit(ctx, T, e){
       if (e.cover) {
         ctx.save();
         ctx.setTransform(T[0], T[1], T[2], T[3], T[4], T[5]);
         ctx.translate(e.cover.x0, e.cover.y0);
         ctx.rotate(e.cover.angle);
-        ctx.fillStyle = e.bg;
-        ctx.fillRect(e.cover.lx, e.cover.ly, e.cover.w, e.cover.h);
+        for (const cell of coverCells(e)) {
+          ctx.fillStyle = cell.color;
+          ctx.fillRect(cell.lx, cell.ly, cell.w, cell.h);
+        }
         ctx.restore();
       }
       if (e.text) {
@@ -2067,7 +2193,8 @@ async function buildDocx(pages, opts){
         ctx.font = cssFont(e);
         ctx.fillStyle = e.color;
         ctx.textBaseline = 'alphabetic';
-        e.text.split('\n').forEach((ln, i) => ctx.fillText(ln, 0, i * e.size * LINE));
+        const lead = leadOf(e);
+        e.text.split('\n').forEach((ln, i) => ctx.fillText(ln, 0, i * lead));
         ctx.restore();
       }
     }
@@ -2081,10 +2208,19 @@ async function buildDocx(pages, opts){
     // sichtbare Markierung: nur der Schriftkörper, damit sich enge Zeilen nicht überlappen
     function markBox(r, ed){
       if (ed && ed.text) {
-        const n = ed.text.split('\n').length;
-        return { x0: ed.x, y0: ed.y, angle: ed.angle, lx: -0.5, ly: -(0.22 + LINE * (n - 1)) * ed.size, w: Math.max(ed.measured || r.width, 0.3 * ed.size) + 1, h: (1.1 + LINE * (n - 1)) * ed.size };
+        const n = ed.text.split('\n').length, lead = leadOf(ed);
+        return { x0: ed.x, y0: ed.y, angle: ed.angle, lx: -0.5, ly: -(0.22 * ed.size + lead * (n - 1)), w: Math.max(ed.measured || r.width, 0.3 * ed.size) + 1, h: 1.1 * ed.size + lead * (n - 1) };
       }
       return { x0: r.x, y0: r.y, angle: r.angle, lx: -0.5, ly: -0.22 * r.fs, w: Math.max(r.width, 0.3 * r.fs) + 1, h: 1.1 * r.fs };
+    }
+    function markBlock(b, ed){
+      if (ed && ed.text) {
+        const n = ed.text.split('\n').length, lead = leadOf(ed);
+        const w = Math.max(ed.measured || 0, b.width * (ed.measured ? 0 : 1), 0.3 * ed.size);
+        return { x0: ed.x, y0: ed.y, angle: ed.angle, lx: -0.5, ly: -(0.22 * ed.size + lead * (n - 1)), w: w + 1, h: 1.1 * ed.size + lead * (n - 1) };
+      }
+      const minV = Math.min(...b.geo.map(g => g.dv)), minU = Math.min(...b.geo.map(g => g.du)), maxU = Math.max(...b.geo.map(g => g.du + g.w));
+      return { x0: b.x, y0: b.y, angle: b.angle, lx: minU - 0.5, ly: minV - 0.22 * b.fs, w: Math.max(maxU - minU, 0.3 * b.fs) + 1, h: -minV + 1.1 * b.fs };
     }
     // rechtsbündig gesetzt (z. B. Beträge in Tabellen)? Dann bleibt die rechte Kante beim Ändern stehen.
     function isRightAligned(r){
@@ -2104,37 +2240,59 @@ async function buildDocx(pages, opts){
       btn.style.left = r.x + 'px'; btn.style.top = r.y + 'px';
       btn.style.width = Math.max(4, r.w) + 'px'; btn.style.height = Math.max(4, r.h) + 'px';
     }
+    function addHit(frag, cls, label, rect){
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = cls;
+      b.tabIndex = -1;
+      b.setAttribute('aria-label', label);
+      placeHit(b, rect);
+      frag.appendChild(b);
+      return b;
+    }
     function buildHits(){
       els.hits.textContent = '';
       targets = [];
       if (!state) return;
       const pageEdits = edits.filter(e => e.pageIndex === state.pageIndex);
       const byRun = new Map(pageEdits.filter(e => e.runId).map(e => [e.runId, e]));
+      const byBlock = new Map(pageEdits.filter(e => e.blockId).map(e => [e.blockId, e]));
       const frag = document.createDocumentFragment();
-      for (const r of state.runs) {
-        const b = document.createElement('button');
-        b.type = 'button';
-        b.className = 'hit';
-        const ed = byRun.get(r.id);
-        if (ed) b.classList.add(ed.text ? 'edited' : 'deleted');
-        b.setAttribute('aria-label', ed ? (ed.text ? 'Geändert: ' + ed.text : 'Gelöscht: ' + r.text) : 'Ändern: ' + r.text);
-        const rect = boxRect(state.vpCss, markBox(r, ed));
-        placeHit(b, rect);
-        b.addEventListener('click', ev => { ev.stopPropagation(); if (mode === 'edit') openForRun(r); });
-        targets.push({ rect, kind: 'run', run: r });
-        frag.appendChild(b);
+      if (mode === 'para') {
+        for (const b of state.blocks) {
+          const ed = byBlock.get(b.id);
+          const lineEdited = !ed && b.runs.some(r => byRun.has(r.id));
+          const cls = 'hit block' + (ed ? (ed.text ? ' edited' : ' deleted') : (lineEdited ? ' edited' : ''));
+          const label = (ed ? (ed.text ? 'Geändert: ' + ed.text : 'Gelöscht: ' + b.texts.join(' ')) : 'Ändern: ' + b.texts.join(' ')).slice(0, 160);
+          const rect = boxRect(state.vpCss, markBlock(b, ed));
+          addHit(frag, cls, label, rect);
+          targets.push({ rect, kind: 'block', block: b });
+        }
+      } else {
+        for (const r of state.runs) {
+          const blk = blockOfRun(r);
+          const bed = blk && byBlock.get(blk.id);
+          if (bed) continue;                       // ganzer Absatz wurde ersetzt: unten als Absatz-Markierung
+          const ed = byRun.get(r.id);
+          const cls = 'hit' + (ed ? (ed.text ? ' edited' : ' deleted') : '');
+          const label = ed ? (ed.text ? 'Geändert: ' + ed.text : 'Gelöscht: ' + r.text) : 'Ändern: ' + r.text;
+          const rect = boxRect(state.vpCss, markBox(r, ed));
+          addHit(frag, cls, label, rect);
+          targets.push({ rect, kind: 'run', run: r });
+        }
+        for (const b of state.blocks) {
+          const ed = byBlock.get(b.id);
+          if (!ed) continue;
+          const rect = boxRect(state.vpCss, markBlock(b, ed));
+          addHit(frag, 'hit block ' + (ed.text ? 'edited' : 'deleted'), 'Absatz: ' + (ed.text || ''), rect);
+          targets.push({ rect, kind: 'block', block: b });
+        }
       }
       for (const e of pageEdits) {
-        if (e.runId) continue;
-        const b = document.createElement('button');
-        b.type = 'button';
-        b.className = 'hit added';
-        b.setAttribute('aria-label', 'Hinzugefügt: ' + e.text);
+        if (e.runId || e.blockId) continue;
         const rect = boxRect(state.vpCss, addedBox(e));
-        placeHit(b, rect);
-        b.addEventListener('click', ev => { ev.stopPropagation(); openForAdded(e); });
+        addHit(frag, 'hit added', 'Hinzugefügt: ' + e.text, rect);
         targets.push({ rect, kind: 'added', edit: e });
-        frag.appendChild(b);
       }
       els.hits.appendChild(frag);
     }
@@ -2177,14 +2335,15 @@ async function buildDocx(pages, opts){
       if (mode === 'add') els.hint.textContent = 'Tippe auf die Stelle, an der der neue Text beginnen soll.';
       else if (ocrNote && state && ocrDone.has(state.pageIndex)) els.hint.textContent = ocrNote;
       else if (state && !state.runs.length) els.hint.textContent = 'Auf dieser Seite gibt es keinen echten Text – vermutlich ein Scan. Lass den Text erkennen, dann kannst du die Zeilen wie gewohnt ändern.';
-      else els.hint.textContent = 'Tippe auf eine markierte Zeile, um sie zu ändern oder zu löschen. Zum genauen Treffen vergrößern.';
+      else if (mode === 'line') els.hint.textContent = 'Tippe auf eine markierte Zeile, um nur diese Zeile zu ändern oder zu löschen.';
+      else els.hint.textContent = 'Tippe auf einen markierten Absatz, um ihn zu ändern. Zum genauen Treffen vergrößern.';
     }
 
     /* ----- Seite rendern ----- */
-    function isVisible(){ return !!doc && !els.box.hidden && els.wrap.offsetParent !== null; }
+    function isVisible(){ return !!doc && !els.box.hidden && els.stageWrap.offsetParent !== null; }
     function show(force){
       if (!isVisible()) return;
-      if (force || !state || Math.abs(els.wrap.clientWidth - lastWidth) > 4) render();
+      if (force || !state || Math.abs(els.stageWrap.clientWidth - lastWidth) > 4) render();
     }
     async function render(){
       if (!isVisible()) return;
@@ -2195,11 +2354,11 @@ async function buildDocx(pages, opts){
         const page = await doc.getPage(pageIndex + 1);
         if (seq !== renderSeq) return;
         const vp1 = page.getViewport({ scale: 1 });
-        lastWidth = els.wrap.clientWidth;
+        lastWidth = els.stageWrap.clientWidth;
         const avail = Math.max(120, lastWidth - 20);
         const cssScale = (avail / vp1.width) * ZOOMS[zoomIdx];
-        const dpr = Math.min(window.devicePixelRatio || 1, 3);
-        const devScale = Math.min(cssScale * dpr, Math.sqrt(12e6 / (vp1.width * vp1.height)));
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const devScale = Math.min(cssScale * dpr, Math.sqrt(MAX_PIXELS / (vp1.width * vp1.height)));
         const vpCss = page.getViewport({ scale: cssScale });
         const vpDev = page.getViewport({ scale: devScale });
         const base = document.createElement('canvas');
@@ -2219,7 +2378,9 @@ async function buildDocx(pages, opts){
           runsCache.set(pageIndex, runs);
         }
         if (seq !== renderSeq) return;
-        state = { pageIndex, page, vpCss, vpDev, base, runs };
+        let blocks = blocksCache.get(pageIndex);
+        if (!blocks) { blocks = buildBlocks(runs, pageIndex); blocksCache.set(pageIndex, blocks); }
+        state = { pageIndex, page, vpCss, vpDev, base, runs, blocks };
         els.stage.style.width = Math.round(vpCss.width) + 'px';
         els.stage.style.height = Math.round(vpCss.height) + 'px';
         els.canvas.width = base.width;
@@ -2231,10 +2392,11 @@ async function buildDocx(pages, opts){
         if (!ocrDone.has(pageIndex)) ocrNote = '';
         updateHint();
         if (keepScroll) {
-          const w = els.wrap;
-          w.scrollLeft = keepScroll.rx * w.scrollWidth - w.clientWidth / 2;
-          w.scrollTop = keepScroll.ry * w.scrollHeight - w.clientHeight / 2;
+          const w = els.stageWrap, k = keepScroll;
           keepScroll = null;
+          w.scrollLeft = k.rx * w.scrollWidth - w.clientWidth / 2;
+          const r = els.stage.getBoundingClientRect();
+          window.scrollBy(0, r.top + k.ry * r.height - k.vy);   // gleiche Textstelle bleibt mitten im Bild
         }
       } catch (e) {
         if (e && e.name === 'RenderingCancelledException') return;
@@ -2293,7 +2455,73 @@ async function buildDocx(pages, opts){
         const lum = 0.299 * bg[0] + 0.587 * bg[1] + 0.114 * bg[2];
         text = lum > 128 ? [0, 0, 0] : [255, 255, 255];
       }
-      return { bg: toHex(bg), text: toHex(text) };
+      const fill = sampleFill(box, toHex(bg));
+      return { bg: fill.bg, text: toHex(text), fill };
+    }
+
+    /* ----- Hintergrund rund um ein Feld erfassen (Farbverlauf / Foto), damit das Abdeckfeld unsichtbar bleibt ----- */
+    function sampleFill(box, fallbackBg){
+      const solid = hex => ({ bg: hex, cols: 1, rows: 1, colors: null });
+      if (!state) return solid(fallbackBg || '#ffffff');
+      const base = state.base, ctx = base.getContext('2d', { willReadFrequently: true });
+      const W = base.width, H = base.height;
+      const rc = boxRect(state.vpDev, box);
+      const cols = Math.max(1, Math.min(40, Math.ceil(box.w / 14)));
+      const rows = Math.max(1, Math.min(24, Math.ceil(box.h / 6)));
+      const m = 3;
+      const grab = (x0, y0, x1, y1) => {
+        x0 = Math.max(0, Math.floor(x0)); y0 = Math.max(0, Math.floor(y0));
+        x1 = Math.min(W, Math.ceil(x1)); y1 = Math.min(H, Math.ceil(y1));
+        if (x1 - x0 < 1 || y1 - y0 < 1) return null;
+        let d;
+        try { d = ctx.getImageData(x0, y0, x1 - x0, y1 - y0).data; } catch (e) { return null; }
+        const bins = new Map();
+        for (let i = 0; i < d.length; i += 4) {
+          const k = ((d[i] >> 4) << 8) | ((d[i + 1] >> 4) << 4) | (d[i + 2] >> 4);
+          const b = bins.get(k);
+          if (b) { b.n++; b.r += d[i]; b.g += d[i + 1]; b.b += d[i + 2]; } else bins.set(k, { n: 1, r: d[i], g: d[i + 1], b: d[i + 2] });
+        }
+        let best = null;
+        for (const b of bins.values()) if (!best || b.n > best.n) best = b;
+        return best ? [best.r / best.n, best.g / best.n, best.b / best.n] : null;
+      };
+      const cw = rc.w / cols, ch = rc.h / rows;
+      const top = [], bottom = [], left = [], right = [];
+      for (let i = 0; i < cols; i++) {
+        const x0 = rc.x + i * cw, x1 = x0 + cw;
+        top.push(grab(x0, rc.y - m - 1, x1, rc.y - 1));
+        bottom.push(grab(x0, rc.y + rc.h + 1, x1, rc.y + rc.h + m + 1));
+      }
+      for (let j = 0; j < rows; j++) {
+        const y0 = rc.y + j * ch, y1 = y0 + ch;
+        left.push(grab(rc.x - m - 1, y0, rc.x - 1, y1));
+        right.push(grab(rc.x + rc.w + 1, y0, rc.x + rc.w + m + 1, y1));
+      }
+      const all = [...top, ...bottom, ...left, ...right].filter(Boolean);
+      if (!all.length) return solid(fallbackBg || '#ffffff');
+      const mean = [0, 1, 2].map(k => all.reduce((a, c) => a + c[k], 0) / all.length);
+      const spread = Math.max(...[0, 1, 2].map(k => Math.max(...all.map(c => c[k])) - Math.min(...all.map(c => c[k]))));
+      const snap = c => (c.every(v => v > 246) ? [255, 255, 255] : c);
+      if (spread <= 10) return solid(toHex(snap(mean)));
+      // fehlende Randstücke durch den Mittelwert ersetzen, Ausreißer glätten
+      const fix = arr => arr.map(c => c || mean);
+      const T = fix(top), B = fix(bottom), Lf = fix(left), R = fix(right);
+      const avg = (a, b) => [0, 1, 2].map(k => (a[k] + b[k]) / 2);
+      const TL = avg(T[0], Lf[0]), TR = avg(T[cols - 1], R[0]), BL = avg(B[0], Lf[rows - 1]), BR = avg(B[cols - 1], R[rows - 1]);
+      const colors = [];
+      for (let j = 0; j < rows; j++) {
+        const v = (j + 0.5) / rows;
+        for (let i = 0; i < cols; i++) {
+          const u = (i + 0.5) / cols;
+          const c = [0, 1, 2].map(k => {
+            const val = (1 - u) * Lf[j][k] + u * R[j][k] + (1 - v) * T[i][k] + v * B[i][k]
+              - ((1 - u) * (1 - v) * TL[k] + u * (1 - v) * TR[k] + (1 - u) * v * BL[k] + u * v * BR[k]);
+            return val;
+          });
+          colors.push(toHex(snap(c)));
+        }
+      }
+      return { bg: toHex(snap(mean)), cols, rows, colors };
     }
 
     /* ----- Eingabeblatt ----- */
@@ -2312,36 +2540,81 @@ async function buildDocx(pages, opts){
       els.text.style.fontWeight = form.bold ? '700' : '400';
       els.text.style.fontStyle = form.italic ? 'italic' : 'normal';
     }
-    function adjustForKeyboard(){
+    /* ----- Eingabeblatt: passt sich dem sichtbaren Bereich an (Tastatur!) ----- */
+    let vvRaf = 0, lastVvh = 0, revealCount = 0;
+    function visibleArea(){
       const vv = window.visualViewport;
-      if (!vv || els.sheet.hidden) return;
-      els.sheet.style.paddingBottom = Math.max(0, window.innerHeight - vv.height - vv.offsetTop) + 'px';
+      return { top: vv ? vv.offsetTop : 0, h: vv ? vv.height : window.innerHeight };
+    }
+    function autosize(){
+      const ta = els.text, area = visibleArea();
+      ta.style.height = 'auto';
+      ta.style.height = Math.min(ta.scrollHeight + 2, Math.max(88, area.h * 0.36)) + 'px';
+    }
+    function adjustForKeyboard(){
+      if (els.sheet.hidden) return;
+      const area = visibleArea();
+      els.sheet.style.setProperty('--vvt', area.top + 'px');
+      els.sheet.style.setProperty('--vvh', area.h + 'px');
+      autosize();
+      if (Math.abs(area.h - lastVvh) > 40 && revealCount < 4) { revealCount++; lastVvh = area.h; reveal(); }
+      lastVvh = area.h;
+    }
+    function scheduleAdjust(){
+      if (vvRaf) return;
+      vvRaf = requestAnimationFrame(() => { vvRaf = 0; adjustForKeyboard(); });
+    }
+    // die bearbeitete Stelle so verschieben, dass sie über dem Eingabeblatt sichtbar bleibt
+    function reveal(){
+      if (!pending || !pending.rect || els.sheet.hidden) return;
+      const area = visibleArea();
+      const sheetH = els.sheetBox.offsetHeight;
+      const stickyH = els.sticky ? els.sticky.offsetHeight : 0;
+      const st = els.stage.getBoundingClientRect();
+      const top = st.top + pending.rect.y - area.top, bottom = top + pending.rect.h;
+      const bandTop = stickyH + 10, bandBottom = area.h - sheetH - 10;
+      if (bandBottom - bandTop < 40) return;
+      if (top >= bandTop && bottom <= bandBottom) return;
+      window.scrollBy(0, top - bandTop);
+    }
+    function syncWrapUi(){
+      els.text.classList.toggle('nowrap', !form.wrap && !!pending && pending.type === 'block');
+      els.text.setAttribute('wrap', (form.wrap || !pending || pending.type !== 'block') ? 'soft' : 'off');
+      els.wrap.checked = !!form.wrap;
     }
     function openSheet(cfg){
       pending = cfg.pending;
-      form = { size: round1(cfg.size), color: cfg.color, detected: cfg.detected || cfg.color, family: cfg.family, bold: !!cfg.bold, italic: !!cfg.italic };
+      pending.rect = cfg.rect || null;
+      form = { size: round1(cfg.size), color: cfg.color, detected: cfg.detected || cfg.color, family: cfg.family, bold: !!cfg.bold, italic: !!cfg.italic, wrap: !!cfg.wrap };
+      pending.initial = { text: cfg.text, wrap: form.wrap, size: form.size, color: form.color.toLowerCase(), family: form.family, bold: form.bold, italic: form.italic };
       els.sheetTitle.textContent = cfg.title;
       els.sheetOrig.textContent = cfg.orig || '';
       els.sheetOrig.hidden = !cfg.orig;
       els.text.value = cfg.text;
-      els.text.rows = Math.min(5, Math.max(2, cfg.text.split('\n').length));
+      els.wrapRow.hidden = cfg.wrap === null || cfg.wrap === undefined;
       els.del.hidden = !cfg.deleteLabel;
       els.actions.classList.toggle('single', !cfg.deleteLabel);
       if (cfg.deleteLabel) els.del.textContent = cfg.deleteLabel;
       els.charWarn.hidden = true;
       els.widthWarn.hidden = true;
       syncForm();
+      syncWrapUi();
+      revealCount = 0;
       els.sheet.hidden = false;
       document.body.style.overflow = 'hidden';
+      lastVvh = visibleArea().h;
       adjustForKeyboard();
-      els.text.focus();
+      reveal();
+      try { els.text.focus({ preventScroll: true }); } catch (e) { els.text.focus(); }
       try { els.text.setSelectionRange(els.text.value.length, els.text.value.length); } catch (e) { /* egal */ }
       checkText();
     }
     function closeSheet(){
       els.sheet.hidden = true;
-      els.sheet.style.paddingBottom = '';
+      els.sheet.style.removeProperty('--vvt');
+      els.sheet.style.removeProperty('--vvh');
       document.body.style.overflow = '';
+      if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
       pending = null;
     }
     async function measureText(text, f){
@@ -2349,7 +2622,42 @@ async function buildDocx(pages, opts){
       const set = await getWinAnsiSet();
       return Math.max(0, ...toWinAnsi(text, set).split('\n').map(l => font.widthOfTextAtSize(l, f.size)));
     }
+    // Text in Zeilen umbrechen, die in die angegebene Breite passen; Enter im Eingabefeld bleibt ein fester Umbruch
+    async function wrapText(text, f, maxW){
+      const font = await getMeasureFont(f.family, f.bold, f.italic);
+      const set = await getWinAnsiSet();
+      const out = [];
+      for (const para of toWinAnsi(text, set).split('\n')) {
+        let cur = '';
+        for (const w of para.split(/ +/)) {
+          const t = cur ? cur + ' ' + w : w;
+          if (!cur || font.widthOfTextAtSize(t, f.size) <= maxW) cur = t; else { out.push(cur); cur = w; }
+        }
+        out.push(cur);
+      }
+      return out.join('\n');
+    }
+    // Zeilen eines Absatzes zu fließendem Text verbinden (Silbentrennung am Zeilenende wird aufgelöst)
+    function joinLines(lines){
+      let out = '';
+      lines.forEach((l, i) => {
+        const t = String(l).trim();
+        if (!t) return;
+        if (!out) { out = t; return; }
+        if (/\S-$/.test(out) && !/\s-$/.test(out)) {
+          if (/^[a-zäöüß]/.test(t) && !/^(und|oder|bzw|sowie|noch)\b/.test(t)) out = out.slice(0, -1) + t;
+          else out += t;
+        } else out += ' ' + t;
+      });
+      return out;
+    }
+    let checkTimer = null;
+    function scheduleCheck(){
+      clearTimeout(checkTimer);
+      checkTimer = setTimeout(checkText, 160);
+    }
     async function checkText(){
+      clearTimeout(checkTimer);
       const seq = ++checkSeq;
       const text = els.text.value;
       const set = await getWinAnsiSet();
@@ -2357,17 +2665,23 @@ async function buildDocx(pages, opts){
       const bad = unsupportedChars(text, set);
       els.charWarn.hidden = !bad.length;
       if (bad.length) els.charWarn.textContent = `Diese Zeichen kennt die PDF-Standardschrift nicht, sie werden als „?“ gespeichert: ${bad.slice(0, 8).join(' ')}`;
-      let showWidth = false;
+      let msg = '';
       if (pending.type === 'run' && text.trim()) {
         const w = await measureText(text, form);
         if (seq !== checkSeq || !pending) return;
         const old = pending.run.width;
-        if (old > 0 && w > old * 1.12 + 2) {
-          showWidth = true;
-          els.widthWarnText.textContent = `Der neue Text ist etwa ${Math.round((w / old - 1) * 100)} % breiter als der alte und kann in benachbarten Text ragen.`;
-        }
+        if (old > 0 && w > old * 1.12 + 2) msg = `Der neue Text ist etwa ${Math.round((w / old - 1) * 100)} % breiter als der alte und kann in benachbarten Text ragen.`;
+      } else if (pending.type === 'block' && text.trim()) {
+        const b = pending.block, f = form;
+        const wrapped = f.wrap ? await wrapText(text, f, b.width) : toWinAnsi(text, set);
+        const n = wrapped.split('\n').length;
+        const w = f.wrap ? 0 : await measureText(text, f);
+        if (seq !== checkSeq || !pending) return;
+        if (!f.wrap && w > b.width * 1.04 + 2) msg = 'Mindestens eine Zeile ist breiter als der alte Absatz. Schalte „Zeilen automatisch umbrechen“ ein oder verkleinere die Schrift.';
+        else if (n > b.runs.length) msg = `Der Text braucht ${n - b.runs.length} ${n - b.runs.length === 1 ? 'Zeile' : 'Zeilen'} mehr als der alte Absatz und überdeckt dann Text darunter.`;
       }
-      els.widthWarn.hidden = !showWidth;
+      els.widthWarnText.textContent = msg;
+      els.widthWarn.hidden = !msg;
     }
     function medianFs(){
       const s = (state ? state.runs : []).map(r => r.fs).sort((a, b) => a - b);
@@ -2375,11 +2689,11 @@ async function buildDocx(pages, opts){
     }
     function openForRun(r){
       const ex = edits.find(e => e.runId === r.id);
-      const colors = ex ? { bg: ex.bg, text: ex.detected } : sampleColors(runBox(r));
+      const colors = ex ? { bg: ex.bg, text: ex.detected, fill: ex.fill } : sampleColors(runBox(r));
       openSheet({
         pending: { type: 'run', run: r, existing: ex, colors },
-        title: 'Text ändern',
-        orig: 'Original: „' + r.text + '“',
+        title: 'Zeile ändern',
+        orig: '',
         text: ex && ex.text ? ex.text : r.text,
         size: ex ? ex.size : r.fs,
         color: ex ? ex.color : colors.text,
@@ -2387,49 +2701,114 @@ async function buildDocx(pages, opts){
         family: ex ? ex.family : r.family,
         bold: ex ? ex.bold : r.bold,
         italic: ex ? ex.italic : r.italic,
-        deleteLabel: 'Zeile löschen'
+        deleteLabel: 'Zeile löschen',
+        rect: boxRect(state.vpCss, markBox(r, ex))
+      });
+    }
+    function openForBlock(b){
+      const bed = edits.find(e => e.blockId === b.id && e.pageIndex === state.pageIndex);
+      const lineEds = editsOfBlock(b).filter(e => e.runId);
+      const box = blockBox(b);
+      const colors = bed ? { bg: bed.bg, text: bed.detected, fill: bed.fill } : sampleColors(box);
+      let lines;
+      if (bed) lines = bed.text.split('\n');
+      else lines = b.runs.map(r => { const e = lineEds.find(x => x.runId === r.id); return e ? e.text : r.text; }).filter((t, i, arr) => t !== '' || arr.length === 1);
+      const multi = b.runs.length > 1 || (bed && bed.text.includes('\n'));
+      const wrapOn = multi ? (bed && bed.wrap === false ? false : true) : false;
+      const first = lineEds.find(e => e.runId === b.runs[0].id);
+      const style = bed || first || null;
+      openSheet({
+        pending: { type: 'block', block: b, existing: bed, colors },
+        title: b.runs.length > 1 ? 'Absatz ändern' : 'Zeile ändern',
+        orig: '',
+        text: wrapOn ? joinLines(lines) : lines.join('\n'),
+        size: style ? style.size : b.fs,
+        color: style ? style.color : colors.text,
+        detected: colors.text,
+        family: style ? style.family : b.family,
+        bold: style ? style.bold : b.bold,
+        italic: style ? style.italic : b.italic,
+        deleteLabel: b.runs.length > 1 ? 'Absatz löschen' : 'Zeile löschen',
+        wrap: multi ? wrapOn : null,
+        rect: boxRect(state.vpCss, markBlock(b, bed))
       });
     }
     function openForAdd(p){
-      openSheet({ pending: Object.assign({ type: 'add' }, p), title: 'Text hinzufügen', orig: '', text: '', size: medianFs(), color: '#000000', detected: '#000000', family: 'sans', bold: false, italic: false, deleteLabel: null });
+      openSheet({ pending: Object.assign({ type: 'add' }, p), title: 'Text hinzufügen', orig: '', text: '', size: medianFs(), color: '#000000', detected: '#000000', family: 'sans', bold: false, italic: false, deleteLabel: null, rect: p.rect });
     }
     function openForAdded(e){
-      openSheet({ pending: { type: 'added', edit: e }, title: 'Text ändern', orig: '', text: e.text, size: e.size, color: e.color, detected: e.color, family: e.family, bold: e.bold, italic: e.italic, deleteLabel: 'Text entfernen' });
+      openSheet({ pending: { type: 'added', edit: e }, title: 'Text ändern', orig: '', text: e.text, size: e.size, color: e.color, detected: e.color, family: e.family, bold: e.bold, italic: e.italic, deleteLabel: 'Text entfernen', rect: boxRect(state.vpCss, addedBox(e)) });
     }
     function pushHistory(){
       history.push(edits.slice());
       if (history.length > 60) history.shift();
     }
+    async function makeRunEdit(r, text, f, colors){
+      const measured = await measureText(text, f);
+      let x = r.x, y = r.y;
+      if (!text.includes('\n') && isRightAligned(r)) {
+        const shift = r.width - measured;
+        x += shift * Math.cos(r.angle);
+        y += shift * Math.sin(r.angle);
+      }
+      const fill = colors.fill || { bg: colors.bg, cols: 1, rows: 1, colors: null };
+      return { id: nextId++, pageIndex: state.pageIndex, runId: r.id, original: r.text, cover: runBox(r), bg: fill.bg, fill, detected: colors.text, text, x, y, angle: r.angle, measured,
+        size: f.size, color: f.color, family: f.family, bold: f.bold, italic: f.italic };
+    }
+    async function makeBlockEdit(b, lines, f, colors, wrap){
+      const text = lines.join('\n');
+      const fill = colors.fill || { bg: colors.bg, cols: 1, rows: 1, colors: null };
+      return { id: nextId++, pageIndex: state.pageIndex, blockId: b.id, original: b.texts.join('\n'), cover: blockBox(b), bg: fill.bg, fill, detected: colors.text, text, wrap,
+        x: b.x, y: b.y, angle: b.angle, measured: text ? await measureText(text, f) : 0, lead: b.pitch * (f.size / b.fs),
+        size: f.size, color: f.color, family: f.family, bold: f.bold, italic: f.italic };
+    }
     async function applySheet(){
       if (!pending || !state) return;
       const set = await getWinAnsiSet();
-      const text = toWinAnsi(els.text.value.replace(/\r\n?/g, '\n').replace(/\s+$/, ''), set);
       const f = form;
       const style = { size: f.size, color: f.color, family: f.family, bold: f.bold, italic: f.italic };
       const p = pending;
+      const raw = els.text.value.replace(/\r\n?/g, '\n').replace(/\s+$/, '');
+      const ini = p.initial;
+      const unchanged = raw === ini.text && f.wrap === ini.wrap && Math.abs(f.size - ini.size) < 0.05 && f.color.toLowerCase() === ini.color &&
+        f.family === ini.family && f.bold === ini.bold && f.italic === ini.italic;
       if (p.type === 'run') {
         const r = p.run;
+        const text = toWinAnsi(raw, set);
         const isOriginal = text === r.text && Math.abs(f.size - round1(r.fs)) < 0.05 && f.color.toLowerCase() === p.colors.text.toLowerCase() &&
           f.family === r.family && f.bold === !!r.bold && f.italic === !!r.italic;
-        if (isOriginal && !p.existing) { closeSheet(); return; }
+        if ((isOriginal && !p.existing) || (unchanged && p.existing)) { closeSheet(); return; }
         pushHistory();
         edits = edits.filter(e => e.runId !== r.id);
-        if (!isOriginal) {
-          const measured = await measureText(text, f);
-          let x = r.x, y = r.y;
-          if (!text.includes('\n') && isRightAligned(r)) {
-            const shift = r.width - measured;
-            x += shift * Math.cos(r.angle);
-            y += shift * Math.sin(r.angle);
+        if (!isOriginal) edits.push(await makeRunEdit(r, text, f, p.colors));
+      } else if (p.type === 'block') {
+        if (unchanged) { closeSheet(); return; }
+        const b = p.block;
+        pushHistory();
+        const old = new Set(editsOfBlock(b));
+        edits = edits.filter(e => !old.has(e));
+        const wrapped = raw ? (f.wrap ? await wrapText(raw, f, b.width) : toWinAnsi(raw, set)) : '';
+        const lines = wrapped.split('\n');
+        const sameStyle = Math.abs(f.size - round1(b.fs)) < 0.05 && f.color.toLowerCase() === p.colors.text.toLowerCase() &&
+          f.family === b.family && f.bold === b.bold && f.italic === b.italic;
+        if (raw && !f.wrap && sameStyle && lines.length === b.runs.length) {
+          // nur die wirklich geänderten Zeilen ersetzen: der Rest bleibt unangetastet in der Originalschrift
+          for (let i = 0; i < lines.length; i++) {
+            if (lines[i] === b.runs[i].text) continue;
+            edits.push(await makeRunEdit(b.runs[i], lines[i], f, sampleColors(runBox(b.runs[i]))));
           }
-          edits.push(Object.assign({ id: nextId++, pageIndex: state.pageIndex, runId: r.id, original: r.text, cover: runBox(r), bg: p.colors.bg, detected: p.colors.text, text, x, y, angle: r.angle, measured }, style));
+        } else if (raw || b.runs.length) {
+          const isOrig = raw && wrapped === b.texts.join('\n') && sameStyle;
+          if (!isOrig) edits.push(await makeBlockEdit(b, lines, f, p.colors, f.wrap));
         }
       } else if (p.type === 'add') {
+        const text = toWinAnsi(raw, set);
         if (!text.trim()) { closeSheet(); return; }
         pushHistory();
         const x = p.px + p.down[0] * 0.35 * f.size, y = p.py + p.down[1] * 0.35 * f.size;
         edits.push(Object.assign({ id: nextId++, pageIndex: state.pageIndex, runId: null, cover: null, text, x, y, angle: p.angle, measured: await measureText(text, f) }, style));
       } else if (p.type === 'added') {
+        const text = toWinAnsi(raw, set);
         pushHistory();
         if (!text.trim()) edits = edits.filter(e => e !== p.edit);
         else edits = edits.map(e => e === p.edit ? Object.assign({}, e, style, { text, measured: 0 }) : e);
@@ -2446,7 +2825,14 @@ async function buildDocx(pages, opts){
       if (p.type === 'run') {
         const r = p.run;
         edits = edits.filter(e => e.runId !== r.id);
-        edits.push({ id: nextId++, pageIndex: state.pageIndex, runId: r.id, original: r.text, cover: runBox(r), bg: p.colors.bg, detected: p.colors.text, text: '', x: r.x, y: r.y, angle: r.angle, size: r.fs, color: p.colors.text, family: r.family, bold: r.bold, italic: r.italic });
+        const fill = p.colors.fill || { bg: p.colors.bg, cols: 1, rows: 1, colors: null };
+        edits.push({ id: nextId++, pageIndex: state.pageIndex, runId: r.id, original: r.text, cover: runBox(r), bg: fill.bg, fill, detected: p.colors.text, text: '', x: r.x, y: r.y, angle: r.angle, size: r.fs, color: p.colors.text, family: r.family, bold: r.bold, italic: r.italic });
+      } else if (p.type === 'block') {
+        const b = p.block;
+        const old = new Set(editsOfBlock(b));
+        edits = edits.filter(e => !old.has(e));
+        const fill = p.colors.fill || { bg: p.colors.bg, cols: 1, rows: 1, colors: null };
+        edits.push({ id: nextId++, pageIndex: state.pageIndex, blockId: b.id, original: b.texts.join('\n'), cover: blockBox(b), bg: fill.bg, fill, detected: p.colors.text, text: '', x: b.x, y: b.y, angle: b.angle, size: b.fs, color: p.colors.text, family: b.family, bold: b.bold, italic: b.italic });
       } else if (p.type === 'added') {
         edits = edits.filter(e => e !== p.edit);
       }
@@ -2488,12 +2874,15 @@ async function buildDocx(pages, opts){
         runs.forEach((r, i) => { r.id = pi + ':o' + i; });
         if (state && state.pageIndex === pi) guessBold(runs);
         runsCache.set(pi, (runsCache.get(pi) || []).concat(runs));
+        blocksCache.delete(pi);
         ocrDone.add(pi);
         ocrNote = runs.length
           ? `${runs.length} Textzeilen erkannt. Tippe auf eine Zeile, um sie zu ändern – prüfe den erkannten Text im Eingabefeld.`
           : 'Auf dieser Seite wurde kein Text erkannt. Mit „Text hinzufügen“ kannst du neuen Text einsetzen.';
         if (state && state.pageIndex === pi) {
           state.runs = runsCache.get(pi);
+          state.blocks = buildBlocks(state.runs, pi);
+          blocksCache.set(pi, state.blocks);
           els.ocr.hidden = true;
           buildHits();
         }
@@ -2543,18 +2932,20 @@ async function buildDocx(pages, opts){
             const pg = pages[e.pageIndex];
             if (e.cover) {
               const c = e.cover, cs = Math.cos(c.angle), sn = Math.sin(c.angle);
-              pg.drawRectangle({
-                x: c.x0 + c.lx * cs - c.ly * sn, y: c.y0 + c.lx * sn + c.ly * cs,
-                width: c.w, height: c.h, rotate: PDFLib.degrees(c.angle * 180 / Math.PI),
-                color: hexToRgb(e.bg), borderWidth: 0
-              });
+              for (const cell of coverCells(e)) {
+                pg.drawRectangle({
+                  x: c.x0 + cell.lx * cs - cell.ly * sn, y: c.y0 + cell.lx * sn + cell.ly * cs,
+                  width: cell.w, height: cell.h, rotate: PDFLib.degrees(c.angle * 180 / Math.PI),
+                  color: hexToRgb(cell.color), borderWidth: 0
+                });
+              }
             }
             if (e.text) {
               const name = stdFontName(e.family, e.bold, e.italic);
               if (!fonts[name]) fonts[name] = await pdf.embedFont(name);
               pg.drawText(toWinAnsi(e.text, set), {
                 x: e.x, y: e.y, size: e.size, font: fonts[name], color: hexToRgb(e.color),
-                rotate: PDFLib.degrees(e.angle * 180 / Math.PI), lineHeight: e.size * LINE
+                rotate: PDFLib.degrees(e.angle * 180 / Math.PI), lineHeight: leadOf(e)
               });
             }
           }
@@ -2574,8 +2965,10 @@ async function buildDocx(pages, opts){
     els.next.addEventListener('click', () => { if (doc && pageIndex < doc.numPages - 1) { pageIndex++; render(); } });
     function setZoom(idx){
       if (idx < 0 || idx >= ZOOMS.length || idx === zoomIdx) return;
-      const w = els.wrap;
-      keepScroll = { rx: (w.scrollLeft + w.clientWidth / 2) / Math.max(1, w.scrollWidth), ry: (w.scrollTop + w.clientHeight / 2) / Math.max(1, w.scrollHeight) };
+      const w = els.stageWrap, r = els.stage.getBoundingClientRect();
+      const vh = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
+      const vy = vh / 2;
+      keepScroll = { rx: (w.scrollLeft + w.clientWidth / 2) / Math.max(1, w.scrollWidth), ry: Math.min(1, Math.max(0, (vy - r.top) / Math.max(1, r.height))), vy };
       zoomIdx = idx;
       updateZoomUi();
       render();
@@ -2586,15 +2979,16 @@ async function buildDocx(pages, opts){
       mode = b.dataset.mode;
       els.modeBtns.forEach(x => x.classList.toggle('active', x === b));
       els.stage.classList.toggle('mode-add', mode === 'add');
+      buildHits();
       updateHint();
     }));
     els.stage.addEventListener('click', ev => {
       if (!state) return;
       const rect = els.stage.getBoundingClientRect();
       const cx = ev.clientX - rect.left, cy = ev.clientY - rect.top;
-      if (mode === 'edit') {
-        const t = pickTarget(cx, cy, 12, ['run', 'added']);
-        if (t) { if (t.kind === 'run') openForRun(t.run); else openForAdded(t.edit); }
+      if (mode === 'para' || mode === 'line') {
+        const t = pickTarget(cx, cy, 12, ['block', 'run', 'added']);
+        if (t) { if (t.kind === 'block') openForBlock(t.block); else if (t.kind === 'run') openForRun(t.run); else openForAdded(t.edit); }
         return;
       }
       const t = pickTarget(cx, cy, 4, ['added']);
@@ -2602,13 +2996,22 @@ async function buildDocx(pages, opts){
       const vp = state.vpCss;
       const p0 = vp.convertToPdfPoint(cx, cy), p1 = vp.convertToPdfPoint(cx + 10, cy), p2 = vp.convertToPdfPoint(cx, cy + 10);
       const len = Math.hypot(p2[0] - p0[0], p2[1] - p0[1]) || 1;
-      openForAdd({ px: p0[0], py: p0[1], angle: Math.atan2(p1[1] - p0[1], p1[0] - p0[0]), down: [(p2[0] - p0[0]) / len, (p2[1] - p0[1]) / len] });
+      openForAdd({ rect: { x: cx - 4, y: cy - 4, w: 8, h: 24 }, px: p0[0], py: p0[1], angle: Math.atan2(p1[1] - p0[1], p1[0] - p0[0]), down: [(p2[0] - p0[0]) / len, (p2[1] - p0[1]) / len] });
     });
     els.undo.addEventListener('click', () => { if (!history.length) return; edits = history.pop(); refresh(); });
     els.save.addEventListener('click', save);
     els.ocr.addEventListener('click', runOcr);
 
-    els.text.addEventListener('input', checkText);
+    els.text.addEventListener('input', () => { autosize(); scheduleCheck(); });
+    els.wrap.addEventListener('change', async () => {
+      if (!pending || pending.type !== 'block') return;
+      const on = els.wrap.checked;
+      form.wrap = on;
+      const b = pending.block;
+      if (on) els.text.value = joinLines(els.text.value.split('\n'));
+      else els.text.value = await wrapText(els.text.value, form, b.width);
+      syncWrapUi(); autosize(); checkText();
+    });
     els.size.addEventListener('change', () => {
       const v = parseFloat(els.size.value.replace(',', '.'));
       if (isFinite(v)) form.size = round1(Math.min(144, Math.max(4, v)));
@@ -2623,9 +3026,24 @@ async function buildDocx(pages, opts){
     els.swatches.forEach(s => s.addEventListener('click', () => { form.color = s.dataset.color === 'detected' ? form.detected : s.dataset.color; syncForm(); }));
     els.color.addEventListener('input', () => { form.color = els.color.value; syncForm(); });
     els.fit.addEventListener('click', async () => {
-      if (!pending || pending.type !== 'run') return;
-      const w = await measureText(els.text.value, form);
-      if (w > 0) { form.size = Math.max(4, Math.floor(form.size * pending.run.width / w * 10) / 10); syncForm(); checkText(); }
+      if (!pending) return;
+      if (pending.type === 'run') {
+        const w = await measureText(els.text.value, form);
+        if (w > 0) { form.size = Math.max(4, Math.floor(form.size * pending.run.width / w * 10) / 10); syncForm(); checkText(); }
+      } else if (pending.type === 'block') {
+        const b = pending.block;
+        let size = form.size;
+        for (let i = 0; i < 80 && size > 5; i++) {
+          const f = Object.assign({}, form, { size });
+          let ok;
+          if (form.wrap) ok = (await wrapText(els.text.value, f, b.width)).split('\n').length <= b.runs.length;
+          else ok = (await measureText(els.text.value, f)) <= b.width * 1.04 + 2;
+          if (ok) break;
+          size = round1(size - 0.2);
+        }
+        if (!pending) return;
+        form.size = Math.max(5, size); syncForm(); checkText();
+      }
     });
     els.apply.addEventListener('click', applySheet);
     els.del.addEventListener('click', deleteFromSheet);
@@ -2633,8 +3051,8 @@ async function buildDocx(pages, opts){
     els.sheet.addEventListener('click', ev => { if (ev.target === els.sheet) closeSheet(); });
     document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && !els.sheet.hidden) closeSheet(); });
     if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', adjustForKeyboard);
-      window.visualViewport.addEventListener('scroll', adjustForKeyboard);
+      window.visualViewport.addEventListener('resize', scheduleAdjust);
+      window.visualViewport.addEventListener('scroll', scheduleAdjust);
     }
     let resizeTimer = null;
     window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => show(false), 250); });
@@ -2643,7 +3061,7 @@ async function buildDocx(pages, opts){
     return {
       setDoc(d, offlineHint){
         doc = d; pageIndex = 0; zoomIdx = 0; edits = []; history = []; state = null; lastWidth = 0;
-        runsCache.clear(); ocrDone.clear(); ocrNote = '';
+        runsCache.clear(); blocksCache.clear(); ocrDone.clear(); ocrNote = '';
         els.ocr.hidden = true;
         els.status.className = 'status';
         els.box.hidden = !d;
@@ -2651,7 +3069,11 @@ async function buildDocx(pages, opts){
         if (offlineHint) els.empty.textContent = offlineHint;
         els.hits.textContent = '';
         updateSummary(); updateZoomUi();
-        if (d) show(true);
+        if (d) {
+          show(true);
+          // direkt zum Editor springen, damit man nicht erst durch die Kopfzeile scrollen muss
+          if (isVisible()) setTimeout(() => { try { els.box.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { /* egal */ } }, 120);
+        }
       },
       show,
       hasEdits: () => edits.length > 0

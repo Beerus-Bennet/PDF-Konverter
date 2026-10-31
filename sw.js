@@ -1,4 +1,4 @@
-const CACHE = 'pdfconvert-v4';
+const CACHE = 'pdfconvert-v5';
 // Pflicht: ohne diese Dateien startet die App nicht offline
 const APP_CORE = ['./', './index.html'];
 // Optional: fehlt eine davon, wird trotzdem installiert

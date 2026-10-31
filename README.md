@@ -36,10 +36,11 @@ Hinzufügen. Nach einer Änderung das alte App-Symbol löschen, die Seite im Bro
 **Umwandeln:** Bilder, TXT/MD, CSV/JSON, DOCX, XLSX und PDFs zu einer PDF machen.
 
 **Bearbeiten – Inhalt**
-- *Text bearbeiten:* Zeile antippen → ändern, löschen, Größe/Farbe/Schrift/Fett/Kursiv. Neuen Text
+- *Text bearbeiten:* Modus „Absatz“ (ganze Absätze, Umbruch automatisch) oder „Zeile“ (einzelne Zeilen) wählen, Text antippen → ändern, löschen, Größe/Farbe/Schrift/Fett/Kursiv. Neuen Text
   einfügen, Zoom, Rückgängig. Farben, Schriftgröße und Fettdruck werden erkannt, rechtsbündige Beträge
   bleiben rechtsbündig. Bei Scans erst „Text auf dieser Seite erkennen“ tippen. Optional „Alten Text
-  endgültig entfernen“.
+  endgültig entfernen“. Die Abdeckung folgt Farbverläufen und Fotos im Hintergrund. Grenzen: neuer Text
+  nutzt Helvetica/Times/Courier; ohne „Alten Text endgültig entfernen“ bleibt der alte Text unsichtbar im PDF.
 - *Exportieren:* Word, Excel, CSV, Text, Bilder (JPG/PNG) und durchsuchbare PDF. Gescannte Seiten werden
   per Texterkennung gelesen.
 
