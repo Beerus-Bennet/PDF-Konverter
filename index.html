@@ -4,19 +4,36 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>PDFConvert.net – PDF-Werkzeug</title>
-<meta name="description" content="Dateien zu PDF umwandeln, PDFs zusammenfügen/trennen, Dokumente scannen – offline und kostenlos.">
+<meta name="description" content="PDFs erstellen, bearbeiten, umwandeln und scannen – mit Texterkennung. Alles läuft lokal auf deinem Gerät: kein Upload, kein Konto, auch offline.">
 <meta name="theme-color" content="#10233A">
+<meta name="color-scheme" content="light">
+<meta name="format-detection" content="telephone=no">
 <link rel="manifest" href="./manifest.json">
-<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
-<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="icon" type="image/svg+xml" href="./icons/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="PDFConvert.net">
 <meta name="application-name" content="PDFConvert.net">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preload" href="./vendor/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="./vendor/fonts/space-grotesk-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+  /* Schriften liegen lokal (vendor/fonts) – keine Anfragen an Google, funktioniert offline */
+  @font-face{ font-family:'Inter'; font-style:normal; font-weight:400; font-display:swap; src:url('./vendor/fonts/inter-latin-400-normal.woff2') format('woff2'); unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+  @font-face{ font-family:'Inter'; font-style:normal; font-weight:400; font-display:swap; src:url('./vendor/fonts/inter-latin-ext-400-normal.woff2') format('woff2'); unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+  @font-face{ font-family:'Inter'; font-style:normal; font-weight:500; font-display:swap; src:url('./vendor/fonts/inter-latin-500-normal.woff2') format('woff2'); unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+  @font-face{ font-family:'Inter'; font-style:normal; font-weight:500; font-display:swap; src:url('./vendor/fonts/inter-latin-ext-500-normal.woff2') format('woff2'); unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+  @font-face{ font-family:'Inter'; font-style:normal; font-weight:600; font-display:swap; src:url('./vendor/fonts/inter-latin-600-normal.woff2') format('woff2'); unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+  @font-face{ font-family:'Inter'; font-style:normal; font-weight:600; font-display:swap; src:url('./vendor/fonts/inter-latin-ext-600-normal.woff2') format('woff2'); unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+  @font-face{ font-family:'Inter'; font-style:normal; font-weight:700; font-display:swap; src:url('./vendor/fonts/inter-latin-700-normal.woff2') format('woff2'); unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+  @font-face{ font-family:'Inter'; font-style:normal; font-weight:700; font-display:swap; src:url('./vendor/fonts/inter-latin-ext-700-normal.woff2') format('woff2'); unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+  @font-face{ font-family:'Space Grotesk'; font-style:normal; font-weight:500; font-display:swap; src:url('./vendor/fonts/space-grotesk-latin-500-normal.woff2') format('woff2'); unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+  @font-face{ font-family:'Space Grotesk'; font-style:normal; font-weight:500; font-display:swap; src:url('./vendor/fonts/space-grotesk-latin-ext-500-normal.woff2') format('woff2'); unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+  @font-face{ font-family:'Space Grotesk'; font-style:normal; font-weight:600; font-display:swap; src:url('./vendor/fonts/space-grotesk-latin-600-normal.woff2') format('woff2'); unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+  @font-face{ font-family:'Space Grotesk'; font-style:normal; font-weight:600; font-display:swap; src:url('./vendor/fonts/space-grotesk-latin-ext-600-normal.woff2') format('woff2'); unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+  @font-face{ font-family:'Space Grotesk'; font-style:normal; font-weight:700; font-display:swap; src:url('./vendor/fonts/space-grotesk-latin-700-normal.woff2') format('woff2'); unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+  @font-face{ font-family:'Space Grotesk'; font-style:normal; font-weight:700; font-display:swap; src:url('./vendor/fonts/space-grotesk-latin-ext-700-normal.woff2') format('woff2'); unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
   :root{
     --ink:#10233A;
     --ink-soft:#1B3A5C;
@@ -88,7 +105,7 @@
     max-width: 34ch;
   }
 
-  main{ flex:1; padding: 18px 18px 100px; }
+  main{ flex:1; padding: 18px 18px 18px; }
 
   .tabpanel{ display:none; }
   .tabpanel.active{ display:block; }
@@ -452,6 +469,128 @@
   .sheet-actions .btn{ margin-top:0; }
   .sheet-cancel{ display:block; margin: 10px auto 0; }
   @media (max-height: 560px){ .sheet{ padding-top:8px; } .sheet textarea{ font-size:16px; } }
+
+  /* ---------- Kopf: Aktionen & Vertrauensmerkmale ---------- */
+  .hdr-actions{ margin-left:auto; display:flex; align-items:center; gap:8px; }
+  .hdr-btn{
+    width:38px; height:38px; border-radius:50%; border:1px solid rgba(243,239,230,.22); background: rgba(243,239,230,.06);
+    color: var(--text-on-ink); display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0;
+  }
+  .hdr-btn svg{ width:20px; height:20px; }
+  .hdr-btn:active{ background: rgba(243,239,230,.16); }
+  .net-chip{
+    font-size:11px; font-weight:700; letter-spacing:.02em; padding:4px 9px; border-radius:20px;
+    background: rgba(232,98,44,.18); color:#FFC8B0; border:1px solid rgba(232,98,44,.45);
+  }
+  .trust{ list-style:none; margin:12px 0 0; padding:0; display:flex; flex-wrap:wrap; gap:6px; position:relative; }
+  .trust li{
+    display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:600; color: rgba(243,239,230,.9);
+    padding:4px 9px 4px 7px; border-radius:20px; background: rgba(243,239,230,.07); border:1px solid rgba(243,239,230,.14);
+  }
+  .trust svg{ width:13px; height:13px; color: var(--accent); }
+
+  /* ---------- Fußzeile ---------- */
+  .app-foot{ padding: 6px 18px 104px; text-align:center; font-size:11.5px; color:#8a8171; border-top:1px solid var(--line); margin: 0 18px; }
+  .app-foot nav{ display:flex; flex-wrap:wrap; justify-content:center; gap:2px 14px; }
+  .app-foot .linkbtn{ font-size:12px; color: var(--ink-soft); text-decoration:none; }
+  .app-foot .linkbtn:hover{ text-decoration:underline; }
+  .app-foot .ver{ margin-top:2px; }
+
+  /* ---------- Ablegen per Drag & Drop ---------- */
+  .dropzone{ transition: background-color .12s, border-color .12s; }
+  .dropzone.drag{ border-color: var(--accent); background: rgba(232,98,44,.08); }
+  .dropzone:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .dz-drag{ display:none; }
+  @media (hover: hover) and (pointer: fine){ .dz-drag{ display:inline; } }
+
+  /* ---------- Scannen ---------- */
+  .btn-row{ display:grid; grid-template-columns: 1.3fr 1fr; gap:8px; }
+  .btn-row .btn{ margin-top:0; }
+  .scanqueue .item .mv{
+    position:absolute; bottom:4px; width:26px; height:26px; border-radius:50%; border:none; padding:0;
+    background: rgba(16,35,58,.85); color:#fff; font-size:15px; line-height:1; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .scanqueue .item .mv.left{ left:4px; }
+  .scanqueue .item .mv.right{ right:4px; }
+  .scanqueue .item .rm{ width:26px; height:26px; }
+
+  /* ---------- Hinweise (Toasts) ---------- */
+  .toasts{
+    position:fixed; left:50%; transform:translateX(-50%); bottom: calc(78px + env(safe-area-inset-bottom));
+    width: calc(100% - 24px); max-width:456px; z-index:70; display:flex; flex-direction:column; gap:8px; pointer-events:none;
+  }
+  .toast{
+    pointer-events:auto; display:flex; align-items:center; gap:12px; padding:11px 12px 11px 14px;
+    background: var(--ink); color: var(--text-on-ink); border-radius:8px; font-size:13px; line-height:1.4;
+    box-shadow: 0 8px 24px rgba(0,0,0,.28); border-left:4px solid var(--teal); animation: toastIn .18s ease-out;
+  }
+  .toast.error{ border-left-color: var(--accent); }
+  .toast span{ flex:1; }
+  .toast button{
+    background:none; border:none; color: var(--accent); font-weight:700; font-size:13px; cursor:pointer; padding:4px 2px;
+    font-family:'Inter',sans-serif; white-space:nowrap;
+  }
+  .toast .x{ color: rgba(243,239,230,.6); font-size:16px; }
+  @keyframes toastIn{ from{ transform: translateY(10px); opacity:0; } }
+  @media (prefers-reduced-motion: reduce){ .toast{ animation:none; } }
+
+  /* ---------- Info & Rechtliches ---------- */
+  .overlay{
+    position:fixed; inset:0; z-index:60; background: rgba(16,35,58,.55); display:flex; justify-content:center;
+  }
+  .overlay-panel{ width:100%; max-width:480px; height:100%; background: var(--paper); display:flex; flex-direction:column; }
+  .overlay-bar{
+    display:flex; align-items:center; gap:10px; padding: calc(10px + env(safe-area-inset-top)) 12px 10px;
+    background: var(--ink); color: var(--text-on-ink); border-bottom:3px solid var(--accent);
+  }
+  .overlay-back{
+    background:none; border:1px solid rgba(243,239,230,.25); color: var(--text-on-ink); border-radius:20px;
+    font-family:'Inter',sans-serif; font-size:13px; font-weight:600; padding:7px 13px 7px 10px; cursor:pointer;
+  }
+  .overlay-title{ margin:0; font-family:'Space Grotesk','Inter',sans-serif; font-weight:700; font-size:17px; }
+  .overlay-body{ flex:1; overflow-y:auto; padding:16px 16px calc(28px + env(safe-area-inset-bottom)); overscroll-behavior:contain; }
+  .card{
+    background:#F8F6F0; border:1px solid var(--line); border-radius:8px; padding:14px; margin-bottom:12px;
+  }
+  .card-title{ font-size:14px; font-weight:700; margin:0 0 8px; }
+  .about-head{ display:flex; align-items:center; gap:12px; }
+  .about-head img{ border-radius:11px; }
+  .about-name{ margin:0; font-family:'Space Grotesk','Inter',sans-serif; font-weight:700; font-size:18px; }
+  .about-ver{ margin:2px 0 0; font-size:12px; color:#6b6252; }
+  .statuslist{ list-style:none; margin:14px 0 0; padding:0; border-top:1px solid var(--line); }
+  .statuslist li{ display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--line); font-size:13px; }
+  .statuslist li span:nth-child(2){ flex:1; }
+  .statuslist li b{ font-weight:600; font-size:12.5px; color: var(--ink-soft); text-align:right; }
+  .statuslist .sdot{ width:9px; height:9px; border-radius:50%; background:#c9c0ae; flex-shrink:0; }
+  .statuslist li.ok .sdot{ background: var(--teal); }
+  .statuslist li.busy .sdot{ background: #E6C34A; }
+  .statuslist li.bad .sdot{ background: var(--accent); }
+  .checklist{ list-style:none; margin:0; padding:0; }
+  .checklist li{ position:relative; padding:4px 0 4px 24px; font-size:13px; line-height:1.5; }
+  .checklist li::before{
+    content:""; position:absolute; left:2px; top:8px; width:12px; height:7px; border-left:2.5px solid var(--teal); border-bottom:2.5px solid var(--teal);
+    transform: rotate(-45deg);
+  }
+  details.legal{ padding:0; }
+  details.legal > summary{
+    cursor:pointer; list-style:none; padding:14px; font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:space-between;
+  }
+  details.legal > summary::-webkit-details-marker{ display:none; }
+  details.legal > summary::after{ content:"＋"; color: var(--accent); font-weight:700; }
+  details.legal[open] > summary::after{ content:"－"; }
+  .legal-body{ padding:0 14px 14px; font-size:13px; line-height:1.6; color:#3d3628; }
+  .legal-body h3{ font-family:'Inter',sans-serif; font-size:13.5px; margin:14px 0 4px; letter-spacing:0; }
+  .legal-body p{ margin:0 0 8px; }
+  .legal-body ul{ margin:0 0 8px; padding-left:18px; }
+  .legal-body a{ color: var(--accent-dark); }
+  .legal-body .muted{ color:#8a8171; font-size:12px; }
+  .warnbox{ background:#F4DAD5; color:#7A241A; border-radius:6px; padding:10px 12px; font-size:12.5px; }
+  .lic{ list-style:none; padding:0 !important; }
+  .lic li{ padding:7px 0; border-bottom:1px solid var(--line); }
+  .lic li:last-child{ border-bottom:none; }
+  .lic b{ font-weight:600; }
+  :focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
 </style>
 </head>
 <body>
@@ -459,10 +598,19 @@
 
   <header>
     <div class="brand">
-      <img class="brand-logo" src="./icon-192.png" alt="" width="44" height="44" onerror="this.remove()">
+      <img class="brand-logo" src="./icons/favicon.svg" alt="" width="44" height="44">
       <h1>PDFConvert<span class="dot">.</span>net</h1>
+      <div class="hdr-actions">
+        <span class="net-chip" id="net-chip" hidden>Offline</span>
+        <button type="button" class="hdr-btn" id="info-open" aria-label="Info, Datenschutz und Impressum"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg></button>
+      </div>
     </div>
-    <p>Dateien zu PDF machen, PDFs bearbeiten, umwandeln und scannen – mit Texterkennung, direkt auf deinem Handy, ohne Upload und ohne Konto.</p>
+    <p>PDFs erstellen, bearbeiten, umwandeln und scannen – mit Texterkennung. Deine Dateien bleiben auf deinem Gerät.</p>
+    <ul class="trust" aria-label="Datenschutz">
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Kein Upload</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 19.5v.01"/></svg>Offline nutzbar</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Ohne Konto</li>
+    </ul>
   </header>
 
   <main>
@@ -477,8 +625,8 @@
         <p>Bilder (JPG, PNG, WEBP, GIF, BMP) werden 1:1 als PDF-Seite übernommen. Text, Markdown und CSV werden sauber gesetzt. Bei Word- und Excel-Dateien wird der <strong>Inhalt</strong> vollständig übernommen, das <strong>Layout</strong> (Tabellen, Formatierungen, Bilder im Dokument) geht dabei verloren – für reinen Text reicht das meist gut aus. HEIC-Fotos vom iPhone werden von manchen Browsern nicht gelesen; notfalls vorher in den Fotoeinstellungen auf „Kompatibel“ (JPEG) stellen.</p>
       </details>
 
-      <div class="dropzone" id="convert-dropzone">
-        <strong>Dateien auswählen</strong>
+      <div class="dropzone" id="convert-dropzone" role="button" tabindex="0">
+        <strong>Dateien auswählen<span class="dz-drag"> oder hierher ziehen</span></strong>
         <span>Bilder · TXT/MD · CSV · DOCX · XLSX · PDF</span>
       </div>
       <input type="file" id="convert-input" multiple accept=".jpg,.jpeg,.png,.webp,.gif,.bmp,.txt,.md,.markdown,.log,.json,.csv,.docx,.xlsx,.xls,.pdf,image/*">
@@ -549,8 +697,8 @@
 
       <!-- ===== ZUSAMMENFÜGEN (mehrere Dateien) ===== -->
       <div class="tool-panel" data-panel="merge" hidden>
-        <div class="dropzone" id="merge-dropzone">
-          <strong>PDFs auswählen</strong>
+        <div class="dropzone" id="merge-dropzone" role="button" tabindex="0">
+          <strong>PDFs auswählen<span class="dz-drag"> oder hierher ziehen</span></strong>
           <span>Zwei oder mehr Dateien</span>
         </div>
         <input type="file" id="merge-input" multiple accept="application/pdf,.pdf">
@@ -564,8 +712,8 @@
 
       <!-- ===== EINZELNE PDF (alle anderen Werkzeuge) ===== -->
       <div class="tool-panel" data-panel="single">
-        <div class="dropzone" id="single-dropzone">
-          <strong>PDF auswählen</strong>
+        <div class="dropzone" id="single-dropzone" role="button" tabindex="0">
+          <strong>PDF auswählen<span class="dz-drag"> oder hierher ziehen</span></strong>
           <span id="single-dropzone-sub">Eine Datei – danach kannst du zwischen den Werkzeugen wechseln</span>
         </div>
         <div class="filebar" id="single-filebar" hidden>
@@ -775,8 +923,12 @@
       <p class="section-title">Dokument scannen</p>
       <p class="section-sub">Foto für Foto aufnehmen, Reihenfolge festlegen, als mehrseitige PDF speichern.</p>
 
-      <button class="btn teal" id="scan-add-btn">📷 Foto aufnehmen</button>
+      <div class="btn-row">
+        <button class="btn teal" id="scan-add-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="18" height="18"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Foto aufnehmen</button>
+        <button class="btn secondary" id="scan-pick-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="18" height="18"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/></svg>Aus Galerie</button>
+      </div>
       <input type="file" id="scan-input" accept="image/*" capture="environment">
+      <input type="file" id="scan-pick" accept="image/*" multiple>
 
       <div class="toggle-row">
         <span>Scan-Optimierung (Kontrast, s/w)</span>
@@ -795,7 +947,8 @@
       </div>
 
       <div class="scanqueue" id="scan-queue"></div>
-      <p class="empty-note" id="scan-empty">Noch keine Scans aufgenommen.</p>
+      <p class="empty-note" id="scan-empty">Noch keine Seiten aufgenommen.</p>
+      <p class="hint" id="scan-order-hint" hidden>Mit ‹ und › änderst du die Reihenfolge der Seiten.</p>
 
       <label class="field-label" for="scan-filename">Dateiname</label>
       <input type="text" id="scan-filename" placeholder="scan">
@@ -806,6 +959,16 @@
     </section>
 
   </main>
+
+  <footer class="app-foot">
+    <nav aria-label="Rechtliches">
+      <button type="button" class="linkbtn" data-info="about">Über die App</button>
+      <button type="button" class="linkbtn" data-info="privacy">Datenschutz</button>
+      <button type="button" class="linkbtn" data-info="imprint">Impressum</button>
+      <button type="button" class="linkbtn" data-info="licenses">Lizenzen</button>
+    </nav>
+    <div class="ver">Version <span class="app-version"></span></div>
+  </footer>
 
   <nav class="tabbar">
     <button data-tab="convert" class="active">
@@ -822,6 +985,58 @@
     </button>
   </nav>
 </div>
+
+<!-- ================= INFO & RECHTLICHES ================= -->
+<div class="overlay" id="info" hidden>
+  <div class="overlay-panel" role="dialog" aria-modal="true" aria-labelledby="info-title">
+    <div class="overlay-bar">
+      <button type="button" class="overlay-back" id="info-close">‹ Zurück</button>
+      <p class="overlay-title" id="info-title">Info &amp; Rechtliches</p>
+    </div>
+    <div class="overlay-body" id="info-body">
+      <section class="card" id="info-about">
+        <div class="about-head">
+          <img src="./icons/favicon.svg" width="48" height="48" alt="">
+          <div><p class="about-name">PDFConvert.net</p><p class="about-ver">Version <span class="app-version"></span></p></div>
+        </div>
+        <ul class="statuslist">
+          <li id="st-offline"><span class="sdot"></span><span>Offline-Betrieb</span><b>wird geprüft …</b></li>
+          <li id="st-ocr"><span class="sdot"></span><span>Texterkennung offline</span><b>wird geprüft …</b></li>
+          <li id="st-storage"><span class="sdot"></span><span>Speicher auf diesem Gerät</span><b>–</b></li>
+        </ul>
+        <button type="button" class="btn" id="install-btn" hidden>App installieren</button>
+        <p class="hint" id="install-hint" hidden></p>
+        <button type="button" class="btn secondary" id="update-btn">Nach Updates suchen</button>
+        <div class="status" id="update-status"></div>
+      </section>
+      <section class="card">
+        <p class="card-title">Datenschutz auf einen Blick</p>
+        <ul class="checklist">
+          <li>Deine Dateien werden ausschließlich auf deinem Gerät verarbeitet und nicht hochgeladen.</li>
+          <li>Kein Konto, keine Cookies, kein Tracking, keine Werbung.</li>
+          <li>Keine Verbindungen zu fremden Servern: Schriften, Bibliotheken und Texterkennung sind Teil der App.</li>
+          <li>Nach dem ersten Öffnen funktioniert die App auch ohne Internet.</li>
+        </ul>
+      </section>
+      <details class="card legal" id="info-imprint"><summary>Impressum</summary><div class="legal-body" id="imprint-body"></div></details>
+      <details class="card legal" id="info-privacy"><summary>Datenschutzerklärung</summary><div class="legal-body" id="privacy-body"></div></details>
+      <details class="card legal" id="info-help"><summary>Hilfe &amp; häufige Fragen</summary><div class="legal-body">
+        <h3>Werden meine Dateien hochgeladen?</h3>
+        <p>Nein. Umwandeln, Bearbeiten, Exportieren und die Texterkennung laufen vollständig in deinem Browser. Deine Dateien verlassen dein Gerät nicht.</p>
+        <h3>Funktioniert die App ohne Internet?</h3>
+        <p>Ja. Nach dem ersten Öffnen speichert die App alle benötigten Programmteile auf deinem Gerät. Den Stand siehst du oben unter „Offline-Betrieb“. Die Texterkennung wird einmalig im Hintergrund geladen (ca. 5 MB).</p>
+        <h3>Wie installiere ich die App?</h3>
+        <p>iPhone/iPad: In Safari auf „Teilen“ und dann „Zum Home-Bildschirm“ tippen. Android und Computer: im Browsermenü „App installieren“ wählen oder oben auf „App installieren“ tippen, falls angezeigt.</p>
+        <h3>Wie genau ist die Texterkennung?</h3>
+        <p>Bei sauberen Scans sehr gut, aber nicht fehlerfrei. Prüfe erkannte Texte vor dem Weitergeben, besonders Zahlen und Beträge.</p>
+        <h3>Gibt es Grenzen?</h3>
+        <p>Sehr große Dateien (mehrere hundert Seiten oder sehr hochauflösende Bilder) können auf älteren Geräten langsam sein. Passwortgeschützte PDFs müssen zuerst ohne Passwort gespeichert werden.</p>
+      </div></details>
+      <details class="card legal" id="info-licenses"><summary>Open-Source-Lizenzen</summary><div class="legal-body" id="licenses-body"></div></details>
+    </div>
+  </div>
+</div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
 
 <!-- ================= TEXT-BEARBEITEN: EINGABEBLATT ================= -->
 <div class="sheet-backdrop" id="te-sheet" hidden>
@@ -886,31 +1101,290 @@
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" crossorigin="anonymous"></script>
+<!-- Alle Bibliotheken liegen lokal im Ordner vendor/ (Lizenzen dort) – keine externen Server nötig -->
+<script src="./config.js"></script>
+<script src="./vendor/pdf-lib/pdf-lib.min.js"></script>
+<script src="./vendor/pdfjs/pdf.min.js"></script>
+<script src="./vendor/mammoth/mammoth.browser.min.js"></script>
+<script src="./vendor/xlsx/xlsx.full.min.js"></script>
+<script src="./vendor/jszip/jszip.min.js"></script>
 
 <script>
-/* ---------- Service worker ---------- */
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
+/* ============================================================
+   APP-RAHMEN: Version, Hinweise, Offline, Info & Rechtliches
+   ============================================================ */
+const APP_VERSION = '2.0.0';           // gleicher Wert wie in sw.js
+const CONFIG = window.PDFCONVERT_CONFIG || {};
+document.querySelectorAll('.app-version').forEach(el => { el.textContent = APP_VERSION; });
+
+function lsGet(k){ try { return localStorage.getItem(k); } catch (e) { return null; } }
+function lsSet(k, v){ try { localStorage.setItem(k, v); } catch (e) { /* privater Modus */ } }
+function escHtml(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+/* ---------- Hinweise (Toasts) ---------- */
+function toast(msg, opts = {}){
+  const box = document.getElementById('toasts');
+  if (opts.id) { const old = box.querySelector(`[data-id="${opts.id}"]`); if (old) old.remove(); }
+  const el = document.createElement('div');
+  el.className = 'toast' + (opts.type === 'error' ? ' error' : '');
+  el.setAttribute('role', opts.type === 'error' ? 'alert' : 'status');
+  if (opts.id) el.dataset.id = opts.id;
+  const span = document.createElement('span'); span.textContent = msg; el.appendChild(span);
+  const close = () => el.remove();
+  if (opts.action) {
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = opts.action.label;
+    b.addEventListener('click', () => { close(); opts.action.fn(); });
+    el.appendChild(b);
+  }
+  const x = document.createElement('button'); x.type = 'button'; x.className = 'x'; x.setAttribute('aria-label', 'Hinweis schließen'); x.textContent = '✕';
+  x.addEventListener('click', close); el.appendChild(x);
+  box.appendChild(el);
+  while (box.children.length > 3) box.firstChild.remove();
+  const ms = opts.timeout === undefined ? 5000 : opts.timeout;
+  if (ms) setTimeout(close, ms);
+  return el;
+}
+
+/* ---------- Unerwartete Fehler sichtbar machen statt still zu scheitern ---------- */
+let _lastErrToast = 0;
+function reportUnexpected(err){
+  const name = err && err.name, msg = String((err && err.message) || err || '');
+  if (/RenderingCancelled|AbortException/.test(name || '') || /Worker was destroyed|Rendering cancelled|ResizeObserver/i.test(msg)) return;
+  console.error(err);
+  if (Date.now() - _lastErrToast < 4000) return;
+  _lastErrToast = Date.now();
+  toast('Unerwarteter Fehler' + (msg ? ': ' + msg.slice(0, 140) : '') + '. Falls etwas nicht mehr reagiert, lade die App neu.', { type: 'error', timeout: 9000, action: { label: 'Neu laden', fn: () => location.reload() } });
+}
+window.addEventListener('error', e => { if (e.error || e.message) reportUnexpected(e.error || e.message); });
+window.addEventListener('unhandledrejection', e => reportUnexpected(e.reason));
+// Dateien, die neben eine Ablagefläche fallen, nicht im Browser öffnen
+window.addEventListener('dragover', e => e.preventDefault());
+window.addEventListener('drop', e => e.preventDefault());
+
+/* ---------- Ablageflächen: Klick, Tastatur und Drag & Drop ---------- */
+function setupDropzone(zone, onClick, onFiles){
+  zone.addEventListener('click', onClick);
+  zone.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } });
+  let depth = 0;
+  zone.addEventListener('dragenter', e => { e.preventDefault(); depth++; zone.classList.add('drag'); });
+  zone.addEventListener('dragover', e => { e.preventDefault(); if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy'; });
+  zone.addEventListener('dragleave', () => { depth = Math.max(0, depth - 1); if (!depth) zone.classList.remove('drag'); });
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); depth = 0; zone.classList.remove('drag');
+    const files = Array.from((e.dataTransfer && e.dataTransfer.files) || []);
+    if (files.length) onFiles(files);
   });
 }
+const isPdfFile = f => f.type === 'application/pdf' || /\.pdf$/i.test(f.name);
 
 /* ---------- Tabs ---------- */
 const tabButtons = document.querySelectorAll('nav.tabbar button');
-tabButtons.forEach(btn => {
-  btn.addEventListener('click', () => {
-    tabButtons.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.tabpanel').forEach(p => p.classList.remove('active'));
-    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
-    window.dispatchEvent(new CustomEvent('pdfconvert:tab', { detail: btn.dataset.tab }));
+function selectTab(name){
+  const btn = Array.from(tabButtons).find(b => b.dataset.tab === name);
+  if (!btn) return;
+  tabButtons.forEach(b => { b.classList.toggle('active', b === btn); b.setAttribute('aria-current', b === btn ? 'page' : 'false'); });
+  document.querySelectorAll('.tabpanel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + name));
+  window.dispatchEvent(new CustomEvent('pdfconvert:tab', { detail: name }));
+}
+tabButtons.forEach(btn => btn.addEventListener('click', () => selectTab(btn.dataset.tab)));
+
+/* ---------- Online/Offline ---------- */
+const netChip = document.getElementById('net-chip');
+function updateNet(announce){
+  const off = navigator.onLine === false;
+  netChip.hidden = !off;
+  if (announce) toast(off ? 'Keine Internetverbindung – die App funktioniert trotzdem weiter.' : 'Wieder online.', { id: 'net', timeout: off ? 6000 : 2500 });
+}
+window.addEventListener('online', () => updateNet(true));
+window.addEventListener('offline', () => updateNet(true));
+updateNet(false);
+
+/* ---------- Service Worker: Offline-Speicher & Updates ---------- */
+let swReg = null, swStatus = null, swUpdating = false;
+function setStatusRow(id, state, text){
+  const li = document.getElementById(id);
+  if (!li) return;
+  li.className = state || '';
+  li.querySelector('b').textContent = text;
+}
+function renderSwStatus(){
+  if (!('serviceWorker' in navigator)) {
+    setStatusRow('st-offline', 'bad', 'vom Browser nicht unterstützt');
+    setStatusRow('st-ocr', 'bad', 'nicht verfügbar');
+    return;
+  }
+  if (!swStatus) { setStatusRow('st-offline', 'busy', 'wird vorbereitet …'); setStatusRow('st-ocr', 'busy', 'wird vorbereitet …'); return; }
+  setStatusRow('st-offline', swStatus.offline ? 'ok' : 'busy', swStatus.offline ? 'bereit' : 'wird vorbereitet …');
+  setStatusRow('st-ocr', swStatus.ocr ? 'ok' : (swStatus.ocrLoading ? 'busy' : 'bad'),
+    swStatus.ocr ? 'bereit' : (swStatus.ocrLoading ? 'wird geladen …' : (navigator.onLine === false ? 'lädt, sobald du online bist' : 'noch nicht geladen')));
+}
+function askSw(type){
+  const target = navigator.serviceWorker && (navigator.serviceWorker.controller || (swReg && swReg.active));
+  if (target) target.postMessage({ type });
+}
+if ('serviceWorker' in navigator) {
+  const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('message', e => {
+    const d = e.data || {};
+    if (d.type !== 'status') return;
+    const wasOffline = swStatus && swStatus.offline;
+    swStatus = d;
+    renderSwStatus();
+    if (d.offline && !wasOffline && !lsGet('pdfconvert-offline-ready')) {
+      lsSet('pdfconvert-offline-ready', '1');
+      toast('Die App ist jetzt auch offline verfügbar.', { id: 'offline-ready' });
+    }
   });
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadController) { askSw('warm-ocr'); return; }   // erste Installation: kein Update
+    toast('Eine neue Version von PDFConvert.net ist verfügbar.', { id: 'update', timeout: 0, action: { label: 'Neu laden', fn: () => location.reload() } });
+  });
+  window.addEventListener('load', async () => {
+    try {
+      swReg = await navigator.serviceWorker.register('./sw.js');
+      await navigator.serviceWorker.ready;
+      askSw('warm-ocr');
+      // installierte App: Speicher vor automatischem Löschen schützen
+      const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+      if (standalone && navigator.storage && navigator.storage.persist) navigator.storage.persisted().then(p => { if (!p) navigator.storage.persist(); }).catch(() => {});
+    } catch (e) {
+      setStatusRow('st-offline', 'bad', 'nicht verfügbar');
+    }
+  });
+  window.addEventListener('online', () => askSw('warm-ocr'));
+}
+renderSwStatus();
+
+/* ---------- App installieren ---------- */
+let installPrompt = null;
+const installBtn = document.getElementById('install-btn'), installHint = document.getElementById('install-hint');
+function renderInstall(){
+  const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  installBtn.hidden = !installPrompt || standalone;
+  let hint = '';
+  if (standalone) hint = 'Die App ist auf diesem Gerät installiert.';
+  else if (ios) hint = 'Zum Installieren in Safari auf „Teilen“ und dann „Zum Home-Bildschirm“ tippen.';
+  else if (!installPrompt) hint = 'Zum Installieren im Browsermenü „App installieren“ bzw. „Zum Startbildschirm hinzufügen“ wählen.';
+  installHint.textContent = hint;
+  installHint.hidden = !hint;
+}
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installPrompt = e; renderInstall(); });
+window.addEventListener('appinstalled', () => { installPrompt = null; renderInstall(); toast('PDFConvert.net wurde installiert.'); });
+installBtn.addEventListener('click', async () => {
+  if (!installPrompt) return;
+  installPrompt.prompt();
+  try { await installPrompt.userChoice; } catch (e) { /* abgebrochen */ }
+  installPrompt = null; renderInstall();
 });
+renderInstall();
+
+/* ---------- Nach Updates suchen ---------- */
+document.getElementById('update-btn').addEventListener('click', async () => {
+  const st = document.getElementById('update-status');
+  if (navigator.onLine === false) { showStatus(st, 'Keine Internetverbindung – bitte später erneut versuchen.', 'error'); return; }
+  if (!swReg) { showStatus(st, 'Updates werden automatisch beim Öffnen der App geladen.'); return; }
+  showStatus(st, 'Suche nach Updates …');
+  try {
+    await swReg.update();
+    if (swReg.installing || swReg.waiting) showStatus(st, 'Eine neue Version wird geladen – gleich erscheint ein Hinweis zum Neuladen.', 'ok');
+    else showStatus(st, `Du nutzt die aktuelle Version (${APP_VERSION}).`, 'ok');
+  } catch (e) {
+    showStatus(st, 'Die Suche nach Updates ist fehlgeschlagen. Bitte später erneut versuchen.', 'error');
+  }
+});
+
+/* ---------- Info & Rechtliches ---------- */
+const infoEl = document.getElementById('info');
+function renderStorage(){
+  if (!(navigator.storage && navigator.storage.estimate)) { setStatusRow('st-storage', '', 'unbekannt'); return; }
+  navigator.storage.estimate().then(est => {
+    const mb = (est.usage || 0) / 1048576;
+    setStatusRow('st-storage', '', mb < 0.1 ? 'unter 0,1 MB' : mb.toFixed(1).replace('.', ',') + ' MB');
+  }).catch(() => setStatusRow('st-storage', '', 'unbekannt'));
+}
+function openInfo(section){
+  if (infoEl.hidden) {
+    infoEl.hidden = false;
+    document.body.style.overflow = 'hidden';
+    try { history.pushState({ pdfInfo: true }, '', '#info'); } catch (e) { /* egal */ }
+  }
+  renderSwStatus(); renderInstall(); renderStorage(); askSw('status');
+  const body = document.getElementById('info-body');
+  const target = section && section !== 'about' ? document.getElementById('info-' + section) : null;
+  if (target && target.tagName === 'DETAILS') target.open = true;
+  requestAnimationFrame(() => { body.scrollTop = target ? target.offsetTop - 8 : 0; });
+  document.getElementById('info-close').focus({ preventScroll: true });
+}
+function hideInfo(){
+  infoEl.hidden = true;
+  document.body.style.overflow = '';
+}
+function closeInfo(){
+  if (history.state && history.state.pdfInfo) history.back(); else hideInfo();
+}
+window.addEventListener('popstate', () => { if (!infoEl.hidden) hideInfo(); });
+document.getElementById('info-open').addEventListener('click', () => openInfo('about'));
+document.getElementById('info-close').addEventListener('click', closeInfo);
+infoEl.addEventListener('click', e => { if (e.target === infoEl) closeInfo(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !infoEl.hidden) closeInfo(); });
+document.querySelectorAll('[data-info]').forEach(b => b.addEventListener('click', () => openInfo(b.dataset.info)));
+
+(function renderLegal(){
+  const a = CONFIG.anbieter || {};
+  const host = CONFIG.hosting || {};
+  const line = v => v ? escHtml(v) + '<br>' : '';
+  const hasImprint = !!(a.name && a.strasse && a.ort && a.email);
+  const address = line(a.name) + line(a.zusatz) + line(a.strasse) + line(a.ort) + (a.land && a.land !== 'Deutschland' ? line(a.land) : '');
+  let imp = '';
+  if (!hasImprint) {
+    imp += '<p class="warnbox">Die Anbieterangaben sind noch nicht vollständig hinterlegt. Betreiber: bitte Name, Anschrift und E-Mail in der Datei <b>config.js</b> eintragen.</p>';
+  }
+  if (a.name) {
+    imp += '<h3>Angaben gemäß § 5 DDG</h3><p>' + address + '</p>';
+    if (a.vertreten) imp += '<p>' + escHtml(a.vertreten) + '</p>';
+    imp += '<h3>Kontakt</h3><p>' + (a.telefon ? 'Telefon: ' + escHtml(a.telefon) + '<br>' : '') +
+      (a.email ? 'E-Mail: <a href="mailto:' + escHtml(a.email) + '">' + escHtml(a.email) + '</a>' : '') + '</p>';
+    if (a.register) imp += '<h3>Registereintrag</h3><p>' + escHtml(a.register) + '</p>';
+    if (a.ustId) imp += '<h3>Umsatzsteuer-ID</h3><p>Umsatzsteuer-Identifikationsnummer gemäß § 27a UStG: ' + escHtml(a.ustId) + '</p>';
+    if (a.wirtschaftsId) imp += '<h3>Wirtschafts-ID</h3><p>' + escHtml(a.wirtschaftsId) + '</p>';
+    if (a.verantwortlich) imp += '<h3>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h3><p>' + escHtml(a.verantwortlich) + '</p>';
+    imp += '<h3>Verbraucherstreitbeilegung</h3><p>Wir sind nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>';
+  }
+  document.getElementById('imprint-body').innerHTML = imp;
+
+  const who = a.name ? '<p>' + address + (a.email ? 'E-Mail: <a href="mailto:' + escHtml(a.email) + '">' + escHtml(a.email) + '</a>' : '') + '</p>' : '<p>Siehe Impressum.</p>';
+  const hostName = escHtml(host.name || 'unseren Hosting-Anbieter');
+  document.getElementById('privacy-body').innerHTML =
+    '<h3>1. Verantwortlicher</h3>' + who +
+    '<h3>2. Verarbeitung deiner Dateien</h3><p>Alle Funktionen – Umwandeln, Bearbeiten, Exportieren, Scannen und Texterkennung – laufen ausschließlich lokal in deinem Browser. Die Inhalte deiner Dateien werden zu keinem Zeitpunkt an uns oder an Dritte übertragen und von uns nicht gespeichert. Sie befinden sich nur während der Bearbeitung im Arbeitsspeicher deines Geräts.</p>' +
+    '<h3>3. Bereitstellung der App (Server-Logdateien)</h3><p>Die App wird über ' + hostName + (host.anbieter ? ' (' + escHtml(host.anbieter) + ')' : '') + ' ausgeliefert. Beim Abruf verarbeitet der Hosting-Anbieter technisch notwendige Daten: IP-Adresse, Datum und Uhrzeit, abgerufene Datei, übertragene Datenmenge, Browser und Betriebssystem sowie ggf. die zuvor besuchte Seite. Dies dient der Auslieferung und der Sicherheit des Angebots (Art. 6 Abs. 1 lit. f DSGVO). Werden dabei Daten in die USA übermittelt, geschieht dies auf Grundlage des Angemessenheitsbeschlusses zum EU-US Data Privacy Framework (Art. 45 DSGVO) bzw. von Standardvertragsklauseln (Art. 46 DSGVO).' +
+      (host.datenschutz ? ' Weitere Informationen: <a href="' + escHtml(host.datenschutz) + '" target="_blank" rel="noopener">Datenschutzhinweise des Hosting-Anbieters</a>.' : '') + '</p>' +
+    '<h3>4. Speicherung auf deinem Gerät</h3><p>Damit die App offline funktioniert, legt dein Browser die Programmdateien im App-Speicher (Service Worker/Cache) ab; die Sprachdaten der Texterkennung werden zusätzlich in der Browser-Datenbank (IndexedDB) gespeichert. Außerdem wird vermerkt, ob der Hinweis „offline verfügbar“ bereits angezeigt wurde (localStorage). Diese Daten enthalten keine Inhalte deiner Dokumente und keine personenbezogenen Daten und verlassen dein Gerät nicht. Die Speicherung ist für den von dir gewünschten Dienst unbedingt erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG). Du kannst sie jederzeit über die Website-Daten in deinem Browser oder durch Entfernen der App löschen.</p>' +
+    '<h3>5. Keine Cookies, kein Tracking, keine Drittanbieter</h3><p>Die App verwendet keine Cookies, keine Analyse- oder Werbedienste und lädt keine Inhalte von fremden Servern (z. B. keine externen Schriftarten).</p>' +
+    '<h3>6. Kontakt</h3><p>Wenn du uns per E-Mail kontaktierst, verarbeiten wir deine Angaben zur Bearbeitung der Anfrage (Art. 6 Abs. 1 lit. b bzw. f DSGVO) und löschen sie, sobald sie dafür nicht mehr erforderlich sind und keine gesetzlichen Aufbewahrungspflichten bestehen.</p>' +
+    '<h3>7. Deine Rechte</h3><p>Du hast das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch (Art. 21). Außerdem kannst du dich bei einer Datenschutz-Aufsichtsbehörde beschweren (Art. 77 DSGVO).</p>' +
+    '<p class="muted">Stand: ' + escHtml(CONFIG.datenschutzStand || '') + '</p>';
+
+  const LIBS = [
+    ['PDF.js 3.11.174', 'Mozilla Foundation', 'Apache-2.0', 'vendor/pdfjs/LICENSE.txt'],
+    ['pdf-lib 1.17.1', 'Andrew Dillon', 'MIT', 'vendor/pdf-lib/LICENSE.txt'],
+    ['Tesseract.js 5.1.1', 'Tesseract.js-Projekt', 'Apache-2.0', 'vendor/tesseract/LICENSE.txt'],
+    ['Tesseract OCR (tesseract.js-core) und deutsche Sprachdaten', 'Google / Tesseract-Projekt', 'Apache-2.0', 'vendor/tesseract/core/LICENSE.txt'],
+    ['SheetJS Community Edition 0.18.5', 'SheetJS LLC', 'Apache-2.0', 'vendor/xlsx/LICENSE.txt'],
+    ['Mammoth 1.6.0', 'Michael Williamson', 'BSD-2-Clause', 'vendor/mammoth/LICENSE.txt'],
+    ['JSZip 3.10.1', 'Stuart Knightley u. a.', 'MIT', 'vendor/jszip/LICENSE.txt'],
+    ['PDF.js CMaps', 'Adobe', 'BSD-3-Clause', 'vendor/pdfjs/cmaps/LICENSE.txt'],
+    ['PDF.js Standardschriften (Foxit, Liberation)', 'Foxit / Red Hat', 'BSD bzw. SIL OFL 1.1', 'vendor/pdfjs/standard_fonts/LICENSE_FOXIT.txt'],
+    ['Schrift „Inter“', 'Rasmus Andersson', 'SIL OFL 1.1', 'vendor/fonts/LICENSE-Inter.txt'],
+    ['Schrift „Space Grotesk“', 'Florian Karsten', 'SIL OFL 1.1', 'vendor/fonts/LICENSE-SpaceGrotesk.txt']
+  ];
+  document.getElementById('licenses-body').innerHTML =
+    '<p>PDFConvert.net nutzt die folgende Open-Source-Software. Vielen Dank an alle Beteiligten.</p><ul class="lic">' +
+    LIBS.map(l => `<li><b>${escHtml(l[0])}</b><br><span class="muted">${escHtml(l[1])} · ${escHtml(l[2])} · <a href="./${l[3]}" target="_blank" rel="noopener">Lizenztext</a></span></li>`).join('') + '</ul>';
+  if (!hasImprint) console.warn('PDFConvert.net: Impressum unvollständig – bitte config.js ausfüllen.');
+})();
+if (location.hash === '#info') { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* egal */ } openInfo('about'); }
 
 /* ---------- Helpers ---------- */
 const PAGE_W = 595.28, PAGE_H = 841.89; // A4 in pt
@@ -1124,7 +1598,7 @@ function renderFileList(ulEl, emptyEl, items, opts){
 /* ============================================================
    PDF LESEN (pdf.js) – Text, Zeilen, Spalten
    ============================================================ */
-const PDFJS_BASE = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+const PDFJS_BASE = new URL('./vendor/pdfjs/', location.href).href;
 if (window.pdfjsLib) {
   pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_BASE + 'pdf.worker.min.js';
 }
@@ -1327,14 +1801,14 @@ function finishRun(r, vp){
 }
 
 /* ---------- Texterkennung (OCR) – tesseract.js wird erst bei Bedarf geladen ---------- */
-const TESSERACT_SRC = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
-const OCR_LOAD_ERROR = 'Die Texterkennung konnte nicht geladen werden. Beim ersten Mal ist eine Internetverbindung nötig.';
+const TESSERACT_BASE = new URL('./vendor/tesseract/', location.href).href;
+const TESSERACT_SRC = TESSERACT_BASE + 'tesseract.min.js';
+const OCR_LOAD_ERROR = 'Die Texterkennung konnte nicht gestartet werden. Lade die App einmal mit Internetverbindung neu, damit sie vollständig offline verfügbar ist.';
 let _ocrWorker = null, _ocrProgress = null;
 function loadScript(src){
   return new Promise((resolve, reject) => {
     const s = document.createElement('script');
     s.src = src;
-    s.crossOrigin = 'anonymous';
     s.onload = () => resolve();
     s.onerror = () => { s.remove(); reject(new Error(OCR_LOAD_ERROR)); };
     document.head.appendChild(s);
@@ -1345,7 +1819,13 @@ function getOcrWorker(){
     _ocrWorker = (async () => {
       if (!window.Tesseract) await loadScript(TESSERACT_SRC);
       try {
-        return await Tesseract.createWorker('deu', 1, { logger: m => { if (_ocrProgress) _ocrProgress(m); } });
+        return await Tesseract.createWorker('deu', 1, {
+          workerPath: TESSERACT_BASE + 'worker.min.js',
+          corePath: TESSERACT_BASE + 'core',          // wählt automatisch die passende Variante (mit/ohne SIMD)
+          langPath: TESSERACT_BASE + 'lang',
+          workerBlobURL: false,                       // Worker direkt laden, damit der Offline-Speicher greift
+          logger: m => { if (_ocrProgress) _ocrProgress(m); }
+        });
       } catch (e) { throw new Error(OCR_LOAD_ERROR); }
     })();
     _ocrWorker.catch(() => { _ocrWorker = null; });
@@ -1888,11 +2368,16 @@ async function buildDocx(pages, opts){
 
   let items = []; // {file}
 
-  dropzone.addEventListener('click', () => input.click());
-  input.addEventListener('change', () => {
-    Array.from(input.files).forEach(f => items.push({file: f}));
-    input.value = '';
+  function addFiles(files){
+    files.forEach(f => items.push({ file: f }));
+    statusEl.className = 'status';
     refresh();
+  }
+  setupDropzone(dropzone, () => input.click(), addFiles);
+  input.addEventListener('change', () => {
+    const files = Array.from(input.files);
+    input.value = '';
+    addFiles(files);
   });
   function updateMergeUi(){
     mergeHint.textContent = mergeToggle.checked
@@ -3213,11 +3698,18 @@ async function buildDocx(pages, opts){
   const mDropzone = $('merge-dropzone'), mInput = $('merge-input'), mList = $('merge-filelist'), mEmpty = $('merge-empty');
   const mRun = $('merge-run'), mStatus = $('merge-status'), mFilename = $('merge-filename');
   let mergeItems = [];
-  mDropzone.addEventListener('click', () => mInput.click());
-  mInput.addEventListener('change', () => {
-    Array.from(mInput.files).forEach(f => mergeItems.push({ file: f }));
-    mInput.value = '';
+  function addMergeFiles(files){
+    const pdfs = files.filter(isPdfFile);
+    if (pdfs.length < files.length) showStatus(mStatus, 'Nur PDF-Dateien können zusammengefügt werden – andere Dateien wurden übersprungen. Bilder und Dokumente wandelst du unter „Umwandeln“ um.', 'error');
+    else mStatus.className = 'status';
+    pdfs.forEach(f => mergeItems.push({ file: f }));
     refreshMerge();
+  }
+  setupDropzone(mDropzone, () => mInput.click(), addMergeFiles);
+  mInput.addEventListener('change', () => {
+    const files = Array.from(mInput.files);
+    mInput.value = '';
+    addMergeFiles(files);
   });
   function refreshMerge(){
     renderFileList(mList, mEmpty, mergeItems, {
@@ -3258,8 +3750,19 @@ async function buildDocx(pages, opts){
     if (editor.hasEdits() && !confirm('Deine Textänderungen sind noch nicht gespeichert. Trotzdem eine andere PDF öffnen?')) return;
     sInput.click();
   }
-  sDropzone.addEventListener('click', pickFile);
+  setupDropzone(sDropzone, pickFile, files => {
+    const f = files.find(isPdfFile);
+    if (!f) { showStatus(sStatus, 'Bitte eine PDF-Datei ablegen.', 'error'); return; }
+    loadSingle(f);
+  });
   sChange.addEventListener('click', pickFile);
+  // auch auf die Dateileiste kann eine neue PDF gezogen werden
+  sFilebar.addEventListener('dragover', e => e.preventDefault());
+  sFilebar.addEventListener('drop', e => {
+    e.preventDefault();
+    const f = Array.from((e.dataTransfer && e.dataTransfer.files) || []).find(isPdfFile);
+    if (f && (!editor.hasEdits() || confirm('Deine Textänderungen sind noch nicht gespeichert. Trotzdem eine andere PDF öffnen?'))) loadSingle(f);
+  });
   sInput.addEventListener('change', async () => {
     const f = sInput.files[0];
     sInput.value = '';
@@ -3267,7 +3770,9 @@ async function buildDocx(pages, opts){
   });
   async function loadSingle(file){
     showStatus(sStatus, 'PDF wird geladen …');
-    const bytes = new Uint8Array(await file.arrayBuffer());
+    let bytes;
+    try { bytes = new Uint8Array(await file.arrayBuffer()); }
+    catch (e) { showStatus(sStatus, 'Die Datei konnte nicht gelesen werden.', 'error'); return; }
     let doc = null, pageCount = 0, offlineHint = '';
     try {
       doc = await openPdfJs(bytes);
@@ -3552,13 +4057,24 @@ async function buildDocx(pages, opts){
 
   let queue = []; // {file, url}
 
+  const pickBtn = document.getElementById('scan-pick-btn');
+  const pickInput = document.getElementById('scan-pick');
+  const orderHint = document.getElementById('scan-order-hint');
   addBtn.addEventListener('click', () => input.click());
-  input.addEventListener('change', () => {
-    const f = input.files[0];
-    if (f) queue.push({ file: f, url: URL.createObjectURL(f) });
-    input.value = '';
+  pickBtn.addEventListener('click', () => pickInput.click());
+  function addImages(files){
+    const imgs = files.filter(f => /^image\//.test(f.type) || /\.(jpe?g|png|webp|gif|bmp)$/i.test(f.name));
+    imgs.forEach(f => queue.push({ file: f, url: URL.createObjectURL(f) }));
+    if (imgs.length) statusEl.className = 'status';
     refresh();
-  });
+  }
+  for (const el of [input, pickInput]) {
+    el.addEventListener('change', () => {
+      const files = Array.from(el.files);
+      el.value = '';
+      addImages(files);
+    });
+  }
 
   function refresh(){
     queueEl.innerHTML = '';
@@ -3568,15 +4084,23 @@ async function buildDocx(pages, opts){
       div.className = 'item';
       const img = document.createElement('img'); img.src = item.url;
       const num = document.createElement('div'); num.className = 'num'; num.textContent = i+1;
-      const rm = document.createElement('button'); rm.className = 'rm'; rm.textContent = '✕';
+      img.alt = 'Seite ' + (i + 1);
+      const rm = document.createElement('button'); rm.type = 'button'; rm.className = 'rm'; rm.textContent = '✕';
+      rm.setAttribute('aria-label', `Seite ${i + 1} entfernen`);
       rm.onclick = () => { URL.revokeObjectURL(item.url); queue.splice(i,1); refresh(); };
       div.appendChild(img); div.appendChild(num); div.appendChild(rm);
-      div.addEventListener('click', (e) => {
-        if (e.target === rm) return;
-        if (i > 0) { const t=queue[i]; queue[i]=queue[i-1]; queue[i-1]=t; refresh(); }
-      });
+      const swap = j => { const t = queue[i]; queue[i] = queue[j]; queue[j] = t; refresh(); };
+      if (i > 0) {
+        const l = document.createElement('button'); l.type = 'button'; l.className = 'mv left'; l.textContent = '‹';
+        l.setAttribute('aria-label', `Seite ${i + 1} nach vorn`); l.onclick = () => swap(i - 1); div.appendChild(l);
+      }
+      if (i < queue.length - 1) {
+        const r = document.createElement('button'); r.type = 'button'; r.className = 'mv right'; r.textContent = '›';
+        r.setAttribute('aria-label', `Seite ${i + 1} nach hinten`); r.onclick = () => swap(i + 1); div.appendChild(r);
+      }
       queueEl.appendChild(div);
     });
+    orderHint.hidden = queue.length < 2;
     saveBtn.disabled = queue.length === 0;
     clearBtn.disabled = queue.length === 0;
   }
@@ -3625,8 +4149,11 @@ async function buildDocx(pages, opts){
   });
 })();
 
-/* Tap anywhere on a scan item image (not the ✕) to move it toward the front — 
-   simple ordering without drag & drop, documented via tap-to-move-left behaviour above. */
+/* Direkt zu einem Bereich springen (App-Verknüpfungen: ?tab=edit usw.) */
+(() => {
+  const t = new URLSearchParams(location.search).get('tab');
+  if (t) selectTab(t);
+})();
 </script>
 </body>
 </html>
