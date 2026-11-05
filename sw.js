@@ -2,7 +2,7 @@
    Hält die komplette App (inkl. Bibliotheken, Schriften und Texterkennung) offline bereit.
    Bei jeder neuen Version APP_VERSION erhöhen (gleicher Wert wie in index.html).
    LIB_CACHE/OCR_CACHE nur erhöhen, wenn sich Dateien in vendor/ ändern – dann werden sie neu geladen. */
-const APP_VERSION = '2.0.0';
+const APP_VERSION = '2.1.0';
 const APP_CACHE = 'pdfconvert-app-' + APP_VERSION;
 const LIB_CACHE = 'pdfconvert-lib-1';
 const OCR_CACHE = 'pdfconvert-ocr-1';
@@ -16,7 +16,6 @@ const APP_FILES = [
 ];
 const FONT_FILES = [];
 for (const w of [400, 500, 600, 700]) for (const s of ['latin', 'latin-ext']) FONT_FILES.push(`./vendor/fonts/inter-${s}-${w}-normal.woff2`);
-for (const w of [500, 600, 700]) for (const s of ['latin', 'latin-ext']) FONT_FILES.push(`./vendor/fonts/space-grotesk-${s}-${w}-normal.woff2`);
 const LIB_FILES = [
   './vendor/pdf-lib/pdf-lib.min.js',
   './vendor/pdfjs/pdf.min.js',
@@ -25,7 +24,7 @@ const LIB_FILES = [
   './vendor/xlsx/xlsx.full.min.js',
   './vendor/jszip/jszip.min.js',
   './vendor/pdf-lib/LICENSE.txt', './vendor/pdfjs/LICENSE.txt', './vendor/mammoth/LICENSE.txt', './vendor/xlsx/LICENSE.txt',
-  './vendor/jszip/LICENSE.txt', './vendor/tesseract/LICENSE.txt', './vendor/fonts/LICENSE-Inter.txt', './vendor/fonts/LICENSE-SpaceGrotesk.txt',
+  './vendor/jszip/LICENSE.txt', './vendor/tesseract/LICENSE.txt', './vendor/fonts/LICENSE-Inter.txt',
   './vendor/tesseract/core/LICENSE.txt', './vendor/pdfjs/cmaps/LICENSE.txt', './vendor/pdfjs/standard_fonts/LICENSE_FOXIT.txt', './vendor/pdfjs/standard_fonts/LICENSE_LIBERATION.txt',
   ...FONT_FILES
 ];
