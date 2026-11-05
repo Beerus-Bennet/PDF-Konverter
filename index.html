@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>PDFConvert.net – PDF-Werkzeug</title>
 <meta name="description" content="Dateien zu PDF umwandeln, PDFs zusammenfügen/trennen, Dokumente scannen – offline und kostenlos.">
 <meta name="theme-color" content="#10233A">
@@ -428,6 +428,7 @@
   .sheet-grid{ display:grid; grid-template-columns: 1fr auto; gap: 12px; align-items:end; }
   .stepper{ display:flex; border:1px solid rgba(16,35,58,.3); border-radius: var(--radius); overflow:hidden; background:#fff; }
   .stepper button{ width:40px; border:none; background: var(--paper-dark); font-size:18px; color: var(--ink); cursor:pointer; }
+  .sheet input[type=text], .sheet input[type=number]{ font-size:16px; }
   .stepper input{ flex:1; min-width:0; border:none; border-radius:0; text-align:center; padding:9px 4px; }
   .chip-row{ display:flex; gap:6px; }
   .chip{
@@ -2566,6 +2567,7 @@ async function buildDocx(pages, opts){
       lastVvh = area.h;
     }
     function scheduleAdjust(){
+      schedulePreview();
       if (vvRaf) return;
       vvRaf = requestAnimationFrame(() => { vvRaf = 0; adjustForKeyboard(); });
     }
@@ -2655,6 +2657,8 @@ async function buildDocx(pages, opts){
     async function updatePreview(){
       const seq = ++prevSeq;
       if (!pending || !state || els.sheet.hidden) return;
+      // bei geöffneter Tastatur ist kaum Platz: Vorschau weglassen, damit das Blatt bedienbar bleibt
+      if (visibleArea().h < 520) { els.preview.hidden = true; return; }
       const pe = await previewEdit();
       if (seq !== prevSeq || !pending || !state || els.sheet.hidden) return;
       const vp = state.vpCss, base = state.base, k = base.width / vp.width;
