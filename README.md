@@ -1,61 +1,69 @@
 # PDFConvert.net
 
-Kostenlose PWA: Dateien zu PDF umwandeln, PDFs bearbeiten, in andere Formate exportieren, Dokumente
-scannen – mit Texterkennung (OCR). Läuft komplett im Browser, ohne Server, ohne Upload, ohne Konto.
+Progressive Web App zum Erstellen, Bearbeiten, Umwandeln und Scannen von PDFs – mit Texterkennung (OCR).
+Alles läuft lokal im Browser: **kein Upload, kein Konto, keine Cookies, keine Verbindungen zu fremden
+Servern** und nach dem ersten Öffnen **vollständig offline** nutzbar (einschließlich Texterkennung).
 
-## Dateien im Repo
+## Vor dem gewerblichen Einsatz
 
-| Datei | Zweck |
+1. **Impressum ausfüllen:** In `config.js` Name, Anschrift und E-Mail eintragen (Pflicht nach § 5 DDG),
+   optional Telefon, Registereintrag und USt-IdNr. Solange die Angaben fehlen, zeigt die App im
+   Impressum einen Hinweis.
+2. **Datenschutzerklärung prüfen:** Der Text in der App (Info → Datenschutzerklärung) beschreibt die
+   tatsächliche Verarbeitung. Bitte rechtlich prüfen lassen und bei einem anderen Hosting-Anbieter
+   `hosting` in `config.js` anpassen.
+3. **Lizenzen:** Alle verwendeten Bibliotheken und Schriften sind Open Source mit gewerblich nutzbaren
+   Lizenzen (MIT, Apache-2.0, BSD, SIL OFL). Die Lizenztexte liegen in `vendor/` und sind in der App unter
+   Info → Open-Source-Lizenzen verlinkt – bitte nicht entfernen.
+
+## Dateien
+
+| Datei / Ordner | Zweck |
 |---|---|
 | `index.html` | die App |
-| `manifest.json` | Name, Farben und Icons der installierten App |
-| `sw.js` | Offline-Speicher und automatische Updates |
-| `favicon.png` | Symbol im Browser-Tab |
-| `apple-touch-icon.png` | Symbol auf dem iPhone-Homescreen |
-| `pdfconvert-192.png`, `pdfconvert-512.png` | App-Symbole (Android, Chrome, App-Kopf) |
-| `pdfconvert-maskable-512.png` | rund zuschneidbares Symbol für Android |
-| `README.md` | diese Beschreibung (wird von der App nicht gebraucht) |
-
-Alle Dateinamen klein schreiben. Die alten `icon-192.png` und `icon-512.png` werden nicht mehr gebraucht.
+| `config.js` | Anbieterangaben für Impressum und Datenschutzerklärung |
+| `sw.js` | Service Worker: Offline-Speicher und Updates |
+| `manifest.json` | Name, Farben, Symbole und Verknüpfungen der installierten App |
+| `icons/` | App-Symbole (Favicon, 192/512 px, Android „maskable“, iPhone-Homescreen) |
+| `vendor/` | lokal eingebundene Bibliotheken und Schriften inkl. Lizenzen (PDF.js, pdf-lib, Tesseract.js, SheetJS, Mammoth, JSZip, Inter, Space Grotesk) |
+| `.nojekyll` | sorgt dafür, dass GitHub Pages alle Dateien unverändert ausliefert |
 
 ## Hosten auf GitHub Pages
 
-1. Dateien in den Repo-Root hochladen (Add file → Upload files).
-2. Settings → Pages → Branch `main`, Ordner `/ (root)` → Save.
-3. Nach ein bis zwei Minuten läuft die App unter `https://<username>.github.io/<repo>/`.
+1. Settings → Pages → Branch `main`, Ordner `/ (root)` → Save.
+2. Nach ein bis zwei Minuten läuft die App unter `https://<username>.github.io/<repo>/`.
 
-**Updates:** geänderte Dateien im Repo ersetzen. Die App lädt die neue Version beim nächsten Öffnen mit
-Internet automatisch.
+## Updates veröffentlichen
 
-**Neues Symbol / neuer Name auf dem Homescreen:** iPhone und Android merken sich Symbol und Name beim
-Hinzufügen. Nach einer Änderung das alte App-Symbol löschen, die Seite im Browser neu öffnen und erneut
-„Zum Home-Bildschirm“ wählen.
+1. Änderungen hochladen.
+2. Bei jeder neuen Version die Versionsnummer **an beiden Stellen** erhöhen:
+   `APP_VERSION` in `index.html` und in `sw.js` (z. B. `2.0.0` → `2.0.1`).
+3. Geöffnete Apps zeigen dann den Hinweis „Eine neue Version ist verfügbar – Neu laden“.
+
+Nur wenn sich Dateien in `vendor/` ändern, zusätzlich `LIB_CACHE` bzw. `OCR_CACHE` in `sw.js` erhöhen –
+sonst werden die großen Bibliotheken nicht bei jedem Update neu geladen.
+
+## Offline-Betrieb
+
+- Beim ersten Öffnen speichert der Service Worker App, Bibliotheken und Schriften (ca. 5 MB).
+- Die Texterkennung (ca. 5 MB) wird danach im Hintergrund geladen.
+- Den Stand zeigt die App unter Info (ⓘ oben rechts): „Offline-Betrieb“ und „Texterkennung offline“.
 
 ## Funktionen
 
-**Umwandeln:** Bilder, TXT/MD, CSV/JSON, DOCX, XLSX und PDFs zu einer PDF machen.
+**Umwandeln:** Bilder (JPG, PNG, WEBP, GIF, BMP), TXT/MD, CSV/JSON, DOCX, XLSX und PDFs zu einer PDF
+oder zu einzelnen PDFs (ZIP). Dateien per Auswahl oder Drag & Drop.
 
 **Bearbeiten – Inhalt**
-- *Text bearbeiten:* Modus „Absatz“ (ganze Absätze, Umbruch automatisch) oder „Zeile“ (einzelne Zeilen) wählen, Text antippen → ändern, löschen, Größe/Farbe/Schrift/Fett/Kursiv. Neuen Text
-  einfügen, Zoom, Rückgängig. Farben, Schriftgröße und Fettdruck werden erkannt, rechtsbündige Beträge
-  bleiben rechtsbündig. Bei Scans erst „Text auf dieser Seite erkennen“ tippen. Optional „Alten Text
-  endgültig entfernen“. Die Abdeckung folgt Farbverläufen und Fotos im Hintergrund. Grenzen: neuer Text
-  nutzt Helvetica/Times/Courier; ohne „Alten Text endgültig entfernen“ bleibt der alte Text unsichtbar im PDF.
-- *Exportieren:* Word, Excel, CSV, Text, Bilder (JPG/PNG) und durchsuchbare PDF. Gescannte Seiten werden
-  per Texterkennung gelesen.
+- *Text bearbeiten:* Absatz, Zeile oder neuen Text antippen und ändern, mit Live-Vorschau, Schrift,
+  Größe, Farbe, Fett/Kursiv, Rückgängig. Gescannte Seiten zuerst per Texterkennung lesen. Optional
+  „Alten Text endgültig entfernen“.
+- *Exportieren:* Word, Excel, CSV, Text, Bilder (JPG/PNG) und durchsuchbare PDF.
 
 **Bearbeiten – Seiten:** Zusammenfügen, Trennen, Entfernen, Drehen.
 
-**Scannen:** Fotos aufnehmen, Reihenfolge festlegen, als PDF speichern – optional mit Texterkennung, dann
-ist die PDF durchsuchbar.
+**Scannen:** Fotos aufnehmen oder aus der Galerie wählen, Reihenfolge festlegen, optional optimieren,
+als durchsuchbare PDF speichern.
 
-## Grenzen
-
-- Die Texterkennung lädt beim ersten Mal einmalig die deutschen Sprachdaten (einige MB) und braucht dafür
-  Internet. Sie arbeitet auf dem Handy und braucht je Seite einige Sekunden. Sie ist bei sauberen Scans
-  sehr zuverlässig, aber nicht fehlerfrei – erkannten Text kurz gegenlesen.
-- Geänderter Text wird in Helvetica, Times oder Courier gesetzt; Sonderschriften werden angenähert.
-  Zeichen außerhalb des westeuropäischen Zeichensatzes (z. B. Emojis) werden durch „?“ ersetzt.
-- Export nach Word/Excel baut Text, Absätze, Überschriften und Tabellen nach – keine Bilder und kein
-  mehrspaltiges Zeitungslayout.
-- Bibliotheken kommen von cdnjs und jsDelivr (pdf-lib, pdf.js, tesseract.js, mammoth, SheetJS, JSZip).
+**Info & Rechtliches (ⓘ):** Version, Offline-Status, App installieren, nach Updates suchen, Impressum,
+Datenschutzerklärung, Hilfe und Open-Source-Lizenzen.
