@@ -26,7 +26,7 @@ Servern** und nach dem ersten Öffnen **vollständig offline** nutzbar (einschli
 | `sw.js` | Service Worker: Offline-Speicher und Updates |
 | `manifest.json` | Name, Farben, Symbole und Verknüpfungen der installierten App |
 | `icons/` | App-Symbole (Favicon, 192/512 px, Android „maskable“, iPhone-Homescreen) |
-| `vendor/` | lokal eingebundene Bibliotheken und Schriften inkl. Lizenzen (PDF.js, pdf-lib, Tesseract.js, SheetJS, Mammoth, JSZip, Inter, Space Grotesk) |
+| `vendor/` | lokal eingebundene Bibliotheken und Schriften inkl. Lizenzen (PDF.js, pdf-lib, Tesseract.js, SheetJS, Mammoth, JSZip, Schrift Inter) |
 | `.nojekyll` | sorgt dafür, dass GitHub Pages alle Dateien unverändert ausliefert |
 
 ## Hosten auf GitHub Pages
