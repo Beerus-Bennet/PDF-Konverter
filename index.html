@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <title>PDFConvert.net – PDF-Werkzeug</title>
 <meta name="description" content="Dateien zu PDF umwandeln, PDFs zusammenfügen/trennen, Dokumente scannen – offline und kostenlos.">
 <meta name="theme-color" content="#10233A">
@@ -415,6 +415,9 @@
   .sheet-fmt[open] > summary::before{ content:"－"; }
   .sheet-handle{ width:36px; height:4px; border-radius:2px; background: rgba(16,35,58,.25); margin: 0 auto 12px; }
   .sheet-title{ font-family:'Space Grotesk','Inter',sans-serif; font-weight:700; font-size:17px; margin:0 0 2px; }
+  .sheet-preview{ position:relative; margin:0 0 10px; border:1px solid var(--line); border-radius: var(--radius); background: var(--paper-dark); overflow:hidden; display:flex; justify-content:center; align-items:center; min-height:40px; }
+  .sheet-preview canvas{ display:block; max-width:100%; }
+  .sheet-preview-label{ position:absolute; top:3px; left:6px; font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:#fff; background: rgba(16,35,58,.6); border-radius:3px; padding:1px 5px; pointer-events:none; }
   .sheet-orig{ font-size:12px; color:#6b6252; margin:0 0 10px; overflow-wrap:anywhere; }
   .sheet textarea{
     width:100%; min-height: 56px; resize: none; padding:10px 11px; display:block;
@@ -425,6 +428,7 @@
   .sheet-grid{ display:grid; grid-template-columns: 1fr auto; gap: 12px; align-items:end; }
   .stepper{ display:flex; border:1px solid rgba(16,35,58,.3); border-radius: var(--radius); overflow:hidden; background:#fff; }
   .stepper button{ width:40px; border:none; background: var(--paper-dark); font-size:18px; color: var(--ink); cursor:pointer; }
+  .sheet input[type=text], .sheet input[type=number]{ font-size:16px; }
   .stepper input{ flex:1; min-width:0; border:none; border-radius:0; text-align:center; padding:9px 4px; }
   .chip-row{ display:flex; gap:6px; }
   .chip{
@@ -827,6 +831,7 @@
       <button type="button" class="linkbtn sheet-cancel" id="te-cancel">Abbrechen</button>
     </div>
     <p class="sheet-orig" id="te-sheet-orig" hidden></p>
+    <div class="sheet-preview" id="te-preview" hidden aria-label="Vorschau der Änderung"><span class="sheet-preview-label">Vorschau</span><canvas id="te-preview-canvas"></canvas></div>
     <textarea id="te-text" rows="3" autocomplete="off" autocapitalize="sentences" spellcheck="true" aria-label="Neuer Text"></textarea>
     <label class="wrap-row" id="te-wrap-row" hidden><input type="checkbox" id="te-wrap"><span>Zeilen automatisch umbrechen</span></label>
     <p class="hint warn" id="te-charwarn" hidden></p>
@@ -2041,7 +2046,7 @@ async function buildDocx(pages, opts){
       stageWrap: $('te-stagewrap'), stage: $('te-stage'), canvas: $('te-canvas'), hits: $('te-hits'), loading: $('te-loading'),
       count: $('te-count'), undo: $('te-undo'), flatten: $('te-flatten'), filename: $('te-filename'),
       save: $('te-save'), status: $('te-status'),
-      sheet: $('te-sheet'), sheetTitle: $('te-sheet-title'), sheetOrig: $('te-sheet-orig'), text: $('te-text'),
+      sheet: $('te-sheet'), sheetTitle: $('te-sheet-title'), sheetOrig: $('te-sheet-orig'), preview: $('te-preview'), previewCanvas: $('te-preview-canvas'), text: $('te-text'),
       charWarn: $('te-charwarn'), widthWarn: $('te-widthwarn'), widthWarnText: $('te-widthwarn-text'), fit: $('te-fit'),
       size: $('te-size'), sizeDown: $('te-size-down'), sizeUp: $('te-size-up'),
       bold: $('te-bold'), italic: $('te-italic'), familyBtns: document.querySelectorAll('#te-family button'),
@@ -2539,6 +2544,7 @@ async function buildDocx(pages, opts){
       els.text.style.fontFamily = FAMILY_CSS[form.family];
       els.text.style.fontWeight = form.bold ? '700' : '400';
       els.text.style.fontStyle = form.italic ? 'italic' : 'normal';
+      schedulePreview();
     }
     /* ----- Eingabeblatt: passt sich dem sichtbaren Bereich an (Tastatur!) ----- */
     let vvRaf = 0, lastVvh = 0, revealCount = 0;
@@ -2561,6 +2567,7 @@ async function buildDocx(pages, opts){
       lastVvh = area.h;
     }
     function scheduleAdjust(){
+      schedulePreview();
       if (vvRaf) return;
       vvRaf = requestAnimationFrame(() => { vvRaf = 0; adjustForKeyboard(); });
     }
@@ -2608,9 +2615,90 @@ async function buildDocx(pages, opts){
       try { els.text.focus({ preventScroll: true }); } catch (e) { els.text.focus(); }
       try { els.text.setSelectionRange(els.text.value.length, els.text.value.length); } catch (e) { /* egal */ }
       checkText();
+      schedulePreview();
+    }
+    /* ----- Live-Vorschau im Eingabeblatt ----- */
+    let prevSeq = 0, prevRaf = 0;
+    function schedulePreview(){
+      if (prevRaf || els.sheet.hidden) return;
+      prevRaf = requestAnimationFrame(() => { prevRaf = 0; updatePreview(); });
+    }
+    // die Änderung so aufbauen, wie „Übernehmen“ sie speichern würde (ohne etwas zu verändern)
+    async function previewEdit(){
+      const p = pending, f = form, set = await getWinAnsiSet();
+      const raw = els.text.value.replace(/\r\n?/g, '\n').replace(/\s+$/, '');
+      const style = { size: f.size, color: f.color, family: f.family, bold: f.bold, italic: f.italic };
+      const keepId = nextId;
+      let edit = null, skip = () => false;
+      try {
+        if (p.type === 'run') {
+          edit = await makeRunEdit(p.run, toWinAnsi(raw, set), f, p.colors);
+          skip = e => e.runId === p.run.id;
+        } else if (p.type === 'block') {
+          const b = p.block;
+          const wrapped = raw ? (f.wrap ? await wrapText(raw, f, b.width) : toWinAnsi(raw, set)) : '';
+          edit = await makeBlockEdit(b, wrapped.split('\n'), f, p.colors, f.wrap);
+          const old = new Set(editsOfBlock(b));
+          skip = e => old.has(e);
+        } else if (p.type === 'add') {
+          const text = toWinAnsi(raw, set);
+          if (text.trim()) {
+            const x = p.px + p.down[0] * 0.35 * f.size, y = p.py + p.down[1] * 0.35 * f.size;
+            edit = Object.assign({ id: 0, pageIndex: state.pageIndex, runId: null, cover: null, text, x, y, angle: p.angle, measured: await measureText(text, f) }, style);
+          }
+        } else if (p.type === 'added') {
+          const text = toWinAnsi(raw, set);
+          skip = e => e === p.edit;
+          if (text.trim()) edit = Object.assign({}, p.edit, style, { text, measured: await measureText(text, f) });
+        }
+      } finally { nextId = keepId; }
+      return { edit, skip };
+    }
+    async function updatePreview(){
+      const seq = ++prevSeq;
+      if (!pending || !state || els.sheet.hidden) return;
+      // bei geöffneter Tastatur ist kaum Platz: Vorschau weglassen, damit das Blatt bedienbar bleibt
+      if (visibleArea().h < 520) { els.preview.hidden = true; return; }
+      const pe = await previewEdit();
+      if (seq !== prevSeq || !pending || !state || els.sheet.hidden) return;
+      const vp = state.vpCss, base = state.base, k = base.width / vp.width;
+      const boxes = [pending.rect];
+      if (pe.edit && pe.edit.cover) boxes.push(boxRect(vp, pe.edit.cover));
+      if (pe.edit && pe.edit.text) boxes.push(boxRect(vp, addedBox(pe.edit)));
+      const PAD = 10;
+      let x0 = Math.min(...boxes.map(b => b.x)) - PAD, x1 = Math.max(...boxes.map(b => b.x + b.w)) + PAD;
+      let y0 = Math.min(...boxes.map(b => b.y)) - PAD, y1 = Math.max(...boxes.map(b => b.y + b.h)) + PAD;
+      // mindestens etwas Umgebung zeigen, damit man den Text im Zusammenhang beurteilen kann
+      const minW = Math.min(vp.width, 280), minH = Math.min(vp.height, 44);
+      if (x1 - x0 < minW) { const c = (x0 + x1) / 2; x0 = c - minW / 2; x1 = c + minW / 2; }
+      if (y1 - y0 < minH) { const c = (y0 + y1) / 2; y0 = c - minH / 2; y1 = c + minH / 2; }
+      if (x0 < 0) { x1 -= x0; x0 = 0; } if (x1 > vp.width) { x0 -= x1 - vp.width; x1 = vp.width; }
+      if (y0 < 0) { y1 -= y0; y0 = 0; } if (y1 > vp.height) { y0 -= y1 - vp.height; y1 = vp.height; }
+      x0 = Math.max(0, x0); y0 = Math.max(0, y0);
+      const cw = Math.max(20, x1 - x0), ch = Math.max(20, y1 - y0);
+      els.preview.hidden = false;
+      const availW = Math.max(100, els.preview.clientWidth - 2);
+      const scale = Math.max(0.2, Math.min(availW / cw, 2.5, 110 / ch));
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const cv = els.previewCanvas;
+      cv.width = Math.max(1, Math.round(cw * scale * dpr));
+      cv.height = Math.max(1, Math.round(ch * scale * dpr));
+      cv.style.width = Math.round(cw * scale) + 'px';
+      cv.style.height = Math.round(ch * scale) + 'px';
+      const ctx = cv.getContext('2d');
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, cv.width, cv.height);
+      const sx = x0 * k, sy = y0 * k, m = cv.width / (cw * k);
+      ctx.drawImage(base, sx, sy, cw * k, ch * k, 0, 0, cv.width, cv.height);
+      const T = state.vpDev.transform, T2 = [T[0] * m, T[1] * m, T[2] * m, T[3] * m, (T[4] - sx) * m, (T[5] - sy) * m];
+      for (const e of edits) if (e.pageIndex === state.pageIndex && !pe.skip(e)) paintEdit(ctx, T2, e);
+      if (pe.edit) paintEdit(ctx, T2, pe.edit);
     }
     function closeSheet(){
       els.sheet.hidden = true;
+      els.preview.hidden = true;
+      prevSeq++;
       els.sheet.style.removeProperty('--vvt');
       els.sheet.style.removeProperty('--vvh');
       document.body.style.overflow = '';
@@ -3002,7 +3090,7 @@ async function buildDocx(pages, opts){
     els.save.addEventListener('click', save);
     els.ocr.addEventListener('click', runOcr);
 
-    els.text.addEventListener('input', () => { autosize(); scheduleCheck(); });
+    els.text.addEventListener('input', () => { autosize(); scheduleCheck(); schedulePreview(); });
     els.wrap.addEventListener('change', async () => {
       if (!pending || pending.type !== 'block') return;
       const on = els.wrap.checked;
@@ -3010,7 +3098,7 @@ async function buildDocx(pages, opts){
       const b = pending.block;
       if (on) els.text.value = joinLines(els.text.value.split('\n'));
       else els.text.value = await wrapText(els.text.value, form, b.width);
-      syncWrapUi(); autosize(); checkText();
+      syncWrapUi(); autosize(); checkText(); schedulePreview();
     });
     els.size.addEventListener('change', () => {
       const v = parseFloat(els.size.value.replace(',', '.'));
