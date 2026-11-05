@@ -76,7 +76,7 @@
   header{
     background: var(--ink);
     color: var(--text-on-ink);
-    padding: 22px 20px 20px;
+    padding: calc(22px + env(safe-area-inset-top)) 20px 20px;
     position: relative;
     overflow:hidden;
     border-bottom: 3px solid var(--accent);
@@ -347,7 +347,7 @@
   /* Werkzeugleiste bleibt beim Scrollen der Seite oben sichtbar */
   .te-sticky{
     position:sticky; top:0; z-index:6; background: var(--paper);
-    margin: 0 -18px; padding: 8px 18px 8px; border-bottom: 1px solid var(--line);
+    margin: 0 -18px; padding: calc(8px + env(safe-area-inset-top)) 18px 8px; border-bottom: 1px solid var(--line);
   }
   .editor-bar{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
   .pager{ display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:600; }
