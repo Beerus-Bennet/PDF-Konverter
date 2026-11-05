@@ -60,7 +60,7 @@
   }
   *{ box-sizing:border-box; }
   html,body{ margin:0; padding:0; }
-  html{ -webkit-text-size-adjust:100%; scroll-padding-top: calc(var(--top) + 8px); }
+  html{ touch-action: pan-x pan-y; -webkit-text-size-adjust:100%; scroll-padding-top: calc(var(--top) + 8px); }
   body{
     background: var(--bg-deep); color: var(--text);
     font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -342,7 +342,7 @@
     background:#E2E5EA; border-radius: var(--r-lg);
     -webkit-overflow-scrolling: touch; touch-action: pan-x pan-y;
   }
-  .stage{ position:relative; margin:0 auto; cursor:pointer; }
+  .stage{ position:relative; margin:0 auto; cursor:pointer; touch-action: pan-x pan-y; transform-origin: 0 0; will-change: transform; }
   .stage canvas{ display:block; width:100%; height:100%; background:#fff; box-shadow: 0 1px 2px rgba(15,23,42,.08), 0 6px 20px rgba(15,23,42,.10); }
   .hit-layer{ position:absolute; inset:0; }
   .hit{
@@ -407,7 +407,17 @@
     border:1px solid var(--border-strong); border-radius: var(--r); background: var(--surface);
     transition: border-color .15s, box-shadow .15s;
   }
+  .sheet textarea{ touch-action: manipulation; -webkit-user-select:text; user-select:text; }
   .sheet textarea.nowrap{ white-space:pre; overflow-x:auto; }
+  .caret-row{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:8px; }
+  .caret-row .lbl{ font-size:12.5px; color: var(--text-3); }
+  .caret-btns{ display:flex; gap:6px; }
+  .caret-btns button{
+    width:44px; height:36px; border:1px solid var(--border-strong); border-radius:8px; background: var(--surface); color: var(--text);
+    display:flex; align-items:center; justify-content:center; padding:0; cursor:pointer; touch-action: manipulation;
+  }
+  .caret-btns button:active{ background: var(--bg); }
+  .caret-btns svg{ width:18px; height:18px; }
   .sheet input[type=text], .sheet input[type=number]{ font-size:16px; }
   .wrap-row{ display:flex; align-items:center; gap:10px; margin:12px 0 0; font-size:14px; font-weight:500; color: var(--text); cursor:pointer; }
   .wrap-row input{ width:20px; height:20px; margin:0; accent-color: var(--primary); flex:none; }
@@ -1008,6 +1018,16 @@
     <p class="sheet-orig" id="te-sheet-orig" hidden></p>
     <div class="sheet-preview" id="te-preview" hidden aria-label="Vorschau der Änderung"><span class="sheet-preview-label">Vorschau</span><canvas id="te-preview-canvas"></canvas></div>
     <textarea id="te-text" rows="3" autocomplete="off" autocapitalize="sentences" spellcheck="true" aria-label="Neuer Text"></textarea>
+    <div class="caret-row" id="te-caret">
+      <span class="lbl">Schreibmarke</span>
+      <div class="caret-btns" role="group" aria-label="Schreibmarke bewegen">
+        <button type="button" data-caret="start" aria-label="An den Anfang"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5v14M19 12H9M13 8l-4 4 4 4"/></svg></button>
+        <button type="button" data-caret="left" aria-label="Ein Zeichen nach links"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+        <button type="button" data-caret="right" aria-label="Ein Zeichen nach rechts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+        <button type="button" data-caret="end" aria-label="Ans Ende"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 5v14M5 12h10M11 8l4 4-4 4"/></svg></button>
+      </div>
+    </div>
+    <label class="wrap-row" id="te-thin-row" hidden><input type="checkbox" id="te-thin"><span>Strichstärke dem Original angleichen</span></label>
     <label class="wrap-row" id="te-wrap-row" hidden><input type="checkbox" id="te-wrap"><span>Zeilen automatisch umbrechen</span></label>
     <p class="hint warn" id="te-charwarn" hidden></p>
     <p class="hint warn" id="te-widthwarn" hidden>
@@ -1073,7 +1093,7 @@
 /* ============================================================
    APP-RAHMEN: Version, Hinweise, Offline, Info & Rechtliches
    ============================================================ */
-const APP_VERSION = '2.1.0';           // gleicher Wert wie in sw.js
+const APP_VERSION = '2.1.1';           // gleicher Wert wie in sw.js
 const CONFIG = window.PDFCONVERT_CONFIG || {};
 document.querySelectorAll('.app-version').forEach(el => { el.textContent = APP_VERSION; });
 
@@ -2523,13 +2543,13 @@ async function buildDocx(pages, opts){
       swatches: document.querySelectorAll('#te-swatches .swatch[data-color]'), color: $('te-color'),
       del: $('te-delete'), apply: $('te-apply'), cancel: $('te-cancel'), actions: document.querySelector('#te-sheet .sheet-actions'),
       ocr: $('te-ocr'),
-      sticky: document.querySelector('.te-sticky'), wrapRow: $('te-wrap-row'), wrap: $('te-wrap'), format: $('te-format'), sheetBox: document.querySelector('#te-sheet .sheet')
+      sticky: document.querySelector('.te-sticky'), wrapRow: $('te-wrap-row'), thinRow: $('te-thin-row'), thin: $('te-thin'), caret: $('te-caret'), wrap: $('te-wrap'), format: $('te-format'), sheetBox: document.querySelector('#te-sheet .sheet')
     };
-    const ZOOMS = [1, 1.5, 2, 3];
+    const ZMIN = 1, ZMAX = 5;      // stufenloser Zoom (Pinch) bis 500 %
     // Zeichenfläche begrenzen: große Canvas-Flächen lassen Handys ruckeln oder abstürzen
     const MAX_PIXELS = (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) ? 5.5e6 : 12e6;
     const LINE = 1.2;
-    let doc = null, pageIndex = 0, zoomIdx = 0, mode = 'para';
+    let doc = null, pageIndex = 0, zoom = 1, mode = 'para', suppressTapUntil = 0;
     let edits = [], history = [], nextId = 1;
     let state = null, renderSeq = 0, renderTask = null, lastWidth = 0, keepScroll = null;
     const runsCache = new Map(), blocksCache = new Map(), ocrDone = new Set();
@@ -2669,7 +2689,12 @@ async function buildDocx(pages, opts){
         ctx.fillStyle = e.color;
         ctx.textBaseline = 'alphabetic';
         const lead = leadOf(e);
-        e.text.split('\n').forEach((ln, i) => ctx.fillText(ln, 0, i * lead));
+        const lines = e.text.split('\n');
+        lines.forEach((ln, i) => ctx.fillText(ln, 0, i * lead));
+        if (e.thin > 0) {                      // Strichstärke angleichen: Umriss in Hintergrundfarbe macht die Schrift dünner
+          ctx.strokeStyle = e.bg; ctx.lineWidth = e.thin; ctx.lineJoin = 'round';
+          lines.forEach((ln, i) => ctx.strokeText(ln, 0, i * lead));
+        }
         ctx.restore();
       }
     }
@@ -2802,9 +2827,9 @@ async function buildDocx(pages, opts){
       els.next.disabled = pageIndex >= n - 1;
     }
     function updateZoomUi(){
-      els.zoomInfo.textContent = Math.round(ZOOMS[zoomIdx] * 100) + ' %';
-      els.zoomOut.disabled = zoomIdx === 0;
-      els.zoomIn.disabled = zoomIdx === ZOOMS.length - 1;
+      els.zoomInfo.textContent = Math.round(zoom * 100) + ' %';
+      els.zoomOut.disabled = zoom <= ZMIN + 0.01;
+      els.zoomIn.disabled = zoom >= ZMAX - 0.01;
     }
     function updateHint(){
       if (mode === 'add') els.hint.textContent = 'Tippe auf die Stelle, an der der neue Text beginnen soll.';
@@ -2831,7 +2856,7 @@ async function buildDocx(pages, opts){
         const vp1 = page.getViewport({ scale: 1 });
         lastWidth = els.stageWrap.clientWidth;
         const avail = Math.max(120, lastWidth - 20);
-        const cssScale = (avail / vp1.width) * ZOOMS[zoomIdx];
+        const cssScale = (avail / vp1.width) * zoom;
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
         const devScale = Math.min(cssScale * dpr, Math.sqrt(MAX_PIXELS / (vp1.width * vp1.height)));
         const vpCss = page.getViewport({ scale: cssScale });
@@ -2860,6 +2885,7 @@ async function buildDocx(pages, opts){
         els.stage.style.height = Math.round(vpCss.height) + 'px';
         els.canvas.width = base.width;
         els.canvas.height = base.height;
+        els.stage.style.transform = '';          // Pinch-Vorschau beenden: jetzt ist die Seite scharf neu gezeichnet
         paint();
         buildHits();
         updatePager();
@@ -2869,9 +2895,11 @@ async function buildDocx(pages, opts){
         if (keepScroll) {
           const w = els.stageWrap, k = keepScroll;
           keepScroll = null;
-          w.scrollLeft = k.rx * w.scrollWidth - w.clientWidth / 2;
-          const r = els.stage.getBoundingClientRect();
-          window.scrollBy(0, r.top + k.ry * r.height - k.vy);   // gleiche Textstelle bleibt mitten im Bild
+          // die Stelle unter den Fingern (bzw. Bildmitte) bleibt an derselben Bildschirmposition
+          let r = els.stage.getBoundingClientRect();
+          w.scrollLeft += r.left + k.rx * r.width - k.cx;
+          r = els.stage.getBoundingClientRect();
+          window.scrollBy(0, r.top + k.ry * r.height - k.cy);
         }
       } catch (e) {
         if (e && e.name === 'RenderingCancelledException') return;
@@ -3022,24 +3050,37 @@ async function buildDocx(pages, opts){
       const vv = window.visualViewport;
       return { top: vv ? vv.offsetTop : 0, h: vv ? vv.height : window.innerHeight };
     }
-    function autosize(){
+    // Höhe des Textfelds nur dann neu berechnen, wenn sich Text, Breite oder verfügbare Höhe wirklich geändert haben.
+    // Sonst reißt iOS die Schreibmarke weg (Leertaste gedrückt halten, Antippen).
+    let autoKey = '';
+    function autosize(force){
       const ta = els.text, area = visibleArea();
+      const maxH = Math.max(88, area.h * 0.36);
+      const key = ta.clientWidth + '|' + Math.round(maxH) + '|' + ta.value;
+      if (!force && key === autoKey) return;
+      autoKey = key;
+      const keepTop = ta.scrollTop;
       ta.style.height = 'auto';
-      ta.style.height = Math.min(ta.scrollHeight + 2, Math.max(88, area.h * 0.36)) + 'px';
+      ta.style.height = Math.min(ta.scrollHeight + 2, maxH) + 'px';
+      ta.scrollTop = keepTop;
     }
-    function adjustForKeyboard(){
+    let lastVvt = null, lastVvhSet = null, previewHidden = null;
+    function adjustForKeyboard(onlyPosition){
       if (els.sheet.hidden) return;
       const area = visibleArea();
-      els.sheet.style.setProperty('--vvt', area.top + 'px');
-      els.sheet.style.setProperty('--vvh', area.h + 'px');
+      const t = Math.round(area.top * 2) / 2, h = Math.round(area.h * 2) / 2;
+      if (t !== lastVvt) { lastVvt = t; els.sheet.style.setProperty('--vvt', t + 'px'); }
+      if (h !== lastVvhSet) { lastVvhSet = h; els.sheet.style.setProperty('--vvh', h + 'px'); }
+      if (onlyPosition) return;          // reines Mitscrollen (z. B. beim Ziehen der Schreibmarke): sonst nichts anfassen
       autosize();
+      const small = area.h < 520;
+      if (small !== previewHidden) { previewHidden = small; schedulePreview(); }
       if (Math.abs(area.h - lastVvh) > 40 && revealCount < 4) { revealCount++; lastVvh = area.h; reveal(); }
       lastVvh = area.h;
     }
-    function scheduleAdjust(){
-      schedulePreview();
+    function scheduleAdjust(onlyPosition){
       if (vvRaf) return;
-      vvRaf = requestAnimationFrame(() => { vvRaf = 0; adjustForKeyboard(); });
+      vvRaf = requestAnimationFrame(() => { vvRaf = 0; adjustForKeyboard(onlyPosition === true); });
     }
     // die bearbeitete Stelle so verschieben, dass sie über dem Eingabeblatt sichtbar bleibt
     function reveal(){
@@ -3062,8 +3103,10 @@ async function buildDocx(pages, opts){
     function openSheet(cfg){
       pending = cfg.pending;
       pending.rect = cfg.rect || null;
-      form = { size: round1(cfg.size), color: cfg.color, detected: cfg.detected || cfg.color, family: cfg.family, bold: !!cfg.bold, italic: !!cfg.italic, wrap: !!cfg.wrap };
-      pending.initial = { text: cfg.text, wrap: form.wrap, size: form.size, color: form.color.toLowerCase(), family: form.family, bold: form.bold, italic: form.italic };
+      form = { size: round1(cfg.size), color: cfg.color, detected: cfg.detected || cfg.color, family: cfg.family, bold: !!cfg.bold, italic: !!cfg.italic, wrap: !!cfg.wrap, thinOn: !!cfg.thinOn };
+      pending.initial = { text: cfg.text, wrap: form.wrap, size: form.size, color: form.color.toLowerCase(), family: form.family, bold: form.bold, italic: form.italic, thinOn: form.thinOn };
+      els.thinRow.hidden = !(pending.thin > 0);
+      els.thin.checked = form.thinOn;
       els.sheetTitle.textContent = cfg.title;
       els.sheetOrig.textContent = cfg.orig || '';
       els.sheetOrig.hidden = !cfg.orig;
@@ -3080,6 +3123,7 @@ async function buildDocx(pages, opts){
       els.sheet.hidden = false;
       document.body.style.overflow = 'hidden';
       lastVvh = visibleArea().h;
+      lastVvt = lastVvhSet = previewHidden = null; autoKey = '';
       adjustForKeyboard();
       reveal();
       try { els.text.focus({ preventScroll: true }); } catch (e) { els.text.focus(); }
@@ -3168,6 +3212,7 @@ async function buildDocx(pages, opts){
     function closeSheet(){
       els.sheet.hidden = true;
       els.preview.hidden = true;
+      lastVvt = lastVvhSet = null;
       prevSeq++;
       els.sheet.style.removeProperty('--vvt');
       els.sheet.style.removeProperty('--vvh');
@@ -3245,11 +3290,47 @@ async function buildDocx(pages, opts){
       const s = (state ? state.runs : []).map(r => r.fs).sort((a, b) => a - b);
       return s.length ? s[Math.floor(s.length / 2)] : 12;
     }
+    /* ----- Strichstärke des Originals erkennen: Standardschriften sind oft kräftiger als die Originalschrift ----- */
+    function measureThin(r, colors){
+      try {
+        if (!state || !r || !r.horizontal || Math.abs(r.angle) > 0.03 || (r.text || '').trim().length < 2 || !colors) return 0;
+        const base = state.base, sc = state.vpDev.scale;
+        const [dx, dy] = state.vpDev.convertToViewportPoint(r.x, r.y);
+        const x = Math.max(0, Math.floor(dx - 0.05 * r.fs * sc)), y = Math.max(0, Math.floor(dy - 0.8 * r.fs * sc));
+        const w = Math.min(base.width - x, Math.ceil(r.width * sc + 0.1 * r.fs * sc)), h = Math.min(base.height - y, Math.ceil(1.0 * r.fs * sc));
+        if (w < 6 || h < 6 || w * h > 2.5e6) return 0;
+        const lum = hex => { const m = /^#?([0-9a-f]{6})$/i.exec(hex || ''); if (!m) return null; const n = parseInt(m[1], 16); return 0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255); };
+        const lb = lum(colors.bg), lt = lum(colors.text);
+        if (lb === null || lt === null || Math.abs(lt - lb) < 60) return 0;
+        const contrast = Math.abs(lt - lb);
+        const ink = d => { let t = 0; for (let i = 0; i < d.length; i += 4) t += Math.min(1, Math.abs(0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2] - lb) / contrast); return t; };
+        const orig = ink(base.getContext('2d', { willReadFrequently: true }).getImageData(x, y, w, h).data);
+        const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+        const cx = cv.getContext('2d', { willReadFrequently: true });
+        cx.fillStyle = colors.bg; cx.fillRect(0, 0, w, h);
+        cx.font = cssFont({ italic: r.italic, bold: r.bold, size: r.fs * sc, family: r.family });
+        cx.fillStyle = colors.text; cx.textBaseline = 'alphabetic';
+        cx.fillText(r.text, dx - x, dy - y);
+        const synth = ink(cx.getImageData(0, 0, w, h).data);
+        if (!(synth > 20) || !(orig > 5)) return 0;
+        const ratio = orig / synth;
+        if (ratio >= 0.9) return 0;
+        return Math.min(0.05, (1 - ratio) * 0.09) * r.fs;      // Helvetica-Striche sind ca. 0,09 × Schriftgröße dick
+      } catch (e) { return 0; }
+    }
+    function thinFor(f){
+      const p = pending;
+      if (!p || !(p.thin > 0) || !f.thinOn || !p.thinFor) return 0;
+      if (f.family !== p.thinFor.family || f.bold !== p.thinFor.bold || f.italic !== p.thinFor.italic) return 0;
+      return Math.round(p.thin * (f.size / p.thinFor.size) * 1000) / 1000;
+    }
     function openForRun(r){
       const ex = edits.find(e => e.runId === r.id);
       const colors = ex ? { bg: ex.bg, text: ex.detected, fill: ex.fill } : sampleColors(runBox(r));
+      const thin = measureThin(r, colors);
       openSheet({
-        pending: { type: 'run', run: r, existing: ex, colors },
+        pending: { type: 'run', run: r, existing: ex, colors, thin, thinFor: { family: r.family, bold: !!r.bold, italic: !!r.italic, size: r.fs } },
+        thinOn: ex ? (ex.thin || 0) > 0 : true,
         title: 'Zeile ändern',
         orig: '',
         text: ex && ex.text ? ex.text : r.text,
@@ -3275,8 +3356,10 @@ async function buildDocx(pages, opts){
       const wrapOn = multi ? (bed && bed.wrap === false ? false : true) : false;
       const first = lineEds.find(e => e.runId === b.runs[0].id);
       const style = bed || first || null;
+      const thin = measureThin(b.runs[0], colors);
       openSheet({
-        pending: { type: 'block', block: b, existing: bed, colors },
+        pending: { type: 'block', block: b, existing: bed, colors, thin, thinFor: { family: b.family, bold: b.bold, italic: b.italic, size: b.fs } },
+        thinOn: style ? (style.thin || 0) > 0 : true,
         title: b.runs.length > 1 ? 'Absatz ändern' : 'Zeile ändern',
         orig: '',
         text: wrapOn ? joinLines(lines) : lines.join('\n'),
@@ -3310,14 +3393,14 @@ async function buildDocx(pages, opts){
         y += shift * Math.sin(r.angle);
       }
       const fill = colors.fill || { bg: colors.bg, cols: 1, rows: 1, colors: null };
-      return { id: nextId++, pageIndex: state.pageIndex, runId: r.id, original: r.text, cover: runBox(r), bg: fill.bg, fill, detected: colors.text, text, x, y, angle: r.angle, measured,
+      return { id: nextId++, pageIndex: state.pageIndex, runId: r.id, original: r.text, cover: runBox(r), bg: fill.bg, fill, detected: colors.text, text, x, y, angle: r.angle, measured, thin: thinFor(f),
         size: f.size, color: f.color, family: f.family, bold: f.bold, italic: f.italic };
     }
     async function makeBlockEdit(b, lines, f, colors, wrap){
       const text = lines.join('\n');
       const fill = colors.fill || { bg: colors.bg, cols: 1, rows: 1, colors: null };
       return { id: nextId++, pageIndex: state.pageIndex, blockId: b.id, original: b.texts.join('\n'), cover: blockBox(b), bg: fill.bg, fill, detected: colors.text, text, wrap,
-        x: b.x, y: b.y, angle: b.angle, measured: text ? await measureText(text, f) : 0, lead: b.pitch * (f.size / b.fs),
+        x: b.x, y: b.y, angle: b.angle, measured: text ? await measureText(text, f) : 0, lead: b.pitch * (f.size / b.fs), thin: thinFor(f),
         size: f.size, color: f.color, family: f.family, bold: f.bold, italic: f.italic };
     }
     async function applySheet(){
@@ -3328,7 +3411,7 @@ async function buildDocx(pages, opts){
       const p = pending;
       const raw = els.text.value.replace(/\r\n?/g, '\n').replace(/\s+$/, '');
       const ini = p.initial;
-      const unchanged = raw === ini.text && f.wrap === ini.wrap && Math.abs(f.size - ini.size) < 0.05 && f.color.toLowerCase() === ini.color &&
+      const unchanged = raw === ini.text && f.wrap === ini.wrap && (!(p.thin > 0) || f.thinOn === ini.thinOn) && Math.abs(f.size - ini.size) < 0.05 && f.color.toLowerCase() === ini.color &&
         f.family === ini.family && f.bold === ini.bold && f.italic === ini.italic;
       if (p.type === 'run') {
         const r = p.run;
@@ -3501,7 +3584,19 @@ async function buildDocx(pages, opts){
             if (e.text) {
               const name = stdFontName(e.family, e.bold, e.italic);
               if (!fonts[name]) fonts[name] = await pdf.embedFont(name);
-              pg.drawText(toWinAnsi(e.text, set), {
+              if (e.thin > 0) {
+                // Text mit Umriss in Hintergrundfarbe (Füllen + Umranden): gleiche Strichstärke wie das Original
+                const font = fonts[name], key = pg.node.newFontDictionary(font.name, font.ref);
+                const cs = Math.cos(e.angle), sn = Math.sin(e.angle), lead = leadOf(e);
+                const ops = [PDFLib.pushGraphicsState(), PDFLib.beginText(), PDFLib.setTextRenderingMode(PDFLib.TextRenderingMode.FillAndOutline),
+                  PDFLib.setFillingColor(hexToRgb(e.color)), PDFLib.setStrokingColor(hexToRgb(e.bg)), PDFLib.setLineWidth(e.thin), PDFLib.setLineJoin(PDFLib.LineJoinStyle.Round),
+                  PDFLib.setFontAndSize(key, e.size)];
+                toWinAnsi(e.text, set).split('\n').forEach((ln, i) => {
+                  ops.push(PDFLib.setTextMatrix(cs, sn, -sn, cs, e.x + lead * i * sn, e.y - lead * i * cs), PDFLib.showText(font.encodeText(ln)));
+                });
+                ops.push(PDFLib.endText(), PDFLib.popGraphicsState());
+                pg.pushOperators(...ops);
+              } else pg.drawText(toWinAnsi(e.text, set), {
                 x: e.x, y: e.y, size: e.size, font: fonts[name], color: hexToRgb(e.color),
                 rotate: PDFLib.degrees(e.angle * 180 / Math.PI), lineHeight: leadOf(e)
               });
@@ -3521,18 +3616,65 @@ async function buildDocx(pages, opts){
     /* ----- Ereignisse ----- */
     els.prev.addEventListener('click', () => { if (pageIndex > 0) { pageIndex--; render(); } });
     els.next.addEventListener('click', () => { if (doc && pageIndex < doc.numPages - 1) { pageIndex++; render(); } });
-    function setZoom(idx){
-      if (idx < 0 || idx >= ZOOMS.length || idx === zoomIdx) return;
-      const w = els.stageWrap, r = els.stage.getBoundingClientRect();
-      const vh = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
-      const vy = vh / 2;
-      keepScroll = { rx: (w.scrollLeft + w.clientWidth / 2) / Math.max(1, w.scrollWidth), ry: Math.min(1, Math.max(0, (vy - r.top) / Math.max(1, r.height))), vy };
-      zoomIdx = idx;
+    // Zoom auf Stufe z; (cx, cy) ist der Bildschirmpunkt, der an seiner Stelle bleiben soll, rect das Seitenrechteck davor
+    function applyZoom(z, cx, cy, rect, ncx, ncy){
+      z = Math.min(ZMAX, Math.max(ZMIN, z));
+      if (!state || !rect || rect.width < 1) return;
+      if (Math.abs(z - zoom) < 0.005) { els.stage.style.transform = ''; return; }
+      keepScroll = { rx: (cx - rect.left) / rect.width, ry: (cy - rect.top) / rect.height, cx: ncx === undefined ? cx : ncx, cy: ncy === undefined ? cy : ncy };
+      zoom = z;
       updateZoomUi();
       render();
     }
-    els.zoomIn.addEventListener('click', () => setZoom(zoomIdx + 1));
-    els.zoomOut.addEventListener('click', () => setZoom(zoomIdx - 1));
+    function stepZoom(f){
+      const w = els.stageWrap, wr = w.getBoundingClientRect();
+      const vv = window.visualViewport, top = vv ? vv.offsetTop : 0, vh = vv ? vv.height : window.innerHeight;
+      const cx = wr.left + wr.width / 2;
+      const cy = Math.min(Math.max(top + vh / 2, wr.top + 20), wr.bottom - 20);
+      applyZoom(zoom * f, cx, cy, els.stage.getBoundingClientRect());
+    }
+    els.zoomIn.addEventListener('click', () => stepZoom(1.5));
+    els.zoomOut.addEventListener('click', () => stepZoom(1 / 1.5));
+    els.zoomInfo.addEventListener('click', () => { if (zoom > ZMIN) stepZoom(ZMIN / zoom); });
+
+    /* ----- Zwei-Finger-Zoom (Pinch) direkt auf der Seite ----- */
+    let pinch = null;
+    const touchDist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+    const touchMid = t => ({ x: (t[0].clientX + t[1].clientX) / 2, y: (t[0].clientY + t[1].clientY) / 2 });
+    els.stageWrap.addEventListener('touchstart', e => {
+      if (e.touches.length !== 2 || !state) return;
+      const m = touchMid(e.touches), rect = els.stage.getBoundingClientRect();
+      pinch = { d0: Math.max(10, touchDist(e.touches)), z0: zoom, rect, cx: m.x, cy: m.y, s: 1, tx: 0, ty: 0 };
+      els.stage.style.transformOrigin = `${m.x - rect.left}px ${m.y - rect.top}px`;
+      e.preventDefault();
+    }, { passive: false });
+    els.stageWrap.addEventListener('touchmove', e => {
+      if (!pinch || e.touches.length !== 2) return;
+      const m = touchMid(e.touches);
+      const s = Math.min(ZMAX / pinch.z0, Math.max(ZMIN / pinch.z0, touchDist(e.touches) / pinch.d0));
+      pinch.s = s; pinch.tx = m.x - pinch.cx; pinch.ty = m.y - pinch.cy; pinch.mx = m.x; pinch.my = m.y;
+      els.stage.style.transform = `translate(${pinch.tx}px, ${pinch.ty}px) scale(${s})`;
+      e.preventDefault();
+    }, { passive: false });
+    const endPinch = e => {
+      if (!pinch || e.touches.length >= 2) return;
+      const pz = pinch; pinch = null;
+      suppressTapUntil = Date.now() + 450;           // der letzte Finger darf nichts antippen
+      applyZoom(pz.z0 * pz.s, pz.cx, pz.cy, pz.rect, pz.mx === undefined ? pz.cx : pz.mx, pz.my === undefined ? pz.cy : pz.my);
+      els.stage.style.transformOrigin = '0 0';
+    };
+    els.stageWrap.addEventListener('touchend', endPinch);
+    els.stageWrap.addEventListener('touchcancel', endPinch);
+    // Computer: Strg + Mausrad bzw. Trackpad-Pinch
+    let wheelF = 1, wheelTimer = 0, wheelPt = null;
+    els.stageWrap.addEventListener('wheel', e => {
+      if (!e.ctrlKey || !state) return;
+      e.preventDefault();
+      wheelF *= Math.exp(-e.deltaY * 0.01);
+      wheelPt = { x: e.clientX, y: e.clientY, rect: wheelPt ? wheelPt.rect : els.stage.getBoundingClientRect() };
+      clearTimeout(wheelTimer);
+      wheelTimer = setTimeout(() => { const f = wheelF, pt = wheelPt; wheelF = 1; wheelPt = null; applyZoom(zoom * f, pt.x, pt.y, pt.rect); }, 140);
+    }, { passive: false });
     els.modeBtns.forEach(b => b.addEventListener('click', () => {
       mode = b.dataset.mode;
       els.modeBtns.forEach(x => x.classList.toggle('active', x === b));
@@ -3541,7 +3683,7 @@ async function buildDocx(pages, opts){
       updateHint();
     }));
     els.stage.addEventListener('click', ev => {
-      if (!state) return;
+      if (!state || Date.now() < suppressTapUntil) return;
       const rect = els.stage.getBoundingClientRect();
       const cx = ev.clientX - rect.left, cy = ev.clientY - rect.top;
       if (mode === 'para' || mode === 'line') {
@@ -3561,6 +3703,7 @@ async function buildDocx(pages, opts){
     els.ocr.addEventListener('click', runOcr);
 
     els.text.addEventListener('input', () => { autosize(); scheduleCheck(); schedulePreview(); });
+    els.thin.addEventListener('change', () => { form.thinOn = els.thin.checked; schedulePreview(); });
     els.wrap.addEventListener('change', async () => {
       if (!pending || pending.type !== 'block') return;
       const on = els.wrap.checked;
@@ -3603,14 +3746,32 @@ async function buildDocx(pages, opts){
         form.size = Math.max(5, size); syncForm(); checkText();
       }
     });
+    // Schreibmarke per Tasten bewegen – zuverlässiger als Antippen auf kleinen Bildschirmen
+    function moveCaret(kind){
+      const t = els.text, v = t.value;
+      let a = t.selectionStart, b = t.selectionEnd, pos;
+      const prev = p => (p > 1 && /[\uDC00-\uDFFF]/.test(v[p - 1]) ? p - 2 : Math.max(0, p - 1));
+      const next = p => (p < v.length - 1 && /[\uD800-\uDBFF]/.test(v[p]) ? p + 2 : Math.min(v.length, p + 1));
+      if (kind === 'start') pos = 0;
+      else if (kind === 'end') pos = v.length;
+      else if (kind === 'left') pos = a !== b ? a : prev(a);
+      else pos = a !== b ? b : next(b);
+      try { t.focus({ preventScroll: true }); } catch (e) { t.focus(); }
+      try { t.setSelectionRange(pos, pos); } catch (e) { /* egal */ }
+    }
+    els.caret.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('pointerdown', e => { e.preventDefault(); moveCaret(btn.dataset.caret); btn._done = true; });
+      btn.addEventListener('click', e => { if (btn._done) { btn._done = false; return; } moveCaret(btn.dataset.caret); });   // Tastatur-Bedienung
+      btn.addEventListener('mousedown', e => e.preventDefault());                                                           // Fokus im Textfeld behalten
+    });
     els.apply.addEventListener('click', applySheet);
     els.del.addEventListener('click', deleteFromSheet);
     els.cancel.addEventListener('click', closeSheet);
     els.sheet.addEventListener('click', ev => { if (ev.target === els.sheet) closeSheet(); });
     document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && !els.sheet.hidden) closeSheet(); });
     if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', scheduleAdjust);
-      window.visualViewport.addEventListener('scroll', scheduleAdjust);
+      window.visualViewport.addEventListener('resize', () => scheduleAdjust(false));
+      window.visualViewport.addEventListener('scroll', () => scheduleAdjust(true));
     }
     let resizeTimer = null;
     window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => show(false), 250); });
@@ -3618,7 +3779,7 @@ async function buildDocx(pages, opts){
 
     return {
       setDoc(d, offlineHint){
-        doc = d; pageIndex = 0; zoomIdx = 0; edits = []; history = []; state = null; lastWidth = 0;
+        doc = d; pageIndex = 0; zoom = 1; edits = []; history = []; state = null; lastWidth = 0;
         runsCache.clear(); blocksCache.clear(); ocrDone.clear(); ocrNote = '';
         els.ocr.hidden = true;
         els.status.className = 'status';

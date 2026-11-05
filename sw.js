@@ -2,7 +2,7 @@
    Hält die komplette App (inkl. Bibliotheken, Schriften und Texterkennung) offline bereit.
    Bei jeder neuen Version APP_VERSION erhöhen (gleicher Wert wie in index.html).
    LIB_CACHE/OCR_CACHE nur erhöhen, wenn sich Dateien in vendor/ ändern – dann werden sie neu geladen. */
-const APP_VERSION = '2.1.0';
+const APP_VERSION = '2.1.1';
 const APP_CACHE = 'pdfconvert-app-' + APP_VERSION;
 const LIB_CACHE = 'pdfconvert-lib-1';
 const OCR_CACHE = 'pdfconvert-ocr-1';
