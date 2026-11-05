@@ -2,7 +2,7 @@
    Hält die komplette App (inkl. Bibliotheken, Schriften und Texterkennung) offline bereit.
    Bei jeder neuen Version APP_VERSION erhöhen (gleicher Wert wie in index.html).
    LIB_CACHE/OCR_CACHE nur erhöhen, wenn sich Dateien in vendor/ ändern – dann werden sie neu geladen. */
-const APP_VERSION = '2.1.1';
+const APP_VERSION = '2.2.0';
 const APP_CACHE = 'pdfconvert-app-' + APP_VERSION;
 const LIB_CACHE = 'pdfconvert-lib-1';
 const OCR_CACHE = 'pdfconvert-ocr-1';
@@ -10,7 +10,7 @@ const KEEP = [APP_CACHE, LIB_CACHE, OCR_CACHE];
 
 // Pflicht: ohne diese Dateien startet die App nicht offline
 const APP_FILES = [
-  './', './index.html', './manifest.json', './config.js',
+  './', './index.html', './manifest.json', './config.js', './scanner.js',
   './icons/favicon.svg', './icons/favicon-32.png', './icons/icon-192.png', './icons/icon-512.png',
   './icons/maskable-512.png', './icons/apple-touch-icon.png'
 ];
@@ -156,6 +156,6 @@ self.addEventListener('fetch', event => {
   if (url.origin !== self.location.origin) return;
   if (req.headers.has('range')) return;
   const isNav = req.mode === 'navigate';
-  if (isNav || /(\/|\.html|\/manifest\.json|\/config\.js)$/.test(url.pathname)) event.respondWith(networkFirst(event, isNav));
+  if (isNav || /(\/|\.html|\/manifest\.json|\/config\.js|\/scanner\.js)$/.test(url.pathname)) event.respondWith(networkFirst(event, isNav));
   else event.respondWith(cacheFirst(req));
 });

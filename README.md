@@ -22,6 +22,7 @@ Servern** und nach dem ersten Öffnen **vollständig offline** nutzbar (einschli
 |---|---|
 | `index.html` | die App |
 | `config.js` | Anbieterangaben für Impressum und Datenschutzerklärung |
+| `scanner.js` | Dokumentenscanner: Blatt erkennen, entzerren, wie ein Scan aufbereiten |
 | `sw.js` | Service Worker: Offline-Speicher und Updates |
 | `manifest.json` | Name, Farben, Symbole und Verknüpfungen der installierten App |
 | `icons/` | App-Symbole (Favicon, 192/512 px, Android „maskable“, iPhone-Homescreen) |
@@ -62,8 +63,11 @@ oder zu einzelnen PDFs (ZIP). Dateien per Auswahl oder Drag & Drop.
 
 **Bearbeiten – Seiten:** Zusammenfügen, Trennen, Entfernen, Drehen.
 
-**Scannen:** Fotos aufnehmen oder aus der Galerie wählen, Reihenfolge festlegen, optional optimieren,
-als durchsuchbare PDF speichern.
+**Scannen:** Fotos aufnehmen oder aus der Galerie wählen. Die App erkennt das Blatt automatisch, entzerrt
+die Perspektive (A4 wird erkannt) und bereitet die Seite wie einen Flachbett-Scan auf: Schatten und
+ungleichmäßiges Licht verschwinden, das Papier wird weiß, der Text klar. Filter: Dokument (Farbe),
+Graustufen, Schwarzweiß, Original. Ecken lassen sich mit Lupe nachziehen, Seiten drehen und umsortieren.
+Bereits gescannte Bilder werden nicht beschnitten. Optional mit Texterkennung (durchsuchbare PDF).
 
 **Info & Rechtliches (ⓘ):** Version, Offline-Status, App installieren, nach Updates suchen, Impressum,
 Datenschutzerklärung, Hilfe und Open-Source-Lizenzen.

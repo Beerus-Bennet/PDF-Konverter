@@ -485,6 +485,56 @@
   .scanqueue .item .mv.left{ left:6px; }
   .scanqueue .item .mv.right{ right:6px; }
 
+  .scanqueue .item img{ object-fit:contain; background:#fff; }
+  .scanqueue .item{ cursor:pointer; }
+  .scanqueue .item .warn{
+    position:absolute; left:6px; right:6px; bottom:42px; padding:3px 6px; border-radius:6px; text-align:center;
+    background: rgba(146,89,10,.92); color:#fff; font-size:10.5px; font-weight:600; line-height:1.25;
+  }
+
+  /* ---------- Scan-Editor ---------- */
+  .sed{ position:fixed; inset:0; z-index:65; background:#0B1220; color:#fff; display:flex; flex-direction:column; }
+  .sed-bar{
+    display:flex; align-items:center; justify-content:space-between; gap:8px; flex-shrink:0;
+    height: var(--top); padding: env(safe-area-inset-top) 6px 0;
+  }
+  .sed-link{ background:none; border:none; color:#E5E7EB; font-size:16px; font-weight:500; padding:10px 12px; border-radius:10px; cursor:pointer; }
+  .sed-link.strong{ color:#8FB0FF; font-weight:600; }
+  .sed-link:hover{ background: rgba(255,255,255,.08); }
+  .sed-link:disabled{ opacity:.4; }
+  .sed-title{ margin:0; font-size:16px; font-weight:600; }
+  .sed-stage{ position:relative; flex:1; min-height:0; overflow:hidden; touch-action:none; -webkit-user-select:none; user-select:none; }
+  #sed-canvas{ position:absolute; background:#fff; box-shadow: 0 10px 40px rgba(0,0,0,.55); }
+  .sed-svg{ position:absolute; overflow:visible; pointer-events:none; }
+  .sed-loupe{
+    position:absolute; top:12px; left:12px; width:120px; height:120px; border-radius:50%; pointer-events:none;
+    border:3px solid #fff; box-shadow: 0 8px 24px rgba(0,0,0,.5); background:#111;
+  }
+  .sed-loupe.right{ left:auto; right:12px; }
+  .sed-busy{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center; gap:12px;
+    background: rgba(11,18,32,.72); font-size:15px; font-weight:500;
+  }
+  .spinner{ width:22px; height:22px; border-radius:50%; border:2.5px solid rgba(255,255,255,.28); border-top-color:#fff; animation: spin .8s linear infinite; flex-shrink:0; }
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+  .sed-tools{ flex-shrink:0; padding: 10px 10px calc(12px + env(safe-area-inset-bottom)); background:#0F172A; border-top:1px solid rgba(255,255,255,.08); }
+  .sed-hint{ margin:0 6px 10px; text-align:center; font-size:13px; line-height:1.4; color: rgba(255,255,255,.72); min-height:18px; }
+  .sed-filters{ display:flex; gap:12px; justify-content:center; margin-bottom:12px; }
+  .sed-filters button{
+    background:none; border:none; color: rgba(255,255,255,.7); cursor:pointer; padding:0;
+    display:flex; flex-direction:column; align-items:center; gap:6px; font-size:12px; font-weight:500;
+  }
+  .sed-filters .th{ width:58px; height:74px; border-radius:8px; background:#fff center/contain no-repeat; border:2px solid transparent; box-shadow: 0 0 0 1px rgba(255,255,255,.12); }
+  .sed-filters button.active{ color:#fff; font-weight:600; }
+  .sed-filters button.active .th{ border-color:#5B8CFF; }
+  .sed-actions{ display:flex; justify-content:space-around; gap:4px; }
+  .sed-actions button{
+    background:none; border:none; color:#E5E7EB; cursor:pointer; border-radius:10px; min-width:76px;
+    display:flex; flex-direction:column; align-items:center; gap:4px; padding:6px 8px; font-size:12px; font-weight:500;
+  }
+  .sed-actions button svg{ width:22px; height:22px; }
+  .sed-actions button:active, .sed-actions button:hover{ background: rgba(255,255,255,.08); }
+
   /* ---------- Hinweise (Toasts) ---------- */
   .toasts{
     position:fixed; left:50%; transform:translateX(-50%); bottom: calc(80px + env(safe-area-inset-bottom));
@@ -890,22 +940,19 @@
     <!-- ================= TAB: SCANNEN ================= -->
     <section id="tab-scan" class="tabpanel">
       <p class="section-title">Dokument scannen</p>
-      <p class="section-sub">Foto für Foto aufnehmen, Reihenfolge festlegen, als mehrseitige PDF speichern.</p>
+      <p class="section-sub">Fotografiere ein Dokument oder wähle Fotos aus. Die App erkennt das Blatt, richtet es gerade aus und bereitet es wie einen Scan auf.</p>
 
       <div class="btn-row">
-        <button class="btn teal" id="scan-add-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="18" height="18"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Foto aufnehmen</button>
-        <button class="btn secondary" id="scan-pick-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="18" height="18"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/></svg>Aus Galerie</button>
+        <button class="btn teal" id="scan-add-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Foto aufnehmen</button>
+        <button class="btn secondary" id="scan-pick-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/></svg>Aus Galerie</button>
       </div>
       <input type="file" id="scan-input" accept="image/*" capture="environment">
       <input type="file" id="scan-pick" accept="image/*" multiple>
+      <p class="hint">Am besten gelingt es auf einem dunklen, ruhigen Untergrund, von schräg oben fotografiert und ohne Blitz.</p>
 
-      <div class="toggle-row">
-        <span>Scan-Optimierung (Kontrast, s/w)</span>
-        <label class="switch">
-          <input type="checkbox" id="scan-optimize-toggle">
-          <span class="track"></span><span class="knob"></span>
-        </label>
-      </div>
+      <div class="scanqueue" id="scan-queue"></div>
+      <p class="empty-note" id="scan-empty">Noch keine Seiten.</p>
+      <p class="hint" id="scan-order-hint" hidden>Tippe auf eine Seite, um Zuschnitt und Filter anzupassen. Mit ‹ und › änderst du die Reihenfolge.</p>
 
       <div class="toggle-row">
         <span>Text erkennen<small>Die PDF wird durchsuchbar, Text lässt sich markieren und kopieren.</small></span>
@@ -915,15 +962,11 @@
         </label>
       </div>
 
-      <div class="scanqueue" id="scan-queue"></div>
-      <p class="empty-note" id="scan-empty">Noch keine Seiten aufgenommen.</p>
-      <p class="hint" id="scan-order-hint" hidden>Mit ‹ und › änderst du die Reihenfolge der Seiten.</p>
-
       <label class="field-label" for="scan-filename">Dateiname</label>
       <input type="text" id="scan-filename" placeholder="scan">
 
       <button class="btn" id="scan-save" disabled>Als PDF speichern</button>
-      <button class="btn secondary" id="scan-clear" disabled>Warteschlange leeren</button>
+      <button class="btn secondary" id="scan-clear" disabled>Alle Seiten entfernen</button>
       <div class="status" id="scan-status"></div>
     </section>
 
@@ -1002,6 +1045,35 @@
         <p>Sehr große Dateien (mehrere hundert Seiten oder sehr hochauflösende Bilder) können auf älteren Geräten langsam sein. Passwortgeschützte PDFs müssen zuerst ohne Passwort gespeichert werden.</p>
       </div></details>
       <details class="card legal" id="info-licenses"><summary>Open-Source-Lizenzen</summary><div class="legal-body" id="licenses-body"></div></details>
+    </div>
+  </div>
+</div>
+<!-- ================= SCAN-EDITOR ================= -->
+<div class="sed" id="sed" hidden role="dialog" aria-modal="true" aria-labelledby="sed-title">
+  <div class="sed-bar">
+    <button type="button" class="sed-link" id="sed-cancel">Abbrechen</button>
+    <p class="sed-title" id="sed-title">Zuschneiden</p>
+    <button type="button" class="sed-link strong" id="sed-next">Weiter</button>
+  </div>
+  <div class="sed-stage" id="sed-stage">
+    <canvas id="sed-canvas"></canvas>
+    <svg id="sed-svg" class="sed-svg" aria-hidden="true"></svg>
+    <canvas id="sed-loupe" class="sed-loupe" width="240" height="240" hidden></canvas>
+    <div class="sed-busy" id="sed-busy" hidden><span class="spinner"></span><span id="sed-busy-text">Seite wird aufbereitet …</span></div>
+  </div>
+  <div class="sed-tools">
+    <p class="sed-hint" id="sed-hint"></p>
+    <div class="sed-filters" id="sed-filters" role="radiogroup" aria-label="Filter" hidden>
+      <button type="button" data-filter="doc" role="radio"><span class="th"></span>Dokument</button>
+      <button type="button" data-filter="gray" role="radio"><span class="th"></span>Graustufen</button>
+      <button type="button" data-filter="bw" role="radio"><span class="th"></span>Schwarzweiß</button>
+      <button type="button" data-filter="original" role="radio"><span class="th"></span>Original</button>
+    </div>
+    <div class="sed-actions">
+      <button type="button" id="sed-auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4V2M15 16v-2M8 9h2M20 9h2M17.8 11.8 19 13M17.8 6.2 19 5M3 21l9-9M12.2 6.2 11 5"/></svg>Automatisch</button>
+      <button type="button" id="sed-full"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>Ganzes Bild</button>
+      <button type="button" id="sed-crop" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>Zuschneiden</button>
+      <button type="button" id="sed-rotate" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v5h-5"/></svg>Drehen</button>
     </div>
   </div>
 </div>
@@ -1088,12 +1160,13 @@
 <script src="./vendor/mammoth/mammoth.browser.min.js"></script>
 <script src="./vendor/xlsx/xlsx.full.min.js"></script>
 <script src="./vendor/jszip/jszip.min.js"></script>
+<script src="./scanner.js"></script>
 
 <script>
 /* ============================================================
    APP-RAHMEN: Version, Hinweise, Offline, Info & Rechtliches
    ============================================================ */
-const APP_VERSION = '2.1.1';           // gleicher Wert wie in sw.js
+const APP_VERSION = '2.2.0';           // gleicher Wert wie in sw.js
 const CONFIG = window.PDFCONVERT_CONFIG || {};
 document.querySelectorAll('.app-version').forEach(el => { el.textContent = APP_VERSION; });
 
@@ -1459,24 +1532,6 @@ function addImagePage(pdfDoc, img){
   const x = (PAGE_W-w)/2, y = (PAGE_H-h)/2;
   page.drawImage(img, { x, y, width: w, height: h });
   return { page, x, y, w, h };
-}
-// Foto für die Texterkennung vorbereiten (max. ca. 300 dpi bei A4, gleiche Optimierung wie im PDF)
-async function imageFileToOcrBlob(file, optimize){
-  const { img, url } = await loadImageEl(file);
-  const k = Math.min(1, 2600 / Math.max(img.naturalWidth, img.naturalHeight));
-  const canvas = document.createElement('canvas');
-  canvas.width = Math.round(img.naturalWidth * k);
-  canvas.height = Math.round(img.naturalHeight * k);
-  const ctx = canvas.getContext('2d');
-  ctx.fillStyle = '#fff';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  if (optimize) ctx.filter = 'grayscale(1) contrast(1.35) brightness(1.08)';
-  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-  URL.revokeObjectURL(url);
-  const blob = await canvasToBlob(canvas, 'image/png');
-  const size = { w: canvas.width, h: canvas.height };
-  canvas.width = canvas.height = 0;
-  return { blob, size };
 }
 function wrapLine(line, font, size, maxWidth){
   if (line === '') return [''];
@@ -4168,71 +4223,115 @@ async function buildDocx(pages, opts){
 })();
 
 /* ============================================================
-   TAB 3: SCANNEN
+   TAB 3: SCANNEN – Blatt erkennen, entzerren, wie ein Scan aufbereiten
    ============================================================ */
 (() => {
-  const addBtn = document.getElementById('scan-add-btn');
-  const input = document.getElementById('scan-input');
-  const queueEl = document.getElementById('scan-queue');
-  const emptyEl = document.getElementById('scan-empty');
-  const saveBtn = document.getElementById('scan-save');
-  const clearBtn = document.getElementById('scan-clear');
-  const statusEl = document.getElementById('scan-status');
-  const optimizeToggle = document.getElementById('scan-optimize-toggle');
-  const ocrToggle = document.getElementById('scan-ocr-toggle');
-  const filenameInput = document.getElementById('scan-filename');
+  const $ = id => document.getElementById(id);
+  const addBtn = $('scan-add-btn'), input = $('scan-input'), pickBtn = $('scan-pick-btn'), pickInput = $('scan-pick');
+  const queueEl = $('scan-queue'), emptyEl = $('scan-empty'), orderHint = $('scan-order-hint');
+  const saveBtn = $('scan-save'), clearBtn = $('scan-clear'), statusEl = $('scan-status');
+  const ocrToggle = $('scan-ocr-toggle'), filenameInput = $('scan-filename');
+  const FILTER_KEY = 'pdfconvert-scan-filter';
+  const FILTER_IDS = ['doc', 'gray', 'bw', 'original'];
+  let defaultFilter = FILTER_IDS.includes(lsGet(FILTER_KEY)) ? lsGet(FILTER_KEY) : 'doc';
+  let queue = [];   // { file, corners, found, rot, filter, blob, url, w, h }
+  let working = false;
+  const tick = () => new Promise(r => requestAnimationFrame(() => setTimeout(r, 20)));
+  const isImage = f => /^image\//.test(f.type) || /\.(jpe?g|png|webp|gif|bmp|heic|heif)$/i.test(f.name);
+  const clonePts = q => q.map(p => ({ x: p.x, y: p.y }));
 
-  let queue = []; // {file, url}
+  function scannerReady(){
+    if (window.DocScanner) return true;
+    showStatus(statusEl, 'Der Scanner konnte nicht geladen werden. Bitte die App einmal mit Internetverbindung neu laden.', 'error');
+    return false;
+  }
+  // Ergebnis als Bilddatei speichern (Schwarzweiß verlustfrei, sonst JPEG)
+  async function setOutput(item, canvas){
+    const png = item.filter === 'bw';
+    const blob = await canvasToBlob(canvas, png ? 'image/png' : 'image/jpeg', png ? undefined : 0.88);
+    if (item.url) URL.revokeObjectURL(item.url);
+    item.blob = blob; item.url = URL.createObjectURL(blob); item.w = canvas.width; item.h = canvas.height;
+  }
+  async function processItem(item, src){
+    const rect = DocScanner.rectify(src, item.corners, item.rot);
+    const out = DocScanner.enhance(rect, item.filter);
+    await setOutput(item, out);
+    out.width = out.height = 0;
+  }
 
-  const pickBtn = document.getElementById('scan-pick-btn');
-  const pickInput = document.getElementById('scan-pick');
-  const orderHint = document.getElementById('scan-order-hint');
+  /* ---------- Fotos hinzufügen ---------- */
+  async function addFiles(files){
+    const imgs = files.filter(isImage);
+    if (!imgs.length || working || !scannerReady()) return;
+    statusEl.className = 'status';
+    if (imgs.length === 1) { openEditor({ file: imgs[0], corners: null, rot: 0, filter: defaultFilter }, true); return; }
+    working = true; addBtn.disabled = pickBtn.disabled = saveBtn.disabled = true;
+    let ok = 0, missed = 0, failed = 0;
+    for (let k = 0; k < imgs.length; k++) {
+      showStatus(statusEl, `Seite ${k + 1} von ${imgs.length} wird aufbereitet …`);
+      await tick();
+      let src = null;
+      try {
+        src = await DocScanner.loadImage(imgs[k]);
+        const det = DocScanner.detect(src);
+        const item = { file: imgs[k], corners: det.corners, found: det.found, rot: 0, filter: defaultFilter };
+        await processItem(item, src);
+        queue.push(item); ok++;
+        if (!det.found) missed++;
+        refresh();
+      } catch (e) { failed++; }
+      finally { if (src) src.width = src.height = 0; }
+    }
+    working = false; addBtn.disabled = pickBtn.disabled = false;
+    refresh();
+    let msg = `${ok} ${ok === 1 ? 'Seite' : 'Seiten'} aufbereitet. Tippe auf eine Seite, um Zuschnitt oder Filter anzupassen.`;
+    if (missed) msg += ` Bei ${missed} ${missed === 1 ? 'Seite' : 'Seiten'} wurde kein Blattrand erkannt – bitte prüfen.`;
+    if (failed) msg += ` ${failed} ${failed === 1 ? 'Bild konnte' : 'Bilder konnten'} nicht gelesen werden.`;
+    showStatus(statusEl, msg, failed ? 'error' : 'ok');
+  }
   addBtn.addEventListener('click', () => input.click());
   pickBtn.addEventListener('click', () => pickInput.click());
-  function addImages(files){
-    const imgs = files.filter(f => /^image\//.test(f.type) || /\.(jpe?g|png|webp|gif|bmp)$/i.test(f.name));
-    imgs.forEach(f => queue.push({ file: f, url: URL.createObjectURL(f) }));
-    if (imgs.length) statusEl.className = 'status';
-    refresh();
-  }
   for (const el of [input, pickInput]) {
-    el.addEventListener('change', () => {
-      const files = Array.from(el.files);
-      el.value = '';
-      addImages(files);
-    });
+    el.addEventListener('change', () => { const files = Array.from(el.files); el.value = ''; addFiles(files); });
   }
 
+  /* ---------- Seitenübersicht ---------- */
   function refresh(){
     queueEl.innerHTML = '';
     emptyEl.style.display = queue.length ? 'none' : 'block';
     queue.forEach((item, i) => {
       const div = document.createElement('div');
       div.className = 'item';
-      const img = document.createElement('img'); img.src = item.url;
-      const num = document.createElement('div'); num.className = 'num'; num.textContent = i+1;
-      img.alt = 'Seite ' + (i + 1);
+      div.setAttribute('role', 'button');
+      div.tabIndex = 0;
+      div.setAttribute('aria-label', `Seite ${i + 1} bearbeiten`);
+      const img = document.createElement('img'); img.src = item.url; img.alt = 'Seite ' + (i + 1);
+      const num = document.createElement('div'); num.className = 'num'; num.textContent = i + 1;
+      div.appendChild(img); div.appendChild(num);
+      if (!item.found) { const w = document.createElement('div'); w.className = 'warn'; w.textContent = 'Rand prüfen'; div.appendChild(w); }
       const rm = document.createElement('button'); rm.type = 'button'; rm.className = 'rm'; rm.innerHTML = ICONS.close;
       rm.setAttribute('aria-label', `Seite ${i + 1} entfernen`);
-      rm.onclick = () => { URL.revokeObjectURL(item.url); queue.splice(i,1); refresh(); };
-      div.appendChild(img); div.appendChild(num); div.appendChild(rm);
+      rm.onclick = e => { e.stopPropagation(); URL.revokeObjectURL(item.url); queue.splice(i, 1); refresh(); };
+      div.appendChild(rm);
       const swap = j => { const t = queue[i]; queue[i] = queue[j]; queue[j] = t; refresh(); };
       if (i > 0) {
         const l = document.createElement('button'); l.type = 'button'; l.className = 'mv left'; l.innerHTML = ICONS.left;
-        l.setAttribute('aria-label', `Seite ${i + 1} nach vorn`); l.onclick = () => swap(i - 1); div.appendChild(l);
+        l.setAttribute('aria-label', `Seite ${i + 1} nach vorn`); l.onclick = e => { e.stopPropagation(); swap(i - 1); }; div.appendChild(l);
       }
       if (i < queue.length - 1) {
         const r = document.createElement('button'); r.type = 'button'; r.className = 'mv right'; r.innerHTML = ICONS.right;
-        r.setAttribute('aria-label', `Seite ${i + 1} nach hinten`); r.onclick = () => swap(i + 1); div.appendChild(r);
+        r.setAttribute('aria-label', `Seite ${i + 1} nach hinten`); r.onclick = e => { e.stopPropagation(); swap(i + 1); }; div.appendChild(r);
       }
+      const open = () => { if (!working) openEditor(item, false); };
+      div.addEventListener('click', open);
+      div.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
       queueEl.appendChild(div);
     });
-    orderHint.hidden = queue.length < 2;
-    saveBtn.disabled = queue.length === 0;
-    clearBtn.disabled = queue.length === 0;
+    orderHint.hidden = !queue.length;
+    saveBtn.disabled = !queue.length || working;
+    clearBtn.disabled = !queue.length || working;
   }
   refresh();
-
   clearBtn.addEventListener('click', () => {
     queue.forEach(i => URL.revokeObjectURL(i.url));
     queue = [];
@@ -4240,8 +4339,226 @@ async function buildDocx(pages, opts){
     statusEl.className = 'status';
   });
 
+  /* ---------- Editor: Ecken ziehen, Filter, Drehen ---------- */
+  const ed = {
+    el: $('sed'), stage: $('sed-stage'), canvas: $('sed-canvas'), svg: $('sed-svg'), loupe: $('sed-loupe'),
+    busy: $('sed-busy'), busyText: $('sed-busy-text'), title: $('sed-title'), next: $('sed-next'), cancel: $('sed-cancel'),
+    hint: $('sed-hint'), filters: $('sed-filters'), auto: $('sed-auto'), full: $('sed-full'), crop: $('sed-crop'), rotate: $('sed-rotate')
+  };
+  const filterBtns = ed.filters.querySelectorAll('button');
+  let E = null;   // aktueller Editor-Zustand
+
+  function busy(text){ ed.busyText.textContent = text; ed.busy.hidden = false; }
+  function idle(){ ed.busy.hidden = true; }
+  async function openEditor(item, isNew){
+    E = { item, isNew, src: null, corners: item.corners ? clonePts(item.corners) : null, rot: item.rot || 0, filter: item.filter || defaultFilter,
+          found: item.found, mode: 'crop', rect: null, rectRot: null, out: null, disp: null, drag: -1 };
+    ed.el.hidden = false;
+    document.body.style.overflow = 'hidden';
+    setMode('crop');
+    busy('Foto wird ausgewertet …');
+    ed.next.disabled = true;
+    await tick();
+    try {
+      E.src = await DocScanner.loadImage(item.file);
+      if (!E) return;
+      if (!E.corners) { const det = DocScanner.detect(E.src); E.corners = det.corners; E.found = det.found; }
+    } catch (e) {
+      closeEditor();
+      showStatus(statusEl, (e && e.message) || 'Das Foto konnte nicht gelesen werden.', 'error');
+      return;
+    }
+    idle();
+    ed.next.disabled = false;
+    if (isNew) setMode('crop'); else await toResult();
+    updateHint();
+  }
+  function closeEditor(){
+    if (E) for (const c of [E.src, E.rect, E.rectRot, E.out]) if (c) c.width = c.height = 0;
+    E = null;
+    ed.el.hidden = true;
+    ed.loupe.hidden = true;
+    document.body.style.overflow = '';
+  }
+  function updateHint(){
+    if (!E) return;
+    if (E.mode === 'crop') ed.hint.textContent = E.found === false
+      ? 'Kein Blattrand erkannt – ziehe die Ecken auf die Ränder des Dokuments.'
+      : 'Ziehe die Ecken auf die Ränder des Dokuments.';
+    else ed.hint.textContent = 'Filter wählen oder drehen – mit „Fertig“ übernehmen.';
+  }
+  function setMode(m){
+    E.mode = m;
+    const crop = m === 'crop';
+    ed.title.textContent = crop ? 'Zuschneiden' : 'Ergebnis';
+    ed.next.textContent = crop ? 'Weiter' : 'Fertig';
+    ed.filters.hidden = crop;
+    ed.auto.hidden = !crop; ed.full.hidden = !crop;
+    ed.crop.hidden = crop; ed.rotate.hidden = crop;
+    ed.svg.style.display = crop ? '' : 'none';
+    filterBtns.forEach(b => { const on = b.dataset.filter === E.filter; b.classList.toggle('active', on); b.setAttribute('aria-checked', on ? 'true' : 'false'); });
+    updateHint();
+    layout();
+  }
+  // Bild in die Bühne einpassen und zeichnen
+  function layout(){
+    if (!E) return;
+    const img = E.mode === 'crop' ? E.src : E.out;
+    if (!img) return;
+    const sw = ed.stage.clientWidth, sh = ed.stage.clientHeight, pad = 18;
+    const k = Math.min((sw - 2 * pad) / img.width, (sh - 2 * pad) / img.height);
+    const dw = Math.max(1, Math.round(img.width * k)), dh = Math.max(1, Math.round(img.height * k));
+    const ox = Math.round((sw - dw) / 2), oy = Math.round((sh - dh) / 2);
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const c = ed.canvas;
+    c.width = Math.round(dw * dpr); c.height = Math.round(dh * dpr);
+    Object.assign(c.style, { width: dw + 'px', height: dh + 'px', left: ox + 'px', top: oy + 'px' });
+    const x = c.getContext('2d');
+    x.imageSmoothingQuality = 'high';
+    x.drawImage(img, 0, 0, c.width, c.height);
+    E.disp = { k, ox, oy, dw, dh };
+    Object.assign(ed.svg.style, { width: dw + 'px', height: dh + 'px', left: ox + 'px', top: oy + 'px' });
+    ed.svg.setAttribute('viewBox', `0 0 ${dw} ${dh}`);
+    drawOverlay();
+  }
+  function drawOverlay(){
+    if (!E || E.mode !== 'crop' || !E.disp || !E.corners) return;
+    const { k, dw, dh } = E.disp;
+    const P = E.corners.map(p => [p.x * k, p.y * k]);
+    const poly = P.map(p => p.join(',')).join(' ');
+    let h = `<path d="M-4000 -4000H${dw + 4000}V${dh + 4000}H-4000Z M${P.map(p => p.join(' ')).join(' L')}Z" fill="rgba(11,18,32,.55)" fill-rule="evenodd"/>`;
+    h += `<polygon points="${poly}" fill="rgba(91,140,255,.10)" stroke="#5B8CFF" stroke-width="2" stroke-linejoin="round"/>`;
+    P.forEach((p, i) => {
+      h += `<circle cx="${p[0]}" cy="${p[1]}" r="14" fill="rgba(91,140,255,${E.drag === i ? .45 : .22})" stroke="#fff" stroke-width="2.5"/>`;
+      h += `<circle cx="${p[0]}" cy="${p[1]}" r="3.5" fill="#fff"/>`;
+    });
+    ed.svg.innerHTML = h;
+  }
+  function drawLoupe(i){
+    const L = ed.loupe, p = E.corners[i], { k } = E.disp;
+    const R = 120 / (2.4 * k);                 // sichtbarer Ausschnitt in Bildpunkten (2,4-fach vergrößert)
+    const x = L.getContext('2d');
+    x.fillStyle = '#111'; x.fillRect(0, 0, 240, 240);
+    x.drawImage(E.src, p.x - R / 2, p.y - R / 2, R, R, 0, 0, 240, 240);
+    const toL = q => [(q.x - (p.x - R / 2)) * 240 / R, (q.y - (p.y - R / 2)) * 240 / R];
+    x.strokeStyle = '#5B8CFF'; x.lineWidth = 3;
+    x.beginPath();
+    const a = toL(E.corners[(i + 3) % 4]), b = toL(p), c = toL(E.corners[(i + 1) % 4]);
+    x.moveTo(a[0], a[1]); x.lineTo(b[0], b[1]); x.lineTo(c[0], c[1]); x.stroke();
+    x.strokeStyle = '#fff'; x.lineWidth = 1.5;
+    x.beginPath(); x.moveTo(120, 100); x.lineTo(120, 140); x.moveTo(100, 120); x.lineTo(140, 120); x.stroke();
+    const onLeft = p.x * k < E.disp.dw / 2;
+    L.classList.toggle('right', onLeft);
+    L.hidden = false;
+  }
+  // Ecken mit dem Finger ziehen (auch knapp neben dem Punkt greifbar)
+  ed.stage.addEventListener('pointerdown', e => {
+    if (!E || E.mode !== 'crop' || !E.disp || !E.corners || !ed.busy.hidden) return;
+    const r = ed.canvas.getBoundingClientRect();
+    const x = e.clientX - r.left, y = e.clientY - r.top;
+    let best = -1, bd = 48;
+    E.corners.forEach((p, i) => { const d = Math.hypot(p.x * E.disp.k - x, p.y * E.disp.k - y); if (d < bd) { bd = d; best = i; } });
+    if (best < 0) return;
+    E.drag = best;
+    E.grab = { dx: E.corners[best].x * E.disp.k - x, dy: E.corners[best].y * E.disp.k - y };
+    try { ed.stage.setPointerCapture(e.pointerId); } catch (err) { /* egal */ }
+    e.preventDefault();
+    drawOverlay(); drawLoupe(best);
+  });
+  ed.stage.addEventListener('pointermove', e => {
+    if (!E || E.drag < 0) return;
+    const r = ed.canvas.getBoundingClientRect(), { k } = E.disp;
+    const x = (e.clientX - r.left + E.grab.dx) / k, y = (e.clientY - r.top + E.grab.dy) / k;
+    E.corners[E.drag] = { x: Math.max(0, Math.min(E.src.width, x)), y: Math.max(0, Math.min(E.src.height, y)) };
+    E.found = true;
+    drawOverlay(); drawLoupe(E.drag);
+    e.preventDefault();
+  });
+  const endDrag = () => { if (!E || E.drag < 0) return; E.drag = -1; ed.loupe.hidden = true; drawOverlay(); updateHint(); };
+  ed.stage.addEventListener('pointerup', endDrag);
+  ed.stage.addEventListener('pointercancel', endDrag);
+
+  // Ergebnis berechnen (entzerren, drehen, aufbereiten)
+  function rebuildRotated(){
+    if (E.rectRot && E.rectRot !== E.rect) E.rectRot.width = E.rectRot.height = 0;
+    E.rectRot = DocScanner.rotateCanvas(E.rect, E.rot);
+  }
+  function rebuildOut(){
+    if (E.out) E.out.width = E.out.height = 0;
+    E.out = DocScanner.enhance(DocScanner.cloneCanvas(E.rectRot), E.filter);
+  }
+  function filterThumbs(){
+    const small = document.createElement('canvas');
+    const k = Math.min(1, 150 / Math.max(E.rectRot.width, E.rectRot.height));
+    small.width = Math.max(1, Math.round(E.rectRot.width * k)); small.height = Math.max(1, Math.round(E.rectRot.height * k));
+    small.getContext('2d').drawImage(E.rectRot, 0, 0, small.width, small.height);
+    filterBtns.forEach(b => {
+      const t = DocScanner.enhance(DocScanner.cloneCanvas(small), b.dataset.filter);
+      b.querySelector('.th').style.backgroundImage = `url(${t.toDataURL('image/jpeg', 0.8)})`;
+    });
+  }
+  async function toResult(){
+    busy('Seite wird aufbereitet …');
+    await tick();
+    try {
+      if (E.rect) E.rect.width = E.rect.height = 0;
+      E.rect = DocScanner.rectify(E.src, E.corners, 0);
+      rebuildRotated(); rebuildOut();
+      filterThumbs();
+      setMode('result');
+    } finally { idle(); }
+  }
+  async function changeFilter(f){
+    if (!E || E.mode !== 'result' || f === E.filter) return;
+    E.filter = f;
+    busy('Filter wird angewendet …'); await tick();
+    try { rebuildOut(); setMode('result'); } finally { idle(); }
+  }
+  filterBtns.forEach(b => b.addEventListener('click', () => changeFilter(b.dataset.filter)));
+  ed.rotate.addEventListener('click', async () => {
+    if (!E || E.mode !== 'result') return;
+    E.rot = (E.rot + 1) % 4;
+    busy('Seite wird gedreht …'); await tick();
+    try { rebuildRotated(); rebuildOut(); filterThumbs(); layout(); } finally { idle(); }
+  });
+  ed.crop.addEventListener('click', () => { if (E) setMode('crop'); });
+  ed.auto.addEventListener('click', async () => {
+    if (!E || !E.src) return;
+    busy('Blattrand wird gesucht …'); await tick();
+    try { const det = DocScanner.detect(E.src); E.corners = det.corners; E.found = det.found; drawOverlay(); updateHint(); } finally { idle(); }
+  });
+  ed.full.addEventListener('click', () => { if (!E || !E.src) return; E.corners = DocScanner.fullCorners(E.src); E.found = true; drawOverlay(); updateHint(); });
+  ed.cancel.addEventListener('click', closeEditor);
+  ed.next.addEventListener('click', async () => {
+    if (!E || !E.src) return;
+    if (E.mode === 'crop') { await toResult(); return; }
+    // Fertig: Seite übernehmen
+    const item = E.item, isNew = E.isNew;
+    busy('Seite wird gespeichert …'); await tick();
+    try {
+      item.corners = clonePts(E.corners); item.rot = E.rot; item.filter = E.filter; item.found = E.found !== false;
+      await setOutput(item, E.out);
+      defaultFilter = E.filter; lsSet(FILTER_KEY, defaultFilter);
+      if (isNew) queue.push(item);
+    } finally { idle(); }
+    closeEditor();
+    refresh();
+    statusEl.className = 'status';
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && E) closeEditor(); });
+  window.addEventListener('resize', () => { if (E) layout(); });
+
+  /* ---------- Als PDF speichern ---------- */
+  // Seitengröße: A4, wenn das Seitenverhältnis passt, sonst passend zum Scan (Breite wie A4)
+  function pageSize(w, h){
+    const r = h / w;
+    if (Math.abs(r - Math.SQRT2) < 0.03) return [PAGE_W, PAGE_H];
+    if (Math.abs(1 / r - Math.SQRT2) < 0.03) return [PAGE_H, PAGE_W];
+    return r >= 1 ? [PAGE_W, PAGE_W * r] : [PAGE_W / r, PAGE_W];
+  }
   saveBtn.addEventListener('click', async () => {
-    saveBtn.disabled = true;
+    if (!queue.length || working) return;
+    working = true; saveBtn.disabled = true;
     showStatus(statusEl, 'Erstelle PDF …');
     try {
       const doc = await PDFLib.PDFDocument.create();
@@ -4250,15 +4567,17 @@ async function buildDocx(pages, opts){
       let recognized = 0, ocrError = null;
       for (let k = 0; k < queue.length; k++) {
         const item = queue[k];
-        const img = await embedImageFile(doc, item.file, optimizeToggle.checked);
-        const place = addImagePage(doc, img);
+        const bytes = new Uint8Array(await item.blob.arrayBuffer());
+        const img = item.blob.type === 'image/png' ? await doc.embedPng(bytes) : await doc.embedJpg(bytes);
+        const [pw, ph] = pageSize(item.w, item.h);
+        const page = doc.addPage([pw, ph]);
+        page.drawImage(img, { x: 0, y: 0, width: pw, height: ph });
         if (!useOcr || ocrError) continue;
         try {
-          const { blob, size } = await imageFileToOcrBlob(item.file, optimizeToggle.checked);
-          const data = await ocrImage(blob, msg => showStatus(statusEl, `Seite ${k + 1} von ${queue.length}: ${msg}`));
-          const sx = place.w / size.w, sy = place.h / size.h;
-          const words = ocrWords(data, (px, py) => [place.x + px * sx, place.y + place.h - py * sy], sx);
-          if (await addInvisibleText(doc, place.page, words, cache)) recognized++;
+          const data = await ocrImage(item.blob, msg => showStatus(statusEl, `Seite ${k + 1} von ${queue.length}: ${msg}`));
+          const sx = pw / item.w, sy = ph / item.h;
+          const words = ocrWords(data, (px, py) => [px * sx, ph - py * sy], sx);
+          if (await addInvisibleText(doc, page, words, cache)) recognized++;
         } catch (e) {
           ocrError = e;   // PDF trotzdem speichern, nur ohne Texterkennung
         }
@@ -4270,9 +4589,10 @@ async function buildDocx(pages, opts){
       else if (useOcr) showStatus(statusEl, `Fertig – ${pages} gespeichert, Text auf ${recognized} ${recognized === 1 ? 'Seite' : 'Seiten'} erkannt (durchsuchbar).`, 'ok');
       else showStatus(statusEl, `Fertig – ${pages} gespeichert.`, 'ok');
     } catch (e) {
-      showStatus(statusEl, 'Fehler: ' + e.message, 'error');
+      showStatus(statusEl, 'Fehler: ' + ((e && e.message) || e), 'error');
     }
-    saveBtn.disabled = false;
+    working = false;
+    refresh();
   });
 })();
 
